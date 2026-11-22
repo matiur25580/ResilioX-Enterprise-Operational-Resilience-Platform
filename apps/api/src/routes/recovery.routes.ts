@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
-import { canApproveRunbook, canStartRecoveryStep, canTransitionRecoveryStep, hasDependencyCycle, isSimulationReady } from '../lib/recovery-orchestration.js';
+import { canApproveRunbook, canStartRecoveryStep, canTransitionRecoveryStep, compareRecoveryTarget, hasDependencyCycle, isSimulationReady } from '../lib/recovery-orchestration.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { AppError } from '../middleware/error-handler.js';
 
@@ -324,14 +324,18 @@ recoveryRouter.post('/simulations/:simulationId/complete', requirePermission('co
   if (current.status !== 'RUNNING' || current.steps.some(step => ['PENDING', 'READY', 'IN_PROGRESS'].includes(step.status))) {
     throw new AppError(409, 'RECOVERY_SIMULATION_INCOMPLETE', 'Every simulation step must have a recorded outcome before completion.');
   }
+  const hasBlockingOutcome = current.steps.some(step => ['FAILED', 'BLOCKED'].includes(step.status));
+  const terminalStatus = hasBlockingOutcome ? 'BLOCKED' : 'COMPLETED';
+  const rtoAssessment = compareRecoveryTarget(current.targetRtoMinutes, input.simulatedElapsedMinutes);
+  const rpoAssessment = compareRecoveryTarget(current.targetRpoMinutes, input.dataLossAssumptionMinutes);
   const updated = await prisma.$transaction(async tx => {
     const changed = await tx.recoverySimulation.updateMany({
       where: { id: simulationId, organizationId, status: 'RUNNING' },
-      data: { status: 'COMPLETED', completedAt: new Date(), summary: input.summary, simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes },
+      data: { status: terminalStatus, completedAt: new Date(), summary: input.summary, simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes },
     });
     if (changed.count !== 1) throw new AppError(409, 'RECOVERY_SIMULATION_CONCURRENT_UPDATE', 'The simulation changed while completing. Refresh and try again.');
-    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: 'SIMULATION_COMPLETED', message: 'Simulation completed. Results represent rehearsal observations, not proof of real recovery capability.', metadata: { simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes, targetRtoMinutes: current.targetRtoMinutes, targetRpoMinutes: current.targetRpoMinutes } } });
-    await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'recovery.simulation_completed', targetType: 'recovery_simulation', targetId: simulationId } });
+    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: hasBlockingOutcome ? 'SIMULATION_BLOCKED' : 'SIMULATION_COMPLETED', message: hasBlockingOutcome ? 'Simulation closed with failed or blocked steps. Results represent rehearsal observations only.' : 'Simulation completed. Results represent rehearsal observations, not proof of real recovery capability.', metadata: { simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes, targetRtoMinutes: current.targetRtoMinutes, targetRpoMinutes: current.targetRpoMinutes, rtoAssessment, rpoAssessment } } });
+    await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: hasBlockingOutcome ? 'recovery.simulation_blocked' : 'recovery.simulation_completed', targetType: 'recovery_simulation', targetId: simulationId } });
     return tx.recoverySimulation.findFirstOrThrow({ where: { id: simulationId }, include: { steps: true, events: { orderBy: { createdAt: 'asc' } } } });
   });
   res.json({ data: updated });
