@@ -4,7 +4,7 @@
 
 **ContinuityGrid** is a portfolio-grade enterprise platform concept built with the PERN stack. It brings business continuity, operational risk, technology dependencies, third-party resilience, incident response, and disaster recovery into one traceable operating model.
 
-> **Project status:** Architecture and foundation phase. Features described in the roadmap are planned until implemented and tested. Integrations and scenario data will be explicitly labelled as simulated unless connected to a verified external system.
+> **Project status:** Milestones 01–04 have implementation and CI coverage; milestone pull requests are open for review. Future capabilities remain planned until implemented and tested. Integrations and scenario data are explicitly labelled as simulated unless connected to a verified external system.
 
 ## Why ContinuityGrid?
 
@@ -32,7 +32,7 @@ ContinuityGrid is designed to connect those records through a shared service-and
 
 ## Technology direction
 
-- **Frontend:** React, TypeScript, Vite, Tailwind CSS, accessible component system
+- **Frontend:** React 19, TypeScript, Vite, responsive CSS design system, Lucide icons and Recharts
 - **Backend:** Node.js, Express, TypeScript
 - **Database:** PostgreSQL with Prisma ORM
 - **Validation & API contracts:** Zod and OpenAPI
@@ -81,7 +81,7 @@ continuitygrid/
 └── README.md
 ```
 
-This is the intended structure; directories will appear as their milestones are implemented.
+The web and API workspaces are now present. Shared contracts and configuration packages remain planned.
 
 ## Development roadmap
 
@@ -89,8 +89,8 @@ This is the intended structure; directories will appear as their milestones are 
 | --- | --- | --- |
 | 01 | Product definition, architecture, repository standards | Completed |
 | 02 | PostgreSQL schema, Prisma and API foundation | Completed (tooling advisory tracked) |
-| 03 | Authentication, sessions, tenancy and RBAC | Planned |
-| 04 | Design system, application shell and command center | Planned |
+| 03 | Authentication, sessions, tenancy and RBAC | Implemented; CI passed, PR open |
+| 04 | Design system, application shell and command center | Implemented; CI passed, PR open |
 | 05 | Business impact analysis | Planned |
 | 06 | Service and dependency intelligence | Planned |
 | 07 | Operational risk and controls | Planned |
@@ -110,7 +110,7 @@ See [the detailed roadmap](docs/roadmap.md) and [architecture decision record](d
 
 ## Local development
 
-The exact setup commands will be added when the application workspace and package manifests are introduced in Milestone 02. Do not copy secrets into the repository. Use `.env.example` for documented variable names and keep actual credentials in local environment configuration.
+See [the full-stack development guide](docs/development-setup.md). The short version is: copy `.env.example` to `.env`, set a unique `AUTH_TOKEN_SECRET`, start PostgreSQL/Redis with Docker Compose, run `npm install`, apply migrations, then start the API with `npm run dev:api` and the web app with `npm run dev:web`. The fictional demo seed is opt-in and refuses to run in production.
 
 ## Quality gates
 
