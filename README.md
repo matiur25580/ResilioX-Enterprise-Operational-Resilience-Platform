@@ -77,7 +77,7 @@ ResilioX brings those records into a shared service-centric model. It emphasizes
 
 ## Dashboard showcase — 12 views
 
-The gallery is a single-column sequence of genuine 1440px-wide application captures. To publish it after your manual deployment, configure the two repository Actions secrets `DEMO_EMAIL` and `DEMO_PASSWORD` with a dedicated synthetic demo account, then run **Actions → Capture dashboard showcase → Run workflow**. Supply the deployed demo URL and workspace slug. The workflow uses Playwright to capture the live app, verifies that all twelve PNGs exist, and commits them to `main`. Never use production credentials or customer data.
+The gallery is a single-column sequence of twelve **illustrative SVG UI concepts**, not screenshots of a deployed application. Every metric, name and record shown is fictional sample content and each panel is labeled **ILLUSTRATIVE • NOT LIVE DATA**. These visuals communicate intended product workflows; they are not evidence that a screen, integration or feature is live. Edit the SVG files in `docs/screenshots/` to revise the concepts.
 
 ### 1. Executive command center
 
