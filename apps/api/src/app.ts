@@ -8,6 +8,7 @@ import { requestIdMiddleware } from './middleware/request-id.js';
 import { logger } from './lib/logger.js';
 import { healthRouter } from './routes/health.routes.js';
 import { authRouter } from './routes/auth.routes.js';
+import { commandCenterRouter } from './routes/command-center.routes.js';
 
 export const app = express();
 
@@ -52,5 +53,6 @@ app.get('/', (_req, res) => {
 
 app.use(`${env.API_BASE_PATH}/health`, healthRouter);
 app.use(`${env.API_BASE_PATH}/auth`, authRouter);
+app.use(`${env.API_BASE_PATH}/command-center`, commandCenterRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
