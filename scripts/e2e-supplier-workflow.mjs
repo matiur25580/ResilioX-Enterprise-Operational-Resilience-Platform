@@ -38,7 +38,7 @@ if (registration.status !== 201) {
 }
 
 const browser = await chromium.launch({ headless: true });
-const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 await page.emulateMedia({ reducedMotion: 'reduce' });
 const pageErrors = [];
 page.on('pageerror', error => pageErrors.push(error.message));
@@ -52,6 +52,7 @@ try {
   await page.getByRole('button', { name: 'Suppliers' }).waitFor({ state: 'visible' });
   await page.getByRole('button', { name: 'Suppliers' }).click();
   await page.getByRole('heading', { name: 'Supplier resilience & assurance' }).waitFor();
+  await page.setViewportSize({ width: 390, height: 844 });
 
   const unnamedControls = await page.locator('.supplier-page input:not([type="hidden"]), .supplier-page select, .supplier-page textarea').evaluateAll(elements =>
     elements.filter(element => !element.labels?.length && !element.getAttribute('aria-label') && !element.getAttribute('aria-labelledby'))
