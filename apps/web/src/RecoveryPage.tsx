@@ -27,6 +27,7 @@ export function RecoveryPage({token}:{token:string}){
    api<{data:Runbook[]}>('/recovery/runbooks?limit=100',{},token),
    api<{data:Simulation[]}>('/recovery/simulations?limit=100',{},token),
    api<Service[]>('/continuity/services',{},token),
+   api<ContinuityPlan[]>('/continuity',{},token),
    api<Incident[]>('/incidents?limit=100',{},token),
   ]);
   setRunbooks(r.data);setSimulations(s.data);setServices(v);setContinuityPlans(p);setIncidents(i);
@@ -35,6 +36,7 @@ export function RecoveryPage({token}:{token:string}){
   api<{data:Runbook[]}>('/recovery/runbooks?limit=100',{},token),
   api<{data:Simulation[]}>('/recovery/simulations?limit=100',{},token),
   api<Service[]>('/continuity/services',{},token),
+  api<ContinuityPlan[]>('/continuity',{},token),
   api<Incident[]>('/incidents?limit=100',{},token),
  ]).then(([r,s,v,p,i])=>{if(active){setRunbooks(r.data);setSimulations(s.data);setServices(v);setContinuityPlans(p);setIncidents(i);}}).catch(e=>{if(active)setError(e instanceof Error?e.message:'Unable to load recovery workspace.');}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[token]);
  async function run(action:()=>Promise<unknown>,message:string){setBusy(true);setError('');setNotice('');try{await action();await refresh();if(expandedSim){const detail=await api<Simulation>('/recovery/simulations/'+expandedSim,{},token);setSimulationDetails(v=>({...v,[expandedSim]:detail}));}setNotice(message);return true;}catch(e){setError(e instanceof Error?e.message:'Recovery action failed.');return false;}finally{setBusy(false);}}
