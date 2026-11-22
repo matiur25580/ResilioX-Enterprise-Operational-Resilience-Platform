@@ -8,7 +8,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. Milestone 09 incident command implementation is in PR #12 and is awaiting automated validation/review. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. Milestone 09 incident command and response workflows are merged to `main` in PR #12; API quality gates passed. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -68,7 +68,7 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 | Operational risk | Risk register, inherent/residual scoring, service/dependency links and treatment actions | Implemented |
 | Control assurance | Control library, evidence-backed test status and residual-risk recalculation | Implemented |
 | Business continuity | Service-linked versioned plans, activation criteria, recovery procedures, approval, exercises and remediation | Merged to `main` in PR #11; CI passed |
-| Incident & crisis management | Tenant-scoped incident register, SEV-1–SEV-4 classification, guarded lifecycle, commander ownership, timeline, response tasks and audit events | Implemented on PR #12; CI/review pending |
+| Incident & crisis management | Tenant-scoped incident register, SEV-1–SEV-4 classification, guarded lifecycle, commander ownership, timeline, response tasks and audit events | Merged in PR #12; API quality gates passed |
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
 | Scenario simulation | Reproducible disruption and recovery-priority modelling | Planned |
