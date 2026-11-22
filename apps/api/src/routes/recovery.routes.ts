@@ -210,6 +210,7 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
       ],
     },
     select: { sourceType: true, sourceId: true, targetType: true, targetId: true, type: true, status: true, criticality: true, confidence: true, verifiedAt: true },
+    orderBy: [{ sourceId: 'asc' }, { targetId: 'asc' }],
     take: 250,
   });
   const dependencySnapshot = serviceDependencySnapshot.map(item => ({ ...item, verifiedAt: item.verifiedAt?.toISOString() ?? null }));
@@ -248,7 +249,7 @@ recoveryRouter.post('/simulations/:simulationId/start', requirePermission('conti
     if (changed.count !== 1) throw new AppError(409, 'RECOVERY_SIMULATION_CONCURRENT_UPDATE', 'The simulation changed while starting. Refresh and try again.');
     await tx.recoverySimulation.update({ where: { id: simulationId }, data: { status: 'RUNNING', startedAt: now } });
     await tx.recoverySimulationStep.updateMany({ where: { simulationId, runbookStep: { predecessors: { none: {} } } }, data: { status: 'READY' } });
-    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: 'SIMULATION_STARTED', message: 'Simulation started. All actions are rehearsal records only.' } });
+    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: 'SIMULATION_STARTED', message: 'Simulation started. All actions are rehearsal records only.', metadata: { mandatoryPrerequisitesAcknowledged: input.prerequisitesAcknowledged } } });
     await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'recovery.simulation_started', targetType: 'recovery_simulation', targetId: simulationId } });
     return tx.recoverySimulation.findFirstOrThrow({ where: { id: simulationId }, include: { steps: true, events: { orderBy: { createdAt: 'asc' } } } });
   });
