@@ -16,7 +16,7 @@ const snapshotSchema = z.object({
   regulatory: z.number().int().min(1).max(5),
   reputational: z.number().int().min(1).max(5),
 });
-const assessmentSchema = z.object({
+export const assessmentSchema = z.object({
   processId: z.string().uuid(),
   ownerName: z.string().trim().min(2).max(120),
   mtpdMinutes: z.number().int().positive().max(525600),
