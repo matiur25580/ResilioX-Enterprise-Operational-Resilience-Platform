@@ -362,7 +362,7 @@ Set `CORS_ORIGIN=http://localhost:5173`. If the web app needs a different API ad
 
 See [Local Development](docs/development-setup.md) for troubleshooting and environment details.
 
-## Demo workspace and screenshot capture
+## Demo workspace and illustrative gallery
 
 The demo seed is fictional and disabled by default. To create a local showcase tenant:
 
@@ -372,21 +372,7 @@ The demo seed is fictional and disabled by default. To create a local showcase t
 4. Run `npm run db:seed`.
 5. Start the API and web application and sign in once to confirm the tenant works.
 
-The screenshot script uses Playwright and reads credentials from environment variables. It does not embed secrets in source files:
-
-```bash
-npm install
-npx playwright install chromium
-export SHOWCASE_BASE_URL=http://localhost:5173
-export SHOWCASE_EMAIL=admin@continuitygrid.local
-export SHOWCASE_PASSWORD='your-local-demo-password'
-export SHOWCASE_TENANT=continuitygrid-demo
-npm run capture:showcase
-```
-
-The script writes twelve PNGs into `docs/screenshots/`. Review each capture for real populated data, remove any sensitive information, then commit the PNG files with the documentation update. For the exercise and remediation screens, seed an approved continuity plan and a completed exercise with actions first. Never use production credentials or real customer data for screenshots.
-
-## Quality engineering
+The repository's `docs/screenshots/` directory contains twelve illustrative SVG UI concepts. They are fictional visual examples, not browser captures, deployed screens or live telemetry. Each panel is labeled **ILLUSTRATIVE • NOT LIVE DATA**. No screenshot-capture command is required to view this gallery. The demo seed remains disabled by default and must only be used with local fictional data; never use production credentials or customer data for portfolio visuals.\n\n## Quality engineering
 
 Run the core checks before opening or updating a pull request:
 
@@ -419,7 +405,7 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 06 | Service and dependency intelligence | Merged to `main` (PR #9); CI passed |
 | 07 | Operational risk and controls | Merged to `main` (PR #10); CI passed |
 | 08 | Business continuity management | Merged to `main` (PR #11); CI passed |
-| 09 | Incident and crisis management | Implementation in PR #12; CI/review pending |
+| 09 | Incident and crisis management | Merged to `main` (PR #12); API quality gates passed |
 | 10 | Disaster recovery orchestration | Planned |
 | 11 | Third-party resilience | Planned |
 | 12 | Scenario simulation | Planned |
