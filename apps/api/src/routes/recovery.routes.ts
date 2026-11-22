@@ -212,6 +212,7 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
     select: { sourceType: true, sourceId: true, targetType: true, targetId: true, type: true, status: true, criticality: true, confidence: true, verifiedAt: true },
     take: 250,
   });
+  const dependencySnapshot = serviceDependencySnapshot.map(item => ({ ...item, verifiedAt: item.verifiedAt?.toISOString() ?? null }));
   const simulation = await prisma.$transaction(async tx => {
     const created = await tx.recoverySimulation.create({
       data: {
@@ -221,7 +222,7 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
         runbookVersion: runbook.version,
         targetRtoMinutes: runbook.rtoMinutes,
         targetRpoMinutes: runbook.rpoMinutes,
-        dependencySnapshot: { capturedAt: new Date().toISOString(), serviceDependencies: serviceDependencySnapshot, runbookStepDependencies: runbook.steps.map(step => ({ stepId: step.id, predecessors: step.predecessors.map(item => item.predecessorStepId) })) },
+        dependencySnapshot: { capturedAt: new Date().toISOString(), serviceDependencies: dependencySnapshot, runbookStepDependencies: runbook.steps.map(step => ({ stepId: step.id, predecessors: step.predecessors.map(item => item.predecessorStepId) })) },
         steps: { create: runbook.steps.map(step => ({ runbookStepId: step.id })) },
       },
     });
