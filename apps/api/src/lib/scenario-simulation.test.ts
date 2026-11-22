@@ -15,10 +15,10 @@ describe('scenario impact engine', () => {
     { type: 'BUSINESS_SERVICE', id: 'low', name: 'Reporting', criticality: 'LOW' },
   ];
   const edges = [
-    edge('SUPPLIER', 'supplier', 'APPLICATION', 'app'),
-    edge('APPLICATION', 'app', 'BUSINESS_SERVICE', 'critical'),
-    edge('APPLICATION', 'app', 'BUSINESS_SERVICE', 'low'),
-    edge('SUPPLIER', 'supplier', 'BUSINESS_SERVICE', 'low', 'PROPOSED'),
+    edge('BUSINESS_SERVICE', 'critical', 'APPLICATION', 'app'),
+    edge('APPLICATION', 'app', 'SUPPLIER', 'supplier'),
+    edge('BUSINESS_SERVICE', 'low', 'APPLICATION', 'app'),
+    edge('BUSINESS_SERVICE', 'low', 'SUPPLIER', 'supplier', 'PROPOSED'),
   ];
 
   it('propagates verified edges only and ranks critical services first', () => {
@@ -43,7 +43,7 @@ describe('scenario impact engine', () => {
 
   it('does not traverse proposed or retired relationships', () => {
     const result = calculateScenarioImpact({
-      root: nodes[0], nodes, edges: [edge('SUPPLIER', 'supplier', 'BUSINESS_SERVICE', 'low', 'RETIRED')],
+      root: nodes[0], nodes, edges: [edge('BUSINESS_SERVICE', 'low', 'SUPPLIER', 'supplier', 'RETIRED')],
       durationHours: 4, severity: 'UNAVAILABLE',
     });
     expect(result.affectedNodes).toHaveLength(1);
