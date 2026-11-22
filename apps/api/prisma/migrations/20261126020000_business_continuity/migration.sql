@@ -22,6 +22,7 @@ CREATE TABLE "continuity_plans" (
   "status" "ContinuityPlanStatus" NOT NULL DEFAULT 'DRAFT',
   "review_due_at" TIMESTAMP(3),
   "submitted_at" TIMESTAMP(3),
+  "submitted_by" UUID,
   "approved_at" TIMESTAMP(3),
   "approved_by" UUID,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
