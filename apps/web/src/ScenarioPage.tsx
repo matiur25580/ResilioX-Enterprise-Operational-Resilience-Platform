@@ -14,11 +14,6 @@ type ScenarioResult = {
 };
 type ScenarioRun = { id: string; createdAt: string; templateId: string; notes: string | null; result: ScenarioResult };
 
-const typeLabels: Record<NodeType, string> = {
-  BUSINESS_SERVICE: 'Business service', BUSINESS_PROCESS: 'Business process',
-  APPLICATION: 'Application', TECHNOLOGY_ASSET: 'Technology asset', SUPPLIER: 'Supplier',
-};
-
 export function ScenarioPage({ token }: { token: string }) {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [nodes, setNodes] = useState<ScenarioNode[]>([]);
