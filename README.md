@@ -81,73 +81,73 @@ The gallery is a single-column sequence of genuine 1440px-wide application captu
 
 ### 1. Executive command center
 
-![Executive command center — portfolio KPIs, critical services and recent activity.](docs/screenshots/01-command-center.png)
+![Executive command center — portfolio KPIs, critical services and recent activity.](docs/screenshots/01-command-center.svg)
 
 Executive command center — portfolio KPIs, critical services and recent activity.
 
 ### 2. Business service portfolio
 
-![Business service portfolio — searchable service inventory and criticality context.](docs/screenshots/02-service-portfolio.png)
+![Business service portfolio — searchable service inventory and criticality context.](docs/screenshots/02-service-portfolio.svg)
 
 Business service portfolio — searchable service inventory and criticality context.
 
 ### 3. Business impact analysis
 
-![Business impact analysis — impact horizons and recovery objectives.](docs/screenshots/03-business-impact-analysis.png)
+![Business impact analysis — impact horizons and recovery objectives.](docs/screenshots/03-business-impact-analysis.svg)
 
 Business impact analysis — impact horizons and recovery objectives.
 
 ### 4. Dependency intelligence
 
-![Dependency intelligence — tenant-scoped relationships and verification status.](docs/screenshots/04-dependency-intelligence.png)
+![Dependency intelligence — tenant-scoped relationships and verification status.](docs/screenshots/04-dependency-intelligence.svg)
 
 Dependency intelligence — tenant-scoped relationships and verification status.
 
 ### 5. Dependency workflow
 
-![Dependency workflow — relationship capture and verification.](docs/screenshots/05-dependency-workflow.png)
+![Dependency workflow — relationship capture and verification.](docs/screenshots/05-dependency-workflow.svg)
 
 Dependency workflow — relationship capture and verification.
 
 ### 6. Operational risk register
 
-![Operational risk register — inherent and residual exposure.](docs/screenshots/06-risk-register.png)
+![Operational risk register — inherent and residual exposure.](docs/screenshots/06-risk-register.svg)
 
 Operational risk register — inherent and residual exposure.
 
 ### 7. Incident command and response
 
-![Incident command and response — severity, ownership and response timeline.](docs/screenshots/07-incident-response.png)
+![Incident command and response — severity, ownership and response timeline.](docs/screenshots/07-incident-response.svg)
 
 Incident command and response — severity, ownership and response timeline.
 
 ### 8. Control assurance
 
-![Control assurance — control library and evidence-backed testing.](docs/screenshots/08-control-assurance.png)
+![Control assurance — control library and evidence-backed testing.](docs/screenshots/08-control-assurance.svg)
 
 Control assurance — control library and evidence-backed testing.
 
 ### 9. Continuity workspace
 
-![Continuity workspace — plans, exercises and remediation posture.](docs/screenshots/09-continuity-workspace.png)
+![Continuity workspace — plans, exercises and remediation posture.](docs/screenshots/09-continuity-workspace.svg)
 
 Continuity workspace — plans, exercises and remediation posture.
 
 ### 10. Continuity plan builder
 
-![Continuity plan builder — activation, recovery and communications.](docs/screenshots/10-continuity-plan-builder.png)
+![Continuity plan builder — activation, recovery and communications.](docs/screenshots/10-continuity-plan-builder.svg)
 
 Continuity plan builder — activation, recovery and communications.
 
 ### 11. Exercise management
 
-![Exercise management — approved-plan scheduling and scenario objectives.](docs/screenshots/11-exercise-management.png)
+![Exercise management — approved-plan scheduling and scenario objectives.](docs/screenshots/11-exercise-management.svg)
 
 Exercise management — approved-plan scheduling and scenario objectives.
 
 ### 12. Remediation tracker
 
-![Remediation tracker — findings, owners, due dates and action status.](docs/screenshots/12-remediation-tracker.png)
+![Remediation tracker — findings, owners, due dates and action status.](docs/screenshots/12-remediation-tracker.svg)
 
 Remediation tracker — findings, owners, due dates and action status.
 
