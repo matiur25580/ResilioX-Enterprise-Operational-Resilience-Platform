@@ -93,8 +93,8 @@ incidentRouter.patch('/:incidentId/status', requirePermission('continuity:write'
   }
   const now = new Date();
   const updated = await prisma.$transaction(async tx => {
-    const record = await tx.incident.update({
-      where: { id: incidentId },
+    const changed = await tx.incident.updateMany({
+      where: { id: incidentId, organizationId, status: current.status },
       data: {
         status: input.status,
         ...(input.status === 'TRIAGED' && !current.acknowledgedAt ? { acknowledgedAt: now } : {}),
@@ -102,8 +102,9 @@ incidentRouter.patch('/:incidentId/status', requirePermission('continuity:write'
         ...(input.status === 'ACTIVE' && current.status === 'RESOLVED' ? { resolvedAt: null } : {}),
         ...(input.status === 'CLOSED' ? { closedAt: now } : {}),
       },
-      include: includeDetails,
     });
+    if (changed.count !== 1) throw new AppError(409, 'INCIDENT_CONCURRENT_UPDATE', 'The incident changed while this action was being processed. Refresh and try again.');
+    const record = await tx.incident.findFirstOrThrow({ where: { id: incidentId, organizationId }, include: includeDetails });
     await tx.incidentEvent.create({
       data: { incidentId, actorUserId: req.auth!.userId, eventType: 'STATUS_CHANGED', message: input.message ?? `Status changed from ${current.status} to ${input.status}.`, metadata: { from: current.status, to: input.status } },
     });
