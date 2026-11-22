@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { app } from '../src/app.js';
 import { prisma } from '../src/lib/prisma.js';
 
-type Tenant = { organizationId: string; organizationSlug: string; userId: string; token: string };
+type Tenant = { organizationId: string; organizationSlug: string; userId: string; email: string; token: string };
 
 async function registerTenant(label: string, suffix: string): Promise<Tenant> {
   const email = `supplier-auth-${label}-${suffix}@example.test`;
@@ -28,7 +28,7 @@ async function addTenantRole(user: Tenant, organizationId: string, role: 'ADMIN'
     data: { userId: user.userId, organizationId, role, status: 'ACTIVE', joinedAt: new Date() },
   });
   const login = await request(app).post('/api/v1/auth/login').send({
-    email: `supplier-auth-${user.organizationSlug.split('-').slice(2).join('-')}@example.test`,
+    email: user.email,
     password: 'Authorization-test-password-2026!',
     organizationSlug: (await prisma.organization.findUniqueOrThrow({ where: { id: organizationId }, select: { slug: true } })).slug,
   });
