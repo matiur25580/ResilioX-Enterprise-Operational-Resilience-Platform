@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
-import { canApproveRunbook, canStartRecoveryStep, hasDependencyCycle, isSimulationReady } from '../lib/recovery-orchestration.js';
+import { canApproveRunbook, canStartRecoveryStep, canTransitionRecoveryStep, hasDependencyCycle, isSimulationReady } from '../lib/recovery-orchestration.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { AppError } from '../middleware/error-handler.js';
 
@@ -240,6 +240,7 @@ recoveryRouter.patch('/simulations/:simulationId/steps/:stepId', requirePermissi
     include: { runbookStep: { select: { id: true } } },
   });
   if (!current) throw new AppError(404, 'RECOVERY_SIMULATION_STEP_NOT_FOUND', 'The active simulation step was not found.');
+  if (!canTransitionRecoveryStep(current.status, input.status)) throw new AppError(409, 'RECOVERY_STEP_INVALID_TRANSITION', `Cannot move a recovery step from ${current.status} to ${input.status}.`);
   if (input.status !== 'IN_PROGRESS' && !input.outcome) throw new AppError(422, 'RECOVERY_STEP_OUTCOME_REQUIRED', 'A step outcome summary is required when recording a result.');
   if (['FAILED', 'BLOCKED'].includes(input.status) && !input.rationale) throw new AppError(422, 'RECOVERY_STEP_RATIONALE_REQUIRED', 'Failed or blocked steps require a rationale.');
   if (input.status === 'SKIPPED' && !input.waiverRationale) throw new AppError(422, 'RECOVERY_STEP_WAIVER_REQUIRED', 'A skipped prerequisite requires an explicit waiver rationale.');
