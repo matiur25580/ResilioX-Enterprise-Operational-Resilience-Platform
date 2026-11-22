@@ -10,13 +10,14 @@ import {
 } from 'recharts';
 import { api, restoreSession } from './api';
 import type { Overview, Tenant, User } from './types';
+import { BiaPage } from './BiaPage';
 
 type Session = { token: string; user: User; tenant: Tenant };
 const navItems = [
   { label: 'Command center', icon: LayoutDashboard, active: true },
-  { label: 'Business services', icon: Building2, planned: false },
+  { label: 'Business services', icon: Building2, planned: true },
   { label: 'Dependencies', icon: Network, planned: true },
-  { label: 'Impact analysis', icon: Activity, planned: true },
+  { label: 'Impact analysis', icon: Activity, planned: false },
   { label: 'Continuity plans', icon: ClipboardCheck, planned: true },
   { label: 'Incidents', icon: ShieldAlert, planned: true },
   { label: 'Suppliers', icon: Boxes, planned: true },
@@ -96,6 +97,7 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [mobileNav, setMobileNav] = useState(false);
+  const [activePage, setActivePage] = useState('Command center');
   useEffect(() => {
     let active = true;
     api<Overview>('/command-center/overview', {}, session.token)
@@ -116,13 +118,14 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
       <div className="sidebar-brand"><span className="brand-mark"><ShieldCheck size={19}/></span><span>continuity<span className="brand-light">grid</span></span><button className="icon-btn mobile-close" onClick={()=>setMobileNav(false)} aria-label="Close navigation"><X size={18}/></button></div>
       <div className="workspace-switch"><div className="workspace-avatar">{session.tenant.role.slice(0,1)}</div><div><strong>{session.user.displayName}</strong><span>{session.tenant.role.replace('_',' ')}</span></div><ChevronDown size={15}/></div>
       <div className="nav-caption">WORKSPACE</div>
-      <nav>{navItems.map(item => <button key={item.label} className={`nav-item ${item.active ? 'selected' : ''}`} disabled={item.planned} title={item.planned ? 'Planned for a future milestone' : item.label}><item.icon size={17}/><span>{item.label}</span>{item.planned && <span className="planned-dot"/>}</button>)}</nav>
+      <nav>{navItems.map(item => <button key={item.label} className={`nav-item ${activePage === item.label ? 'selected' : ''}`} disabled={item.planned} onClick={() => { setActivePage(item.label); setMobileNav(false); }} title={item.planned ? 'Planned for a future milestone' : item.label}><item.icon size={17}/><span>{item.label}</span>{item.planned && <span className="planned-dot"/>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="help-card"><CircleHelp size={17}/><div><strong>Need a hand?</strong><span>Explore the platform guide</span></div></div><div className="profile-row"><div className="profile-avatar">{session.user.displayName.slice(0,1).toUpperCase()}</div><div className="profile-info"><strong>{session.user.displayName}</strong><span>{session.user.email}</span></div><button className="icon-btn" onClick={onLogout} title="Sign out" aria-label="Sign out"><LogOut size={17}/></button></div></div>
     </aside>
     {mobileNav && <button className="nav-scrim" onClick={()=>setMobileNav(false)} aria-label="Close menu"/>}
     <main className="main-area">
       <header className="topbar"><div className="topbar-left"><button className="icon-btn mobile-menu" onClick={()=>setMobileNav(true)} aria-label="Open navigation"><Menu size={19}/></button><div className="breadcrumb">Workspace <span>/</span> <strong>Command center</strong></div></div><div className="topbar-actions"><div className="search-box"><Search size={16}/><input aria-label="Search services" placeholder="Search services…" value={query} onChange={e=>setQuery(e.target.value)}/><kbd>⌘ K</kbd></div><button className="icon-btn notification-btn" aria-label="Notifications"><Bell size={18}/><i/></button><div className="topbar-divider"/><div className="tenant-chip"><span className="tenant-dot"/>{session.tenant.role.replace('_',' ')}</div></div></header>
       <div className="page-content">
+        {activePage === 'Impact analysis' ? <><div className="page-heading"><div><div className="eyebrow muted">RESILIENCE FOUNDATION <span className="heading-dot"/> MILESTONE 05</div><h1>Business impact analysis</h1><p>Understand disruption impact and establish recovery priorities.</p></div></div><BiaPage token={session.token}/><footer className="page-footer"><span>© 2026 ContinuityGrid · Enterprise operational resilience</span><span>Tenant-scoped workspace <i/> Secure session</span></footer></> : <>
         <div className="page-heading"><div><div className="eyebrow muted">RESILIENCE OVERVIEW <span className="heading-dot"/> LIVE WORKSPACE DATA</div><h1>Good to see you, {session.user.displayName.split(' ')[0]}.</h1><p>Here's the current resilience picture across your organization.</p></div><div className="heading-actions"><span className="updated-label"><span className="live-dot"/> Live data</span><button className="secondary-btn" onClick={()=>window.location.reload()}>Refresh data</button></div></div>
         {error && <div className="notice error-notice"><AlertCircle size={17}/>{error}</div>}
         {loading ? <div className="loading-grid">{Array.from({length:4},(_,i)=><div className="skeleton" key={i}/>)}</div> : overview && metrics && <>
@@ -148,6 +151,7 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
         </>}
         {!loading && !overview && !error && <div className="notice">No overview data is available yet.</div>}
         <footer className="page-footer"><span>© 2026 ContinuityGrid · Enterprise operational resilience</span><span>Tenant-scoped workspace <i/> Secure session</span></footer>
+        </>}
       </div>
     </main>
   </div>;
