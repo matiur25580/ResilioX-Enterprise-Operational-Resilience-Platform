@@ -39,7 +39,7 @@ All routes are under /api/v1/governance:
 ## Data and operational boundaries
 - Evidence records store a URI/reference and optional checksum only; binary file upload, malware scanning, immutable object storage and legal-hold retention are not implemented.
 - A SHA-256 digest supplied by a user is recorded metadata; the service does not download or independently hash the referenced artifact.
-- Audit immutability is enforced by a database trigger. Only FK-driven anonymization of deleted organization/user references is permitted; event content cannot be edited. A separately controlled maintenance connection must explicitly set app.audit_maintenance='on' to perform retention operations. The application API exposes no update/delete operation.
+- Audit immutability is enforced by a database trigger. Only FK-driven anonymization of deleted organization/user references is permitted; event content cannot be edited. Retention operations require a separately provisioned database role named continuitygrid_audit_maintenance; ordinary application connections cannot enable the bypass with a session variable. The application API exposes no update/delete operation.
 - Audit pagination is bounded to 100 records per page. The current API exposes the latest tenant events; long-term archival and tamper-evident external anchoring remain future controls.
 - Framework references are organization-entered mappings, not a compliance attestation or certification.
 
