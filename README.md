@@ -8,7 +8,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. Milestone 09 incident command implementation is in PR #12 and is awaiting automated validation/review. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -68,7 +68,7 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 | Operational risk | Risk register, inherent/residual scoring, service/dependency links and treatment actions | Implemented |
 | Control assurance | Control library, evidence-backed test status and residual-risk recalculation | Implemented |
 | Business continuity | Service-linked versioned plans, activation criteria, recovery procedures, approval, exercises and remediation | Merged to `main` in PR #11; CI passed |
-| Incident & crisis management | Incident command, response team and decision timeline | Planned |
+| Incident & crisis management | Tenant-scoped incident register, SEV-1–SEV-4 classification, guarded lifecycle, commander ownership, timeline, response tasks and audit events | Implemented on PR #12; CI/review pending |
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
 | Scenario simulation | Reproducible disruption and recovery-priority modelling | Planned |
@@ -87,7 +87,7 @@ The intended gallery is a **single-column, full-width sequence** with one genuin
 4. **Dependency intelligence** — tenant-scoped relationship register and verification status. `docs/screenshots/04-dependency-intelligence.png`
 5. **Dependency workflow** — relationship capture and verification experience. `docs/screenshots/05-dependency-workflow.png`
 6. **Operational risk register** — inherent and residual exposure with accountable ownership. `docs/screenshots/06-risk-register.png`
-7. **Risk identification** — structured risk intake with service and dependency mapping. `docs/screenshots/07-risk-identification.png`
+7. **Incident command & response** — severity-led incident declaration, lifecycle progression, accountable commander and auditable response timeline. `docs/screenshots/07-incident-response.png`
 8. **Control assurance** — control library, test evidence and effectiveness governance. `docs/screenshots/08-control-assurance.png`
 9. **Continuity workspace** — plan posture, exercise schedule and remediation overview. `docs/screenshots/09-continuity-workspace.png`
 10. **Continuity plan builder** — service scope, activation criteria, recovery strategy, procedures and communications. `docs/screenshots/10-continuity-plan-builder.png`
@@ -231,6 +231,7 @@ All endpoints are under `/api/v1`. Protected endpoints require an authenticated 
 | Dependencies | `GET /dependencies/nodes`, `GET/POST /dependencies`, `PATCH /dependencies/:id/status`, `GET /dependencies/graph` |
 | Risk | `GET /risks`, `GET /risks/summary`, `POST /risks`, control and treatment lifecycle routes |
 | Continuity | `GET /continuity`, `GET /continuity/summary`, `GET /continuity/services`, `POST /continuity`, plan submit/approve/retire, exercise and action routes |
+| Incidents | `GET /incidents`, `GET /incidents/summary`, `POST /incidents`, lifecycle and severity PATCH routes, timeline event and response-task routes |
 
 For request schemas and error semantics, inspect the route modules and [API Guidelines](docs/api-guidelines.md). An interactive OpenAPI explorer is a future enhancement, not currently claimed as shipped.
 
@@ -363,7 +364,7 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 06 | Service and dependency intelligence | Merged to `main` (PR #9); CI passed |
 | 07 | Operational risk and controls | Merged to `main` (PR #10); CI passed |
 | 08 | Business continuity management | Merged to `main` (PR #11); CI passed |
-| 09 | Incident and crisis management | Planned |
+| 09 | Incident and crisis management | Implementation in PR #12; CI/review pending |
 | 10 | Disaster recovery orchestration | Planned |
 | 11 | Third-party resilience | Planned |
 | 12 | Scenario simulation | Planned |
@@ -379,7 +380,8 @@ See [the detailed roadmap](docs/roadmap.md) and the [Milestone 09 incident-manag
 ## Known boundaries
 
 - The application is a resilience planning and coordination system, not a SIEM, NMS or real-time outage detector.
-- Supplier scoring, incident command, disaster recovery execution and scenario simulation remain future milestones.
+- The current incident module provides core declaration, severity, lifecycle, timeline and task coordination. Live paging integrations, responder-roster acknowledgements, automated service-impact correlation and crisis communications orchestration remain future enhancements.
+- Supplier scoring, disaster recovery execution and scenario simulation remain future milestones.
 - Control effectiveness is a human-assessed value supported by evidence, not proof of automated control operation.
 - Exercise records are entered by authorized users; no external exercise platform is connected.
 - No regulatory certification, independent penetration test or production SLA is claimed.
