@@ -113,7 +113,7 @@ CREATE TABLE "dependencies" (
   "verified_at" TIMESTAMP(3),
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL,
-  CONSTRAINT "dependencies_pkey" PRIMARY KEY ("id"),
+  CONSTRAINT "dependencies_pkey" PRIMARY KEY ("id")
 );
 
 CREATE UNIQUE INDEX "organizations_slug_key" ON "organizations"("slug");
