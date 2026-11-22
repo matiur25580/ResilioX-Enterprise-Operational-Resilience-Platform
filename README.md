@@ -76,57 +76,24 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 
 ## Dashboard showcase — 12 views
 
-The gallery is designed as a **single-column, full-width sequence** so each screen has room for a descriptive caption. The PNGs are genuine captures of the running application—not generated mockups. Generate them after starting or deploying the application using the capture instructions below, then commit the resulting files under `docs/screenshots/`.
+The intended gallery is a **single-column, full-width sequence** with one genuine application capture per view and an editorial caption directly below it.
 
-1. **Executive command center** — portfolio KPIs, critical services, dependency coverage and recent activity.
+**Capture status:** the repository currently contains the Playwright capture script but does not contain the 12 PNG assets. The image references below are a capture manifest, not completed screenshots. Run the documented capture workflow against a live local or preview instance using a dedicated synthetic demo tenant, review the output, and commit the images before treating this gallery as complete.
 
-   ![01 — Executive command center](docs/screenshots/01-command-center.png)
+1. **Executive command center** — portfolio KPIs, critical services, dependency coverage and recent activity. `docs/screenshots/01-command-center.png`
+2. **Business service portfolio** — searchable service inventory and criticality context. `docs/screenshots/02-service-portfolio.png`
+3. **Business impact analysis** — impact horizons and recovery objective assessment workspace. `docs/screenshots/03-business-impact-analysis.png`
+4. **Dependency intelligence** — tenant-scoped relationship register and verification status. `docs/screenshots/04-dependency-intelligence.png`
+5. **Dependency workflow** — relationship capture and verification experience. `docs/screenshots/05-dependency-workflow.png`
+6. **Operational risk register** — inherent and residual exposure with accountable ownership. `docs/screenshots/06-risk-register.png`
+7. **Risk identification** — structured risk intake with service and dependency mapping. `docs/screenshots/07-risk-identification.png`
+8. **Control assurance** — control library, test evidence and effectiveness governance. `docs/screenshots/08-control-assurance.png`
+9. **Continuity workspace** — plan posture, exercise schedule and remediation overview. `docs/screenshots/09-continuity-workspace.png`
+10. **Continuity plan builder** — service scope, activation criteria, recovery strategy, procedures and communications. `docs/screenshots/10-continuity-plan-builder.png`
+11. **Exercise management** — approved-plan exercise scheduling, scenario and objectives. `docs/screenshots/11-exercise-management.png`
+12. **Remediation tracker** — post-exercise findings, owners, severity, due dates and action status. `docs/screenshots/12-remediation-tracker.png`
 
-2. **Business service portfolio** — searchable service inventory and criticality context.
-
-   ![02 — Business service portfolio](docs/screenshots/02-service-portfolio.png)
-
-3. **Business impact analysis** — impact horizons and recovery objective assessment workspace.
-
-   ![03 — Business impact analysis](docs/screenshots/03-business-impact-analysis.png)
-
-4. **Dependency intelligence** — tenant-scoped relationship register and verification status.
-
-   ![04 — Dependency intelligence](docs/screenshots/04-dependency-intelligence.png)
-
-5. **Dependency workflow** — relationship capture and verification experience.
-
-   ![05 — Dependency workflow](docs/screenshots/05-dependency-workflow.png)
-
-6. **Operational risk register** — inherent and residual exposure with accountable ownership.
-
-   ![06 — Risk register](docs/screenshots/06-risk-register.png)
-
-7. **Risk identification** — structured risk intake with service and dependency mapping.
-
-   ![07 — Risk identification](docs/screenshots/07-risk-identification.png)
-
-8. **Control assurance** — control library, test evidence and effectiveness governance.
-
-   ![08 — Control assurance](docs/screenshots/08-control-assurance.png)
-
-9. **Continuity workspace** — plan posture, exercise schedule and remediation overview.
-
-   ![09 — Continuity workspace](docs/screenshots/09-continuity-workspace.png)
-
-10. **Continuity plan builder** — service scope, activation criteria, recovery strategy, procedures and communications.
-
-    ![10 — Continuity plan builder](docs/screenshots/10-continuity-plan-builder.png)
-
-11. **Exercise management** — approved-plan exercise scheduling, scenario and objectives.
-
-    ![11 — Exercise management](docs/screenshots/11-exercise-management.png)
-
-12. **Remediation tracker** — post-exercise findings, owners, severity, due dates and action status.
-
-    ![12 — Remediation tracker](docs/screenshots/12-remediation-tracker.png)
-
-> **Screenshot integrity:** the capture script requires a real running app and an authenticated demo account. Screenshots are not committed as if they had been captured when the application was unavailable. Populate the gallery by following [Demo workspace and screenshot capture](#demo-workspace-and-screenshot-capture).
+Do not replace missing captures with generated illustrations or empty placeholder images. See [Demo workspace and screenshot capture](#demo-workspace-and-screenshot-capture) for the exact command and required environment variables.
 
 ## Architecture
 
