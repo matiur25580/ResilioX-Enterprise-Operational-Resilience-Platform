@@ -80,6 +80,7 @@ biaRouter.post('/', requirePermission('continuity:write'), async (req, res) => {
 });
 
 biaRouter.post('/:assessmentId/submit', requirePermission('continuity:write'), async (req, res) => {
+  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   const organizationId = req.auth!.organizationId;
   const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   const current = await prisma.businessImpactAssessment.findFirst({ where: { id: assessmentId, organizationId }, select: { id: true, status: true } });
@@ -94,6 +95,7 @@ biaRouter.post('/:assessmentId/submit', requirePermission('continuity:write'), a
 });
 
 biaRouter.post('/:assessmentId/approve', requirePermission('continuity:write'), async (req, res) => {
+  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   if (!['OWNER', 'ADMIN', 'RESILIENCE_MANAGER'].includes(req.auth!.role)) throw new AppError(403, 'BIA_APPROVAL_FORBIDDEN', 'Only workspace owners, administrators and resilience managers can approve assessments.');
   const organizationId = req.auth!.organizationId;
   const assessmentId = z.string().uuid().parse(req.params.assessmentId);
@@ -110,9 +112,10 @@ biaRouter.post('/:assessmentId/approve', requirePermission('continuity:write'), 
 
 
 biaRouter.post('/:assessmentId/retire', requirePermission('continuity:write'), async (req, res) => {
+  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   if (!['OWNER', 'ADMIN', 'RESILIENCE_MANAGER'].includes(req.auth!.role)) throw new AppError(403, 'BIA_RETIRE_FORBIDDEN', 'Only workspace owners, administrators and resilience managers can retire assessments.');
   const organizationId = req.auth!.organizationId;
-  const current = await prisma.businessImpactAssessment.findFirst({ where: { id: req.params.assessmentId, organizationId }, select: { id: true, status: true } });
+  const current = await prisma.businessImpactAssessment.findFirst({ where: { id: assessmentId, organizationId }, select: { id: true, status: true } });
   if (!current) throw new AppError(404, 'BIA_ASSESSMENT_NOT_FOUND', 'The business impact assessment was not found.');
   if (current.status !== 'APPROVED') throw new AppError(409, 'BIA_INVALID_TRANSITION', 'Only approved assessments can be retired.');
   const result = await prisma.$transaction(async tx => {
