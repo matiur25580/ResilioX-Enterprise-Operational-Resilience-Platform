@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum OrganizationStatus {
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum BusinessServiceStatus {
+  DRAFT
+  ACTIVE
+  UNDER_REVIEW
+  RETIRED
+}
+
+enum DependencyType {
+  SUPPORTS
+  HOSTED_ON
+  DEPENDS_ON
+  PROVIDED_BY
+  OPERATES_FROM
+  PROCESSED_BY
+}
+
+enum DependencyStatus {
+  PROPOSED
+  VERIFIED
+  DISPUTED
+  RETIRED
+}
+
+enum CriticalityTier {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+model Organization {
+  id          String             @id @default(uuid()) @db.Uuid
+  name        String             @db.VarChar(160)
+  slug        String             @unique @db.VarChar(80)
+  status      OrganizationStatus @default(ACTIVE)
+  createdAt   DateTime           @default(now()) @map("created_at")
+  updatedAt   DateTime           @updatedAt @map("updated_at")
+  memberships Membership[]
+  services    BusinessService[]
+  processes   BusinessProcess[]
+  applications Application[]
+  assets      TechnologyAsset[]
+  suppliers   Supplier[]
+  dependencies Dependency[]
+
+  @@index([status])
+  @@map("organizations")
+}
+
+model User {
+  id           String       @id @default(uuid()) @db.Uuid
+  email        String       @unique @db.VarChar(254)
+  displayName  String       @map("display_name") @db.VarChar(120)
+  passwordHash String?      @map("password_hash") @db.VarChar(255)
+  isPlatformAdmin Boolean   @default(false) @map("is_platform_admin")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  memberships  Membership[]
+
+  @@index([displayName])
+  @@map("users")
+}
+
+model Membership {
+  id             String           @id @default(uuid()) @db.Uuid
+  userId         String           @map("user_id") @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  status         MembershipStatus @default(INVITED)
+  joinedAt       DateTime?        @map("joined_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  user           User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId, status])
+  @@index([userId, status])
+  @@map("memberships")
+}
+
+model BusinessService {
+  id             String               @id @default(uuid()) @db.Uuid
+  organizationId String               @map("organization_id") @db.Uuid
+  name           String               @db.VarChar(180)
+  description    String?              @db.Text
+  ownerName      String?              @map("owner_name") @db.VarChar(120)
+  criticality    CriticalityTier      @default(MEDIUM)
+  status         BusinessServiceStatus @default(DRAFT)
+  createdAt      DateTime             @default(now()) @map("created_at")
+  updatedAt      DateTime             @updatedAt @map("updated_at")
+  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  dependenciesFrom Dependency[]       @relation("DependencySource")
+  dependenciesTo   Dependency[]       @relation("DependencyTarget")
+
+  @@unique([organizationId, name])
+  @@index([organizationId, status, criticality])
+  @@map("business_services")
+}
+
+model BusinessProcess {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(180)
+  description    String?      @db.Text
+  ownerName      String?      @map("owner_name") @db.VarChar(120)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  dependenciesFrom Dependency[] @relation("DependencySource")
+  dependenciesTo   Dependency[] @relation("DependencyTarget")
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("business_processes")
+}
+
+model Application {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(180)
+  description    String?      @db.Text
+  vendor         String?      @db.VarChar(120)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  dependenciesFrom Dependency[] @relation("DependencySource")
+  dependenciesTo   Dependency[] @relation("DependencyTarget")
+
+  @@unique([organizationId, name])
+  @@index([organizationId])
+  @@map("applications")
+}
+
+model TechnologyAsset {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(180)
+  assetType      String       @map("asset_type") @db.VarChar(80)
+  environment    String?      @db.VarChar(80)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  dependenciesFrom Dependency[] @relation("DependencySource")
+  dependenciesTo   Dependency[] @relation("DependencyTarget")
+
+  @@unique([organizationId, name])
+  @@index([organizationId, assetType])
+  @@map("technology_assets")
+}
+
+model Supplier {
+  id             String       @id @default(uuid()) @db.Uuid
+  organizationId String       @map("organization_id") @db.Uuid
+  name           String       @db.VarChar(180)
+  website        String?      @db.VarChar(255)
+  contactEmail   String?      @map("contact_email") @db.VarChar(254)
+  criticality    CriticalityTier @default(MEDIUM)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  dependenciesFrom Dependency[] @relation("DependencySource")
+  dependenciesTo   Dependency[] @relation("DependencyTarget")
+
+  @@unique([organizationId, name])
+  @@index([organizationId, criticality])
+  @@map("suppliers")
+}
+
+model Dependency {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  sourceType     String           @map("source_type") @db.VarChar(40)
+  sourceId       String           @map("source_id") @db.Uuid
+  targetType     String           @map("target_type") @db.VarChar(40)
+  targetId       String           @map("target_id") @db.Uuid
+  type           DependencyType
+  status         DependencyStatus @default(PROPOSED)
+  criticality    CriticalityTier  @default(MEDIUM)
+  confidence     Int              @default(50)
+  verifiedAt     DateTime?        @map("verified_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  sourceService  BusinessService? @relation("DependencySource", fields: [sourceId], references: [id], onDelete: Restrict)
+  targetService  BusinessService? @relation("DependencyTarget", fields: [targetId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, sourceType, sourceId])
+  @@index([organizationId, targetType, targetId])
+  @@index([organizationId, status, criticality])
+  @@map("dependencies")
+}
