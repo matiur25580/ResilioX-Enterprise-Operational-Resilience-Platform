@@ -37,6 +37,16 @@ recoveryRouter.get('/runbooks', async (req, res) => {
   res.json({ data });
 });
 
+recoveryRouter.get('/runbooks/:runbookId', async (req, res) => {
+  const runbookId = z.string().uuid().parse(req.params.runbookId);
+  const data = await prisma.recoveryRunbook.findFirst({
+    where: { id: runbookId, organizationId: req.auth!.organizationId },
+    include: { ...runbookInclude, service: { select: { id: true, name: true, criticality: true, ownerName: true } }, continuityPlan: { select: { id: true, title: true, version: true, rtoMinutes: true, rpoMinutes: true, status: true } }, simulations: { select: { id: true, status: true, createdAt: true, completedAt: true }, orderBy: { createdAt: 'desc' }, take: 20 } },
+  });
+  if (!data) throw new AppError(404, 'RECOVERY_RUNBOOK_NOT_FOUND', 'The recovery runbook was not found.');
+  res.json({ data });
+});
+
 recoveryRouter.post('/runbooks', requirePermission('continuity:write'), async (req, res) => {
   const input = z.object({
     serviceId: z.string().uuid(),
@@ -169,6 +179,16 @@ recoveryRouter.get('/simulations', async (req, res) => {
   res.json({ data });
 });
 
+recoveryRouter.get('/simulations/:simulationId', async (req, res) => {
+  const simulationId = z.string().uuid().parse(req.params.simulationId);
+  const data = await prisma.recoverySimulation.findFirst({
+    where: { id: simulationId, organizationId: req.auth!.organizationId },
+    include: { runbook: { select: { id: true, title: true, version: true, serviceId: true, rtoMinutes: true, rpoMinutes: true } }, steps: { include: { runbookStep: { select: { sequence: true, title: true, description: true, validationCriteria: true } } }, orderBy: { createdAt: 'asc' } }, events: { orderBy: { createdAt: 'asc' }, take: 200 } },
+  });
+  if (!data) throw new AppError(404, 'RECOVERY_SIMULATION_NOT_FOUND', 'The simulation was not found.');
+  res.json({ data });
+});
+
 recoveryRouter.post('/simulations', requirePermission('continuity:write'), async (req, res) => {
   const input = z.object({ runbookId: z.string().uuid(), incidentId: z.string().uuid().optional() }).parse(req.body);
   const organizationId = req.auth!.organizationId;
@@ -181,6 +201,17 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
     const incident = await prisma.incident.findFirst({ where: { id: input.incidentId, organizationId }, select: { id: true } });
     if (!incident) throw new AppError(404, 'RECOVERY_INCIDENT_NOT_FOUND', 'The incident was not found in this workspace.');
   }
+  const serviceDependencySnapshot = await prisma.dependency.findMany({
+    where: {
+      organizationId,
+      OR: [
+        { sourceType: 'BUSINESS_SERVICE', sourceId: runbook.serviceId },
+        { targetType: 'BUSINESS_SERVICE', targetId: runbook.serviceId },
+      ],
+    },
+    select: { sourceType: true, sourceId: true, targetType: true, targetId: true, type: true, status: true, criticality: true, confidence: true, verifiedAt: true },
+    take: 250,
+  });
   const simulation = await prisma.$transaction(async tx => {
     const created = await tx.recoverySimulation.create({
       data: {
@@ -190,7 +221,7 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
         runbookVersion: runbook.version,
         targetRtoMinutes: runbook.rtoMinutes,
         targetRpoMinutes: runbook.rpoMinutes,
-        dependencySnapshot: { capturedAt: new Date().toISOString(), runbookStepDependencies: runbook.steps.map(step => ({ stepId: step.id, predecessors: step.predecessors.map(item => item.predecessorStepId) })) },
+        dependencySnapshot: { capturedAt: new Date().toISOString(), serviceDependencies: serviceDependencySnapshot, runbookStepDependencies: runbook.steps.map(step => ({ stepId: step.id, predecessors: step.predecessors.map(item => item.predecessorStepId) })) },
         steps: { create: runbook.steps.map(step => ({ runbookStepId: step.id })) },
       },
     });
