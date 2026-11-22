@@ -12,6 +12,7 @@ import { commandCenterRouter } from './routes/command-center.routes.js';
 import { biaRouter } from './routes/bia.routes.js';
 import { dependencyRouter } from './routes/dependency.routes.js';
 import { riskRouter } from './routes/risk.routes.js';
+import { continuityRouter } from './routes/continuity.routes.js';
 
 export const app = express();
 
@@ -60,5 +61,6 @@ app.use(`${env.API_BASE_PATH}/command-center`, commandCenterRouter);
 app.use(`${env.API_BASE_PATH}/bia`, biaRouter);
 app.use(`${env.API_BASE_PATH}/dependencies`, dependencyRouter);
 app.use(`${env.API_BASE_PATH}/risks`, riskRouter);
+app.use(`${env.API_BASE_PATH}/continuity`, continuityRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
