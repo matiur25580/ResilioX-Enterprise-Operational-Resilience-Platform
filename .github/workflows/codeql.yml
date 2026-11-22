@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, feat/milestone-11-third-party-resilience]
+    branches: [main, feat/milestone-11-third-party-resilience, feat/milestone-12-scenario-simulation]
   schedule:
     - cron: "17 5 * * 1"
   workflow_dispatch:
