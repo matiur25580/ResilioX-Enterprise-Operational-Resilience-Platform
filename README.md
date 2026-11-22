@@ -8,7 +8,7 @@ ResilioX is a multi-tenant resilience workspace that connects business services,
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. Milestone 09 incident command and response workflows are merged to `main` in PR #12; API quality gates passed. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 09 incident command and response workflows are merged to `main` in PR #12. Milestone 10 (PR #22), Milestone 11 (PR #23) and Milestone 12 (PR #24) are tracked on feature branches and remain unmerged. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -71,7 +71,7 @@ ResilioX brings those records into a shared service-centric model. It emphasizes
 | Incident & crisis management | Tenant-scoped incident register, SEV-1–SEV-4 classification, guarded lifecycle, commander ownership, timeline, response tasks and audit events | Merged in PR #12; API quality gates passed |
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
-| Scenario simulation | Reproducible disruption and recovery-priority modelling | Planned |
+| Scenario simulation | Tenant-scoped deterministic impact propagation, service prioritization, assumptions and point-in-time run history | Implemented on feature branch; draft PR #24 |
 | Governance & reporting | Evidence register, policy mapping and exportable executive reports | Planned |
 | Notifications & collaboration | Delivery preferences and real-time collaboration | Planned |
 
