@@ -234,7 +234,7 @@ model Dependency {
   @@index([organizationId, sourceType, sourceId])
   @@index([organizationId, targetType, targetId])
   @@index([organizationId, status, criticality])
-  @@unique([organizationId, sourceType, sourceId, targetType, targetId, type])
+  @@unique([organizationId, sourceType, sourceId, targetType, targetId, type], map: "dependencies_tenant_edge_type_key")
   @@map("dependencies")
 }
 
