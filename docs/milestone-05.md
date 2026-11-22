@@ -26,7 +26,7 @@ All endpoints require an authenticated session. Write operations require `contin
 
 The scoring model is a documented fixed baseline, not a configurable enterprise policy. A maximum-over-time-horizons rule is used so an acute severe impact is not averaged away by lower scores at other horizons. Scores are user-entered; the platform does not infer financial loss, regulatory exposure, RTO, RPO or MTPD. Objective units are stored as minutes. Assessment creation preserves version history by creating a new version for a process rather than overwriting an earlier record.
 
-This milestone does not yet include configurable impact scales/weights, editable drafts, configurable impact scales/weights, editable drafts, evidence attachments, due-date reminders and process-to-service mapping remain future scope. evidence attachments, due-date reminders or process-to-service mapping. These remain future scope.
+This milestone does not yet include configurable impact scales/weights, editable drafts, evidence attachments, due-date reminders or process-to-service mapping. These remain future scope.
 
 ## Verification
 
