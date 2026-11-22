@@ -86,7 +86,7 @@ riskRouter.post('/controls', requirePermission('continuity:write'), async (req, 
   const input = z.object({
     name: z.string().trim().min(3).max(180), description: z.string().trim().min(10).max(10000),
     controlType: z.string().trim().min(2).max(60), ownerName: z.string().trim().min(2).max(120),
-    frequency: z.string().trim().min(2).max(60), status: z.enum(controlStatuses).optional(),
+    frequency: z.string().trim().min(2).max(60),
   }).parse(req.body);
   try {
     const control = await prisma.$transaction(async tx => {
