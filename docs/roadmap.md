@@ -126,7 +126,11 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - Execution is simulated unless a real adapter is explicitly configured.
 - Failed and blocked steps are visible and recoverable.
 
-## 11 — Third-party resilience
+## 11 — Third-party resilience — implementation in progress ([specification](milestone-11.md))
+**Delivered in this branch:** tenant-scoped supplier register, contract recovery commitments and service links, versioned risk assessments, evidence references, independent approval and verified dependency exposure summary.
+
+**Remaining acceptance:** authenticated cross-tenant integration tests, browser workflow coverage, accessibility review and operational scoring review.
+
 **Deliverables**
 - Supplier and service catalog, criticality and assessments.
 - Contractual recovery commitments and evidence.
