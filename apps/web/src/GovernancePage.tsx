@@ -25,11 +25,12 @@ export function GovernancePage({ token }: { token: string }) {
   const [message, setMessage] = useState('');
 
   async function refresh() {
-    const [e, p, a] = await Promise.all([
+    const [e, p] = await Promise.all([
       api<Evidence[]>('/governance/evidence', {}, token),
       api<Policy[]>('/governance/policies', {}, token),
-      api<AuditEvent[]>('/governance/audit/events?limit=40', {}, token),
     ]);
+    let a: AuditEvent[] = [];
+    try { a = await api<AuditEvent[]>('/governance/audit/events?limit=40', {}, token); } catch { /* audit:read is intentionally not granted to VIEWER */ }
     setEvidence(e); setPolicies(p); setEvents(a);
     if (!selectedEvidence && e[0]) setSelectedEvidence(e[0].id);
     if (!selectedPolicy && p[0]) setSelectedPolicy(p[0].id);
