@@ -60,6 +60,10 @@ describe('governance evidence, policy and audit authorization', () => {
       expect(audit.status).toBe(200);
       expect(audit.body.data.some((event: { action: string }) => event.action === 'governance.evidence.reviewed')).toBe(true);
       expect(audit.body.data.some((event: { action: string }) => event.action === 'governance.policy.approved')).toBe(true);
+      const reviewedEventId = audit.body.data.find((event: { action: string }) => event.action === 'governance.evidence.reviewed').id as string;
+      await expect(prisma.auditEvent.update({ where: { id: reviewedEventId }, data: { action: 'tampered.audit.event' } })).rejects.toThrow(/append-only/);
+      await expect(prisma.auditEvent.delete({ where: { id: reviewedEventId } })).rejects.toThrow(/append-only/);
+
       expect((await request(app).get('/api/v1/governance/audit/events').set('Authorization', `Bearer ${viewerToken}`)).status).toBe(403);
       expect((await request(app).get('/api/v1/governance/evidence').set('Authorization', `Bearer ${foreign.token}`)).body.data).toHaveLength(0);
       expect((await request(app).get('/api/v1/governance/audit/events').set('Authorization', `Bearer ${foreign.token}`)).body.data).toHaveLength(0);
