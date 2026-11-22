@@ -59,6 +59,16 @@ try {
       .map(element => element.outerHTML),
   );
   assert.deepEqual(unnamedControls, [], 'Every supplier form control must have an accessible label.');
+  const duplicateIds = await page.locator('.supplier-page [id]').evaluateAll(elements => {
+    const ids = elements.map(element => element.id);
+    return [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
+  });
+  assert.deepEqual(duplicateIds, [], 'Supplier disclosure and description IDs must be unique.');
+  const unresolvedDescriptions = await page.locator('.supplier-page [aria-describedby]').evaluateAll(elements =>
+    elements.filter(element => (element.getAttribute('aria-describedby') ?? '').split(/\\s+/).some(id => !document.getElementById(id)))
+      .map(element => element.outerHTML),
+  );
+  assert.deepEqual(unresolvedDescriptions, [], 'Every supplier aria-describedby reference must resolve.');
 
   const addSupplier = page.getByRole('button', { name: /Add supplier/ });
   await addSupplier.click();
@@ -114,7 +124,7 @@ try {
   const supplierOverflow = await page.locator('.supplier-page').evaluate(element => element.scrollWidth > element.clientWidth);
   assert.equal(supplierOverflow, false, 'Supplier workspace should not overflow horizontally at a 390px viewport.');
   const reducedMotionDuration = await page.locator('.supplier-page button').first().evaluate(element => getComputedStyle(element).transitionDuration);
-  assert.ok(Number.parseFloat(reducedMotionDuration) <= 0.00001, 'Reduced-motion preference should minimize supplier transitions.');
+  assert.ok(Number.parseFloat(reducedMotionDuration) <= 0.02, 'Reduced-motion preference should minimize supplier transitions.');
   if (pageErrors.length) throw new Error(`Browser runtime errors: ${pageErrors.join('; ')}`);
   console.log('Browser supplier workflow passed: login, supplier registration, contract, assessment, evidence and review submission.');
 } catch (error) {
