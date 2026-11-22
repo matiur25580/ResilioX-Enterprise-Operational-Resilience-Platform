@@ -59,7 +59,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Business rules and calculations have unit tests.
 - Objective values retain units and review provenance.
 
-## 06 — Service and dependency intelligence — Merged to main (PR #9; CI passed)n progress (stacked PR pending CI)
+## 06 — Service and dependency intelligence — Merged to main (PR #9; CI passed)
 **Deliverables**
 - Tenant-scoped business service/process/application/technology asset/supplier catalog (location catalog remains future scope).
 - Typed dependency relationships and graph visualization.
@@ -69,7 +69,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Invalid relationships are rejected.
 - Traversal is deterministic and tenant-scoped.
 
-## 07 — Operational risk and controls — Implemented in mainline PR (CI pending)nd inherent/residual scores.
+## 07 — Operational risk and controls — Implemented in mainline PR (PR #10; CI pending)
 - Control library, control assessments and treatment plans.
 - Risk-to-service and risk-to-dependency mapping.
 
