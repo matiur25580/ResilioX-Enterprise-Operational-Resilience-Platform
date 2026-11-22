@@ -32,6 +32,17 @@ describe('scenario impact engine', () => {
     expect(result.summary.affectedServiceCount).toBe(2);
   });
 
+  it('traces service dependencies outward for a service-outage scenario', () => {
+    const result = calculateScenarioImpact({
+      root: nodes[2], nodes, edges: [
+        edge('BUSINESS_SERVICE', 'critical', 'APPLICATION', 'app'),
+        edge('APPLICATION', 'app', 'SUPPLIER', 'supplier'),
+      ], durationHours: 8, severity: 'UNAVAILABLE',
+    });
+    expect(result.affectedNodes.map(node => node.id)).toEqual(['critical', 'app', 'supplier']);
+    expect(result.affectedServices.map(service => service.id)).toEqual(['critical']);
+  });
+
   it('is deterministic for identical inputs', () => {
     const input = { root: nodes[0], nodes, edges, durationHours: 8, severity: 'DEGRADED' as const };
     expect(calculateScenarioImpact(input)).toEqual(calculateScenarioImpact(input));
