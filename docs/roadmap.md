@@ -116,15 +116,23 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - API and UI cover loading, empty, permission-denied and failure states.
 - Integration tests cover cross-tenant access, invalid transitions, maker-checker decisions where required and event history integrity.
 
-## 10 — Disaster recovery orchestration — specification prepared (PR #13; implementation pending)
-**Deliverables**
-- Recovery plans, ordered steps, prerequisites and owners.
-- RTO/RPO alignment and test evidence.
-- Approval gates for high-impact actions.
+## 10 — Disaster recovery orchestration — backend foundation in progress (draft PR)
+**Delivered in this increment**
+- Tenant-scoped recovery runbook, ordered-step and prerequisite schema with migration.
+- Runbook submission and maker-checker approval API.
+- Simulation register/detail, start, step outcome, completion and cancellation API.
+- Dependency snapshot capture and explicit simulation-only safety boundary.
+- Pure lifecycle, prerequisite, dependency-cycle and RTO/RPO comparison policies.
+
+**Remaining**
+- Recovery workspace UI, version-cloning/edit workflow, validation records and remediation linkage.
+- Full API integration coverage for tenant isolation, role enforcement, concurrency and audit atomicity.
+- Frontend loading, empty, error and mobile states; seed fixtures and executive reporting.
 
 **Acceptance**
-- Execution is simulated unless a real adapter is explicitly configured.
-- Failed and blocked steps are visible and recoverable.
+- No infrastructure action is invoked; all current runs are rehearsals only.
+- Approved versions are not mutated by the delivered API.
+- Full milestone acceptance remains open until the remaining items and CI checks pass.
 
 ## 11 — Third-party resilience
 **Deliverables**
