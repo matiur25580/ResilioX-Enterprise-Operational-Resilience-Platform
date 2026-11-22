@@ -87,7 +87,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Approval transitions are permission-checked.
 - Plan versions and exercise evidence are traceable.
 
-## 09 — Incident and crisis management — scoped for next delivery
+## 09 — Incident and crisis management — Merged to main (PR #12)
 
 Detailed design: [Milestone 09 specification](milestone-09.md).
 
@@ -116,7 +116,7 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - API and UI cover loading, empty, permission-denied and failure states.
 - Integration tests cover cross-tenant access, invalid transitions, maker-checker decisions where required and event history integrity.
 
-## 10 — Disaster recovery orchestration
+## 10 — Disaster recovery orchestration — specification prepared (PR #13; implementation pending)
 **Deliverables**
 - Recovery plans, ordered steps, prerequisites and owners.
 - RTO/RPO alignment and test evidence.
