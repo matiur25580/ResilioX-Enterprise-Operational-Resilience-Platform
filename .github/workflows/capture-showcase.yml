@@ -34,7 +34,7 @@ jobs:
           node-version: 22
           cache: npm
       - name: Install dependencies
-        run: npm ci
+        run: npm install
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Validate showcase secrets
@@ -55,8 +55,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          test -s "docs/screenshots/01-command-center.png"
+          test -s "docs/screenshots/02-service-portfolio.png"
+          test -s "docs/screenshots/03-business-impact-analysis.png"
+          test -s "docs/screenshots/04-dependency-intelligence.png"
+          test -s "docs/screenshots/05-dependency-workflow.png"
+          test -s "docs/screenshots/06-risk-register.png"
+          test -s "docs/screenshots/07-incident-response.png"
+          test -s "docs/screenshots/08-control-assurance.png"
+          test -s "docs/screenshots/09-continuity-workspace.png"
+          test -s "docs/screenshots/10-continuity-plan-builder.png"
+          test -s "docs/screenshots/11-exercise-management.png"
+          test -s "docs/screenshots/12-remediation-tracker.png"
           test "$(find docs/screenshots -maxdepth 1 -type f -name '*.png' | wc -l)" -eq 12
-          find docs/screenshots -maxdepth 1 -type f -name '*.png' -size +0c | grep -q .
       - name: Commit verified screenshots
         run: |
           git config user.name "github-actions[bot]"
