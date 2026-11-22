@@ -67,10 +67,7 @@ describe('supplier tenant isolation integration', () => {
       if (supplierId) await prisma.supplier.deleteMany({ where: { id: supplierId } });
       for (const tenant of tenants) {
         await prisma.refreshSession.deleteMany({ where: { userId: tenant.userId } });
-        await prisma.$transaction(async tx => {
-          await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
-          await tx.auditEvent.deleteMany({ where: { organizationId: tenant.organizationId } });
-        });
+        // Audit events are retained; deleting the tenant nulls FK identity references without changing event content.
         await prisma.membership.deleteMany({ where: { organizationId: tenant.organizationId } });
         await prisma.organization.deleteMany({ where: { id: tenant.organizationId } });
         await prisma.user.deleteMany({ where: { id: tenant.userId } });
