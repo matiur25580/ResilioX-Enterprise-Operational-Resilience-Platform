@@ -154,7 +154,9 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - Same inputs and model version produce repeatable results.
 - Output includes assumptions, affected paths and limitations.
 
-## 13 — Governance, evidence and audit
+## 13 — Governance, evidence and audit — implementation started (draft PR)
+**Delivered in this increment:** tenant-scoped evidence register, maker-checker evidence review, framework/control policy register, independent policy approval, verified evidence mapping, filtered audit history and database-enforced append-only audit events. See [Milestone 13 specification](milestone-13.md).
+
 **Deliverables**
 - Append-only audit event model for critical actions.
 - Evidence register, approvals and policy mapping.

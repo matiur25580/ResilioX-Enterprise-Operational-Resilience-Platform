@@ -153,7 +153,7 @@ describe('supplier role authorization and tenant boundaries', () => {
       await prisma.supplierContract.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.supplier.deleteMany({ where: { organizationId: { in: organizationIds } } });
       if (foreignServiceId) await prisma.businessService.deleteMany({ where: { id: foreignServiceId } });
-      await prisma.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
+      // Audit events are retained; deleting the tenant nulls FK identity references without changing event content.
       const userIds = tenants.map(tenant => tenant.userId);
       await prisma.refreshSession.deleteMany({ where: { userId: { in: userIds } } });
       await prisma.membership.deleteMany({ where: { userId: { in: userIds } } });

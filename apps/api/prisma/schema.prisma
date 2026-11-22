@@ -189,6 +189,30 @@ enum ImpactHorizon {
   ONE_WEEK
 }
 
+enum GovernanceEvidenceStatus {
+  DRAFT
+  SUBMITTED
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+enum GovernanceEvidenceType {
+  POLICY
+  DOCUMENT
+  AUDIT_REPORT
+  CERTIFICATION
+  TEST_RESULT
+  EXERCISE_RESULT
+  CONTRACT
+  OTHER
+}
+enum GovernancePolicyStatus {
+  DRAFT
+  IN_REVIEW
+  ACTIVE
+  RETIRED
+}
+
 model Organization {
   id          String             @id @default(uuid()) @db.Uuid
   name        String             @db.VarChar(160)
@@ -213,6 +237,9 @@ model Organization {
   controls Control[]
   continuityPlans ContinuityPlan[]
   incidents Incident[]
+  governanceEvidence GovernanceEvidence[]
+  governancePolicies GovernancePolicy[]
+  policyEvidenceLinks PolicyEvidenceLink[]
 
   @@index([status])
   @@map("organizations")
@@ -232,6 +259,12 @@ model User {
   supplierAssessmentsCreated SupplierAssessment[] @relation("SupplierAssessmentCreator")
   supplierAssessmentsApproved SupplierAssessment[] @relation("SupplierAssessmentApprover")
   supplierEvidenceRecorded SupplierEvidence[] @relation("SupplierEvidenceRecorder")
+  governanceEvidenceCreated GovernanceEvidence[] @relation("GovernanceEvidenceCreator")
+  governanceEvidenceReviewed GovernanceEvidence[] @relation("GovernanceEvidenceReviewer")
+  governancePoliciesOwned GovernancePolicy[] @relation("GovernancePolicyOwner")
+  governancePoliciesSubmitted GovernancePolicy[] @relation("GovernancePolicySubmitter")
+  governancePoliciesApproved GovernancePolicy[] @relation("GovernancePolicyApprover")
+  policyEvidenceLinksCreated PolicyEvidenceLink[]
 
   @@index([displayName])
   @@map("users")
@@ -468,6 +501,79 @@ model RefreshSession {
   @@index([userId, expiresAt])
   @@index([familyId])
   @@map("refresh_sessions")
+}
+
+
+model GovernanceEvidence {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  title String @db.VarChar(180)
+  evidenceType GovernanceEvidenceType @map("evidence_type")
+  status GovernanceEvidenceStatus @default(DRAFT)
+  referenceUri String @map("reference_uri") @db.VarChar(1000)
+  description String? @db.Text
+  targetType String? @map("target_type") @db.VarChar(80)
+  targetId String? @map("target_id") @db.VarChar(120)
+  issuedAt DateTime? @map("issued_at")
+  expiresAt DateTime? @map("expires_at")
+  checksumSha256 String? @map("checksum_sha256") @db.VarChar(64)
+  createdByUserId String @map("created_by_user_id") @db.Uuid
+  reviewedByUserId String? @map("reviewed_by_user_id") @db.Uuid
+  reviewRationale String? @map("review_rationale") @db.Text
+  reviewedAt DateTime? @map("reviewed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  createdBy User @relation("GovernanceEvidenceCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  reviewedBy User? @relation("GovernanceEvidenceReviewer", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  policyLinks PolicyEvidenceLink[]
+  @@index([organizationId, status, expiresAt])
+  @@index([organizationId, evidenceType, createdAt])
+  @@index([organizationId, targetType, targetId])
+  @@map("governance_evidence")
+}
+
+model GovernancePolicy {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  name String @db.VarChar(180)
+  framework String @db.VarChar(100)
+  controlReference String @map("control_reference") @db.VarChar(120)
+  description String @db.Text
+  ownerUserId String @map("owner_user_id") @db.Uuid
+  submittedByUserId String? @map("submitted_by_user_id") @db.Uuid
+  approvedByUserId String? @map("approved_by_user_id") @db.Uuid
+  submittedAt DateTime? @map("submitted_at")
+  approvedAt DateTime? @map("approved_at")
+  approvalRationale String? @map("approval_rationale") @db.Text
+  status GovernancePolicyStatus @default(DRAFT)
+  reviewDueAt DateTime? @map("review_due_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  owner User @relation("GovernancePolicyOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  submittedBy User? @relation("GovernancePolicySubmitter", fields: [submittedByUserId], references: [id], onDelete: Restrict)
+  approvedBy User? @relation("GovernancePolicyApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+  evidenceLinks PolicyEvidenceLink[]
+  @@unique([organizationId, framework, controlReference])
+  @@index([organizationId, status, reviewDueAt])
+  @@map("governance_policies")
+}
+
+model PolicyEvidenceLink {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  policyId String @map("policy_id") @db.Uuid
+  evidenceId String @map("evidence_id") @db.Uuid
+  createdByUserId String @map("created_by_user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  policy GovernancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  evidence GovernanceEvidence @relation(fields: [evidenceId], references: [id], onDelete: Restrict)
+  createdBy User @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  @@unique([policyId, evidenceId])
+  @@index([organizationId, evidenceId])
+  @@map("policy_evidence_links")
 }
 
 model AuditEvent {
