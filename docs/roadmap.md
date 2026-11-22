@@ -93,7 +93,7 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 
 **Product outcome:** give resilience, technology and business teams one governed command workflow from incident declaration through recovery and post-incident learning.
 
-**Current implementation:** tenant-scoped incident records, severity levels, guarded lifecycle transitions, commander ownership, response tasks, timeline events and audit events are implemented on PR #12. CI and review are pending; do not treat the milestone as merged until those gates pass.
+**Delivered:** tenant-scoped incident records, severity levels, guarded lifecycle transitions, commander ownership, response tasks, timeline events and audit events. PR #12 is merged; API quality gates passed.
 
 **Deliverables**
 - Incident register with unique reference, title, description, source, category, severity (SEV-1 to SEV-4), status, commander and timestamps.
