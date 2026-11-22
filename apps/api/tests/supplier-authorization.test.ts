@@ -19,6 +19,7 @@ async function registerTenant(label: string, suffix: string): Promise<Tenant> {
     organizationId: response.body.data.organization.id,
     organizationSlug: response.body.data.organization.slug,
     userId: response.body.data.user.id,
+    email,
     token: response.body.data.accessToken,
   };
 }
