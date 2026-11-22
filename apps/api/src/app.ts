@@ -1,7 +1,6 @@
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import pinoHttp from 'pino-http';
 import { env } from './config/env.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { notFoundHandler } from './middleware/not-found.js';
@@ -22,13 +21,23 @@ app.use(
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 app.use(requestIdMiddleware);
-app.use(
-  pinoHttp({
-    logger,
-    customProps: (_req, res) => ({ requestId: res.getHeader('x-request-id') }),
-    redact: ['req.headers.authorization', 'req.headers.cookie'],
-  }),
-);
+app.use((req, res, next) => {
+  const startedAt = process.hrtime.bigint();
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+    logger.info(
+      {
+        requestId: res.getHeader('x-request-id'),
+        method: req.method,
+        path: req.path,
+        statusCode: res.statusCode,
+        durationMs,
+      },
+      'HTTP request completed',
+    );
+  });
+  next();
+});
 
 app.get('/', (_req, res) => {
   res.status(200).json({
