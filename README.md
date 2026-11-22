@@ -374,7 +374,7 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 17 | Performance, reliability and production hardening | Planned |
 | 18 | Documentation, demo and release readiness | Planned |
 
-See [the detailed roadmap](docs/roadmap.md).
+See [the detailed roadmap](docs/roadmap.md) and the [Milestone 09 incident-management specification](docs/milestone-09.md).
 
 ## Known boundaries
 
