@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Audit production dependencies
-        run: npm audit --omit=dev --workspace=@continuitygrid/api --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
       - name: Validate Prisma schema
         run: npx prisma validate --schema apps/api/prisma/schema.prisma
       - name: Generate Prisma Client
