@@ -389,6 +389,8 @@ model Control {
   ownerName String @map("owner_name") @db.VarChar(120)
   frequency String @db.VarChar(60)
   status ControlStatus @default(DESIGN)
+  lastTestedAt DateTime? @map("last_tested_at")
+  testEvidence String? @map("test_evidence") @db.Text
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
