@@ -93,7 +93,7 @@ The web and API workspaces are now present. Shared contracts and configuration p
 | 04 | Design system, application shell and command center | Implemented; CI passed, PR open |
 | 05 | Business impact analysis | Implemented; CI passed, PR open |
 | 06 | Service and dependency intelligence | In progress; stacked PR pending |
-| 07 | Operational risk and controls | Planned |
+| 07 | Operational risk and controls | Implemented; CI passed, PR pending review |nned |
 | 08 | Business continuity planning | Planned |
 | 09 | Incident and crisis management | Planned |
 | 10 | Disaster recovery orchestration | Planned |
