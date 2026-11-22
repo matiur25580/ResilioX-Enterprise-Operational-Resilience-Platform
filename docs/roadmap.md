@@ -93,16 +93,18 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 
 **Product outcome:** give resilience, technology and business teams one governed command workflow from incident declaration through recovery and post-incident learning.
 
+**Current implementation:** tenant-scoped incident records, severity levels, guarded lifecycle transitions, commander ownership, response tasks, timeline events and audit events are implemented on PR #12. CI and review are pending; do not treat the milestone as merged until those gates pass.
+
 **Deliverables**
 - Incident register with unique reference, title, description, source, category, severity (SEV-1 to SEV-4), status, commander and timestamps.
 - Governed lifecycle: DETECTED → TRIAGED → ACTIVE → MITIGATING → RESOLVED → CLOSED, with explicit cancellation and reopen rules.
-- Impact mapping to tenant-owned business services and affected dependency paths.
-- Response team roster with role, assignment time and acknowledgement state.
+- [ ] Impact mapping to tenant-owned business services and affected dependency paths (next increment).
+- [ ] Response team roster with role, assignment time and acknowledgement state (next increment).
 - Time-ordered event timeline for status changes, decisions, updates and evidence references.
 - Action/task tracking with owner, priority, due time, status and completion notes.
 - Major-incident declaration, decision log and post-incident review with corrective actions.
 - Executive incident metrics: open by severity, time to acknowledge, time to mitigate, recurrence and service impact.
-- Notification adapter boundary with retry/idempotency semantics; no live paging integration until a provider is configured.
+- [ ] Notification adapter boundary with retry/idempotency semantics; no live paging integration until a provider is configured.
 
 **Acceptance**
 - Every query and mutation is scoped to the authenticated organization.
