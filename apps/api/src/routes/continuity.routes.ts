@@ -80,7 +80,7 @@ continuityRouter.post('/:planId/submit',requirePermission('continuity:write'),as
 continuityRouter.post('/:planId/approve',requirePermission('continuity:write'),async(req,res)=>{
  const id=z.string().uuid().parse(req.params.planId), organizationId=req.auth!.organizationId;
  if(!approvers.some(role=>role===req.auth!.role))throw new AppError(403,'CONTINUITY_APPROVAL_FORBIDDEN','Only workspace owners, administrators and resilience managers can approve plans.');
- const current=await prisma.continuityPlan.findFirst({where:{id,organizationId},select:{id:true,status:true}});
+ const current=await prisma.continuityPlan.findFirst({where:{id,organizationId},select:{id:true,status:true,submittedBy:true}});
  if(!current)throw new AppError(404,'CONTINUITY_PLAN_NOT_FOUND','The continuity plan was not found.');
  if(current.status!=='IN_REVIEW')throw new AppError(409,'CONTINUITY_INVALID_TRANSITION','Only plans in review can be approved.');
  if(current.submittedBy===req.auth!.userId)throw new AppError(403,'CONTINUITY_MAKER_CHECKER_REQUIRED','The plan submitter cannot approve their own plan. A different authorized reviewer must approve it.');
