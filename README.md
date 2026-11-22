@@ -1,7 +1,7 @@
-# ContinuityGrid
+# ResilioX
 ### Enterprise Operational Resilience & Business Continuity Intelligence
 
-ContinuityGrid is a multi-tenant resilience workspace that connects business services, impact assessments, technology dependencies, operational risks, controls and continuity plans. It is designed to help teams answer four operational questions:
+ResilioX is a multi-tenant resilience workspace that connects business services, impact assessments, technology dependencies, operational risks, controls and continuity plans. It is designed to help teams answer four operational questions:
 
 1. **What matters most?** Identify critical services, processes and supporting assets.
 2. **What can disrupt it?** Trace dependencies and assess inherent and residual risk.
@@ -37,7 +37,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 
 Resilience information is frequently split across spreadsheets, document libraries, supplier questionnaires, risk tools and incident systems. That fragmentation makes it hard to connect a business service to its recovery objectives, supporting technology, accountable owners and tested continuity arrangements.
 
-ContinuityGrid brings those records into a shared service-centric model. It emphasizes traceable ownership, explainable scoring, controlled lifecycle transitions and evidence-backed assurance rather than presenting a collection of disconnected dashboards.
+ResilioX brings those records into a shared service-centric model. It emphasizes traceable ownership, explainable scoring, controlled lifecycle transitions and evidence-backed assurance rather than presenting a collection of disconnected dashboards.
 
 ### Intended users
 
