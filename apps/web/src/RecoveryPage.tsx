@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { AlertCircle, CheckCircle2, ClipboardCheck, GitBranch, Plus, ShieldCheck, Siren, Target } from 'lucide-react';
 import { api } from './api';
 
-type Service={id:string;name:string;criticality:string;ownerName:string|null};\ntype ContinuityPlan={id:string;serviceId:string;title:string;version:number;status:string};
+type Service={id:string;name:string;criticality:string;ownerName:string|null};
+type ContinuityPlan={id:string;serviceId:string;title:string;version:number;status:string};
 type Incident={id:string;reference:string;title:string;status:string;tasks?:Array<{id:string;title:string;status:string;dueAt:string}>};
 type StepDraft={sequence:number;title:string;description:string;responsibleRole:string;estimatedMinutes:number;validationCriteria:string;dependsOn:number[]};
 type Runbook={id:string;title:string;version:number;status:string;description:string;ownerName:string;serviceId:string;rtoMinutes:number|null;rpoMinutes:number|null;steps:Array<{id:string;sequence:number;title:string;description:string;responsibleRole:string;estimatedMinutes:number;validationCriteria:string;predecessors:Array<{predecessorStepId:string}>}>;service?:{name:string;criticality:string;ownerName:string|null};continuityPlan?:{id:string;title:string;version:number;status:string}|null;simulations?:Array<{id:string;status:string;createdAt:string}>};
