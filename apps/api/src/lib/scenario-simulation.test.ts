@@ -23,7 +23,7 @@ describe('scenario impact engine', () => {
 
   it('propagates verified edges only and ranks critical services first', () => {
     const result = calculateScenarioImpact({
-      root: nodes[0], nodes, edges, durationHours: 24, severity: 'UNAVAILABLE',
+      root: nodes[0]!, nodes, edges, durationHours: 24, severity: 'UNAVAILABLE',
       approvedRtoByService: { critical: 60 },
     });
     expect(result.affectedNodes.map(node => node.id)).toEqual(['supplier', 'app', 'critical', 'low']);
@@ -34,7 +34,7 @@ describe('scenario impact engine', () => {
 
   it('traces service dependencies outward for a service-outage scenario', () => {
     const result = calculateScenarioImpact({
-      root: nodes[2], nodes, edges: [
+      root: nodes[2]!, nodes, edges: [
         edge('BUSINESS_SERVICE', 'critical', 'APPLICATION', 'app'),
         edge('APPLICATION', 'app', 'SUPPLIER', 'supplier'),
       ], durationHours: 8, severity: 'UNAVAILABLE',
@@ -44,17 +44,17 @@ describe('scenario impact engine', () => {
   });
 
   it('is deterministic for identical inputs', () => {
-    const input = { root: nodes[0], nodes, edges, durationHours: 8, severity: 'DEGRADED' as const };
+    const input = { root: nodes[0]!, nodes, edges, durationHours: 8, severity: 'DEGRADED' as const };
     expect(calculateScenarioImpact(input)).toEqual(calculateScenarioImpact(input));
   });
 
   it('rejects invalid duration values', () => {
-    expect(() => calculateScenarioImpact({ root: nodes[0], nodes, edges, durationHours: 0, severity: 'UNAVAILABLE' })).toThrow(/duration/);
+    expect(() => calculateScenarioImpact({ root: nodes[0]!, nodes, edges, durationHours: 0, severity: 'UNAVAILABLE' })).toThrow(/duration/);
   });
 
   it('does not traverse proposed or retired relationships', () => {
     const result = calculateScenarioImpact({
-      root: nodes[0], nodes, edges: [edge('BUSINESS_SERVICE', 'low', 'SUPPLIER', 'supplier', 'RETIRED')],
+      root: nodes[0]!, nodes, edges: [edge('BUSINESS_SERVICE', 'low', 'SUPPLIER', 'supplier', 'RETIRED')],
       durationHours: 4, severity: 'UNAVAILABLE',
     });
     expect(result.affectedNodes).toHaveLength(1);
