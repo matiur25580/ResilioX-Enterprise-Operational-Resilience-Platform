@@ -1,6 +1,6 @@
 # Milestone 09 — Incident and Crisis Management
 
-**Status:** scoped for implementation; not yet shipped.
+**Status:** shipped to main in PR #12. This document records the delivered scope and the remaining follow-on items.
 
 ## Product objective
 
