@@ -157,6 +157,30 @@ enum ContinuityActionSeverity {
   CRITICAL
 }
 
+enum SupplierAssessmentStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SUPERSEDED
+}
+
+enum SupplierContractStatus {
+  DRAFT
+  ACTIVE
+  EXPIRING
+  EXPIRED
+  TERMINATED
+}
+
+enum SupplierEvidenceType {
+  CERTIFICATION
+  AUDIT_REPORT
+  TEST_RESULT
+  POLICY
+  CONTRACT
+  OTHER
+}
+
 enum ImpactHorizon {
   IMMEDIATE
   FOUR_HOURS
@@ -298,10 +322,90 @@ model Supplier {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  contracts      SupplierContract[]
+  assessments    SupplierAssessment[]
 
   @@unique([organizationId, name])
   @@index([organizationId, criticality])
   @@map("suppliers")
+}
+
+model SupplierContract {
+  id                       String                @id @default(uuid()) @db.Uuid
+  organizationId           String                @map("organization_id") @db.Uuid
+  supplierId               String                @map("supplier_id") @db.Uuid
+  contractReference        String                @map("contract_reference") @db.VarChar(120)
+  status                   SupplierContractStatus @default(DRAFT)
+  effectiveAt              DateTime?             @map("effective_at")
+  expiresAt                DateTime?             @map("expires_at")
+  renewalNoticeDays        Int?                  @map("renewal_notice_days")
+  recoveryTimeHours        Int?                  @map("recovery_time_hours")
+  recoveryPointMinutes     Int?                  @map("recovery_point_minutes")
+  serviceCreditTerms       String?               @map("service_credit_terms") @db.Text
+  exitAssistanceTerms      String?               @map("exit_assistance_terms") @db.Text
+  dataReturnTerms          String?               @map("data_return_terms") @db.Text
+  ownerName                String                @map("owner_name") @db.VarChar(120)
+  createdAt                DateTime              @default(now()) @map("created_at")
+  updatedAt                DateTime              @updatedAt @map("updated_at")
+  supplier                 Supplier              @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  services                 SupplierContractService[]
+
+  @@unique([organizationId, contractReference])
+  @@index([organizationId, status, expiresAt])
+  @@index([supplierId, status])
+  @@map("supplier_contracts")
+}
+
+model SupplierContractService {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  contractId     String           @map("contract_id") @db.Uuid
+  serviceId      String           @map("service_id") @db.Uuid
+  contract       SupplierContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@unique([contractId, serviceId])
+  @@index([organizationId, serviceId])
+  @@map("supplier_contract_services")
+}
+
+model SupplierAssessment {
+  id             String                  @id @default(uuid()) @db.Uuid
+  organizationId String                  @map("organization_id") @db.Uuid
+  supplierId     String                  @map("supplier_id") @db.Uuid
+  version        Int                     @default(1)
+  status         SupplierAssessmentStatus @default(DRAFT)
+  ownerName      String                  @map("owner_name") @db.VarChar(120)
+  resilienceScore Int                    @map("resilience_score")
+  securityScore   Int                     @map("security_score")
+  concentrationScore Int                 @map("concentration_score")
+  rationale      String                  @db.Text
+  assessedAt     DateTime?               @map("assessed_at")
+  nextReviewAt   DateTime?               @map("next_review_at")
+  createdAt      DateTime                @default(now()) @map("created_at")
+  updatedAt      DateTime                @updatedAt @map("updated_at")
+  supplier       Supplier                @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  evidence       SupplierEvidence[]
+
+  @@unique([organizationId, supplierId, version])
+  @@index([organizationId, status, updatedAt])
+  @@index([supplierId, assessedAt])
+  @@map("supplier_assessments")
+}
+
+model SupplierEvidence {
+  id             String                @id @default(uuid()) @db.Uuid
+  organizationId String                @map("organization_id") @db.Uuid
+  assessmentId   String                @map("assessment_id") @db.Uuid
+  title          String                @db.VarChar(180)
+  evidenceType   SupplierEvidenceType  @map("evidence_type")
+  reference      String                @db.VarChar(1000)
+  expiresAt      DateTime?             @map("expires_at")
+  recordedBy     String                @map("recorded_by") @db.Uuid
+  createdAt      DateTime              @default(now()) @map("created_at")
+  assessment     SupplierAssessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId, assessmentId, expiresAt])
+  @@map("supplier_evidence")
 }
 
 model Dependency {
