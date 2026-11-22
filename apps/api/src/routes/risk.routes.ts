@@ -32,11 +32,11 @@ function includeRisk() {
   };
 }
 
-riskRouter.get('/summary', async req => {
+riskRouter.get('/summary', async (req, res) => {
   const organizationId = req.auth!.organizationId;
   const risks = await prisma.risk.findMany({ where: { organizationId, status: { not: 'CLOSED' } }, select: { residualScore: true, inherentScore: true, status: true } });
   const controls = await prisma.control.groupBy({ by: ['status'], where: { organizationId }, _count: { _all: true } });
-  return req.res!.json({ data: {
+  return res.json({ data: {
     totalRisks: risks.length,
     criticalRisks: risks.filter(r => r.residualScore >= 17).length,
     highRisks: risks.filter(r => r.residualScore >= 10 && r.residualScore < 17).length,
@@ -99,6 +99,20 @@ riskRouter.post('/controls', requirePermission('continuity:write'), async (req, 
     if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') throw new AppError(409, 'CONTROL_ALREADY_EXISTS', 'A control with this name already exists in this workspace.');
     throw error;
   }
+});
+
+riskRouter.patch('/controls/:controlId/status', requirePermission('continuity:write'), async (req, res) => {
+  const controlId = z.string().uuid().parse(req.params.controlId);
+  const input = z.object({ status: z.enum(controlStatuses), testEvidence: z.string().trim().min(20).max(5000).optional() }).parse(req.body);
+  if (input.status === 'TESTED' && !input.testEvidence) throw new AppError(400, 'CONTROL_TEST_EVIDENCE_REQUIRED', 'A test result and evidence summary are required before a control can be marked tested.');
+  const current = await prisma.control.findFirst({ where: { id: controlId, organizationId: req.auth!.organizationId } });
+  if (!current) throw new AppError(404, 'CONTROL_NOT_FOUND', 'The control was not found.');
+  const updated = await prisma.$transaction(async tx => {
+    const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status } });
+    await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'risk.control_status_changed', targetType: 'control', targetId: controlId, metadata: { from: current.status, to: input.status, testEvidence: input.testEvidence ?? null } } });
+    return record;
+  });
+  res.json({ data: updated });
 });
 
 riskRouter.post('/:riskId/controls', requirePermission('continuity:write'), async (req, res) => {
