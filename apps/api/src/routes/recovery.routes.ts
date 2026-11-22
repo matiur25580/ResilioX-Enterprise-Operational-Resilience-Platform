@@ -133,6 +133,52 @@ recoveryRouter.post('/runbooks', requirePermission('continuity:write'), async (r
   res.status(201).json({ data: created });
 });
 
+recoveryRouter.post('/runbooks/:runbookId/versions', requirePermission('continuity:write'), async (req, res) => {
+  const runbookId = z.string().uuid().parse(req.params.runbookId);
+  const organizationId = req.auth!.organizationId;
+  const source = await prisma.recoveryRunbook.findFirst({
+    where: { id: runbookId, organizationId, status: { in: ['APPROVED', 'RETIRED'] } },
+    include: { steps: { orderBy: { sequence: 'asc' }, include: { predecessors: { select: { predecessorStepId: true } } } } },
+  });
+  if (!source) throw new AppError(404, 'RECOVERY_RUNBOOK_VERSION_SOURCE_NOT_FOUND', 'Only an approved or retired runbook can be copied into a new draft version.');
+  const created = await prisma.$transaction(async tx => {
+    const latest = await tx.recoveryRunbook.aggregate({
+      where: { organizationId, serviceId: source.serviceId, title: source.title },
+      _max: { version: true },
+    });
+    const version = (latest._max.version ?? source.version) + 1;
+    const draft = await tx.recoveryRunbook.create({
+      data: {
+        organizationId, serviceId: source.serviceId, continuityPlanId: source.continuityPlanId,
+        version, title: source.title, description: source.description, ownerName: source.ownerName,
+        rtoMinutes: source.rtoMinutes, rpoMinutes: source.rpoMinutes, reviewDueAt: source.reviewDueAt,
+        createdByUserId: req.auth!.userId,
+      },
+    });
+    const stepMap = new Map<string, string>();
+    for (const step of source.steps) {
+      const copied = await tx.recoveryRunbookStep.create({
+        data: {
+          runbookId: draft.id, sequence: step.sequence, title: step.title, description: step.description,
+          responsibleRole: step.responsibleRole, estimatedMinutes: step.estimatedMinutes,
+          validationCriteria: step.validationCriteria,
+        },
+      });
+      stepMap.set(step.id, copied.id);
+    }
+    const edges = source.steps.flatMap(step => step.predecessors.map(edge => ({
+      predecessorStepId: stepMap.get(edge.predecessorStepId)!,
+      successorStepId: stepMap.get(step.id)!,
+    })));
+    if (edges.length) await tx.recoveryStepDependency.createMany({ data: edges });
+    await tx.auditEvent.create({
+      data: { organizationId, actorUserId: req.auth!.userId, action: 'recovery.runbook_version_created', targetType: 'recovery_runbook', targetId: draft.id, metadata: { sourceRunbookId: source.id, sourceVersion: source.version, version } },
+    });
+    return tx.recoveryRunbook.findFirstOrThrow({ where: { id: draft.id }, include: runbookInclude });
+  });
+  res.status(201).json({ data: created });
+});
+
 recoveryRouter.post('/runbooks/:runbookId/submit', requirePermission('continuity:write'), async (req, res) => {
   const runbookId = z.string().uuid().parse(req.params.runbookId);
   const organizationId = req.auth!.organizationId;
@@ -266,14 +312,25 @@ recoveryRouter.patch('/simulations/:simulationId/steps/:stepId', requirePermissi
     rationale: z.string().trim().min(5).max(2000).optional(),
     evidenceReference: z.string().trim().max(500).optional(),
     waiverRationale: z.string().trim().min(5).max(2000).optional(),
+    remediationTaskId: z.string().uuid().nullable().optional(),
   }).parse(req.body);
   const organizationId = req.auth!.organizationId;
   const current = await prisma.recoverySimulationStep.findFirst({
     where: { id: stepId, simulationId, simulation: { organizationId, status: 'RUNNING' } },
-    include: { runbookStep: { select: { id: true } } },
+    include: { runbookStep: { select: { id: true } }, simulation: { select: { incidentId: true, organizationId: true } } },
   });
   if (!current) throw new AppError(404, 'RECOVERY_SIMULATION_STEP_NOT_FOUND', 'The active simulation step was not found.');
   if (!canTransitionRecoveryStep(current.status, input.status)) throw new AppError(409, 'RECOVERY_STEP_INVALID_TRANSITION', `Cannot move a recovery step from ${current.status} to ${input.status}.`);
+  if (input.remediationTaskId) {
+    const task = await prisma.incidentTask.findFirst({
+      where: {
+        id: input.remediationTaskId,
+        incident: { organizationId, ...(current.simulation.incidentId ? { id: current.simulation.incidentId } : {}) },
+      },
+      select: { id: true },
+    });
+    if (!task) throw new AppError(422, 'RECOVERY_REMEDIATION_TASK_INVALID', 'The remediation task must belong to this workspace and, when linked, the simulation incident.');
+  }
   if (input.status !== 'IN_PROGRESS' && !input.outcome) throw new AppError(422, 'RECOVERY_STEP_OUTCOME_REQUIRED', 'A step outcome summary is required when recording a result.');
   if (['FAILED', 'BLOCKED'].includes(input.status) && !input.rationale) throw new AppError(422, 'RECOVERY_STEP_RATIONALE_REQUIRED', 'Failed or blocked steps require a rationale.');
   if (input.status === 'SKIPPED' && !input.waiverRationale) throw new AppError(422, 'RECOVERY_STEP_WAIVER_REQUIRED', 'A skipped prerequisite requires an explicit waiver rationale.');
@@ -300,6 +357,7 @@ recoveryRouter.patch('/simulations/:simulationId/steps/:stepId', requirePermissi
         ...(input.rationale ? { rationale: input.rationale } : {}),
         ...(input.evidenceReference ? { evidenceReference: input.evidenceReference } : {}),
         ...(input.waiverRationale ? { waiverRationale: input.waiverRationale } : {}),
+        ...(input.remediationTaskId !== undefined ? { remediationTaskId: input.remediationTaskId } : {}),
         ...(input.status === 'IN_PROGRESS' ? { startedAt: now } : {}),
         ...(['SUCCEEDED', 'FAILED', 'BLOCKED', 'SKIPPED'].includes(input.status) ? { completedAt: now } : {}),
       },
@@ -310,6 +368,39 @@ recoveryRouter.patch('/simulations/:simulationId/steps/:stepId', requirePermissi
     return tx.recoverySimulationStep.findFirstOrThrow({ where: { id: stepId } });
   });
   res.json({ data: updated });
+});
+
+recoveryRouter.post('/simulations/:simulationId/steps/:stepId/validations', requirePermission('continuity:write'), async (req, res) => {
+  const simulationId = z.string().uuid().parse(req.params.simulationId);
+  const stepId = z.string().uuid().parse(req.params.stepId);
+  const input = z.object({
+    validationType: z.string().trim().min(3).max(80),
+    result: z.enum(['PASS', 'FAIL', 'INCONCLUSIVE']),
+    details: z.string().trim().min(5).max(5000),
+    evidenceReference: z.string().trim().max(500).optional(),
+  }).parse(req.body);
+  const current = await prisma.recoverySimulationStep.findFirst({
+    where: { id: stepId, simulationId, simulation: { organizationId: req.auth!.organizationId } },
+    select: { id: true },
+  });
+  if (!current) throw new AppError(404, 'RECOVERY_SIMULATION_STEP_NOT_FOUND', 'The simulation step was not found.');
+  const created = await prisma.$transaction(async tx => {
+    const validation = await tx.recoveryStepValidation.create({
+      data: {
+        simulationStepId: stepId, actorUserId: req.auth!.userId,
+        validationType: input.validationType, result: input.result,
+        details: input.details, evidenceReference: input.evidenceReference,
+      },
+    });
+    await tx.recoveryEvent.create({
+      data: { simulationId, actorUserId: req.auth!.userId, eventType: 'STEP_VALIDATED', message: `Step validation recorded: ${input.result}.`, metadata: { stepId, validationId: validation.id, result: input.result, validationType: input.validationType } },
+    });
+    await tx.auditEvent.create({
+      data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'recovery.simulation_step_validated', targetType: 'recovery_simulation_step', targetId: stepId, metadata: { validationId: validation.id, result: input.result } },
+    });
+    return validation;
+  });
+  res.status(201).json({ data: created });
 });
 
 recoveryRouter.post('/simulations/:simulationId/complete', requirePermission('continuity:write'), async (req, res) => {
