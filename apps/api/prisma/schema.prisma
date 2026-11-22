@@ -128,6 +128,8 @@ model Organization {
   suppliers   Supplier[]
   dependencies Dependency[]
   biaAssessments BusinessImpactAssessment[]
+  risks Risk[]
+  controls Control[]
 
   @@index([status])
   @@map("organizations")
