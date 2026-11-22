@@ -21,7 +21,6 @@ describe('recovery orchestration API', () => {
     expect((await request(app).post(`/api/v1/recovery/simulations/${id}/start`).send({})).status).toBe(401);
     expect((await request(app).patch(`/api/v1/recovery/simulations/${id}/steps/${id}`).send({})).status).toBe(401);
     expect((await request(app).post(`/api/v1/recovery/simulations/${id}/steps/${id}/validations`).send({})).status).toBe(401);
-    expect((await request(app).post(`/api/v1/recovery/simulations/${id}/steps/${id}/validations`).send({})).status).toBe(401);
     expect((await request(app).post(`/api/v1/recovery/simulations/${id}/complete`).send({})).status).toBe(401);
     expect((await request(app).post(`/api/v1/recovery/simulations/${id}/cancel`).send({})).status).toBe(401);
   });
