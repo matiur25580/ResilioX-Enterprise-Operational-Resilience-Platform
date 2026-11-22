@@ -16,7 +16,9 @@
     "db:migrate": "npm run db:migrate --workspace @continuitygrid/api",
     "db:deploy": "npm run db:deploy --workspace @continuitygrid/api",
     "db:seed": "npm run db:seed --workspace @continuitygrid/api",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "dev:web": "npm run dev --workspace @continuitygrid/web",
+    "build:web": "npm run build --workspace @continuitygrid/web"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
