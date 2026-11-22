@@ -33,7 +33,7 @@ const shutdown = async (signal: string) => {
   setTimeout(() => {
     logger.error('Graceful shutdown timed out');
     process.exit(1);
-  }, 10_000).unref();
+  }, 10_000);
 };
 
 process.on('SIGTERM', () => void shutdown('SIGTERM'));
