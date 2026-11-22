@@ -83,10 +83,7 @@ describe('governance evidence, policy and audit authorization', () => {
       await prisma.policyEvidenceLink.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.governancePolicy.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.governanceEvidence.deleteMany({ where: { organizationId: { in: organizationIds } } });
-      await prisma.$transaction(async tx => {
-        await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
-        await tx.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
-      });
+      // Audit events are retained; deleting the tenant nulls FK identity references without changing event content.
       const userIds = [owner.userId, reviewer.userId, analyst.userId, viewer.userId, foreign.userId];
       await prisma.refreshSession.deleteMany({ where: { userId: { in: userIds } } });
       await prisma.membership.deleteMany({ where: { organizationId: { in: organizationIds } } });
