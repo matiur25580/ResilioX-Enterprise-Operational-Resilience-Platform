@@ -49,10 +49,7 @@ describe('scenario simulation authorization and tenant boundaries', () => {
       expect((await request(app).get('/api/v1/scenarios/runs').set('Authorization', `Bearer ${foreign.token}`)).body.data).toHaveLength(0);
     } finally {
       const organizationIds = [owner.organizationId, foreign.organizationId, analyst.organizationId];
-      await prisma.$transaction(async tx => {
-          await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
-          await tx.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
-        });
+      // Audit events are retained; deleting the tenant nulls FK identity references without changing event content.
       await prisma.businessService.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.refreshSession.deleteMany({ where: { userId: { in: [owner.userId, foreign.userId, analyst.userId] } } });
       await prisma.membership.deleteMany({ where: { organizationId: { in: organizationIds } } });
