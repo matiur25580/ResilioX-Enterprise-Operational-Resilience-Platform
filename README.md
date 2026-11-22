@@ -8,7 +8,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–07 are merged to `main`; Milestone 08 is submitted as a clean mainline pull request and undergoing CI verification. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -66,7 +66,7 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 | Dependency intelligence | Typed tenant-scoped edges, lifecycle, cycle prevention and verified graph traversal | Implemented |
 | Operational risk | Risk register, inherent/residual scoring, service/dependency links and treatment actions | Implemented |
 | Control assurance | Control library, evidence-backed test status and residual-risk recalculation | Implemented |
-| Business continuity | Service-linked versioned plans, activation criteria, recovery procedures, approval, exercises and remediation | Implemented; PR #11 CI pending |
+| Business continuity | Service-linked versioned plans, activation criteria, recovery procedures, approval, exercises and remediation | Merged to `main` in PR #11; CI passed |
 | Incident & crisis management | Incident command, response team and decision timeline | Planned |
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
@@ -370,12 +370,12 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | --- | --- | --- |
 | 01 | Product definition and repository foundation | Completed |
 | 02 | Backend, PostgreSQL and API foundation | Completed; dependency advisory tracked |
-| 03 | Identity, sessions, tenancy and RBAC | Implemented; PR #1 open |
-| 04 | Design system and command center | Implemented; PR #2 open |
-| 05 | Business impact analysis | Implemented; PR #3 open |
-| 06 | Service and dependency intelligence | Implemented; PR #4 open |
-| 07 | Operational risk and controls | Implemented; PR #5 open; CI passed |
-| 08 | Business continuity management | Implemented in feature branch; CI verification pending |
+| 03 | Identity, sessions, tenancy and RBAC | Merged to `main` (PR #1) |
+| 04 | Design system and command center | Merged to `main` (PR #7) |
+| 05 | Business impact analysis | Merged to `main` (PR #8) |
+| 06 | Service and dependency intelligence | Merged to `main` (PR #9); CI passed |
+| 07 | Operational risk and controls | Merged to `main` (PR #10); CI passed |
+| 08 | Business continuity management | Merged to `main` (PR #11); CI passed |
 | 09 | Incident and crisis management | Planned |
 | 10 | Disaster recovery orchestration | Planned |
 | 11 | Third-party resilience | Planned |
