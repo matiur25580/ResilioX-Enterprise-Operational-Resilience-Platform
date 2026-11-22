@@ -39,7 +39,7 @@ try {
   await shot('03-business-impact-analysis.png', 'Recovery objectives and impact assessment workspace');
   await open('Dependencies');
   await shot('04-dependency-intelligence.png', 'Tenant dependency register and relationship assurance');
-  await page.getByRole('button', { name: /add dependency|new relationship/i }).first().click().catch(() => {});
+  await page.getByRole('button', { name: /add relationship/i }).first().click().catch(() => {});
   await page.waitForTimeout(300);
   await shot('05-dependency-workflow.png', 'Relationship capture and verification workflow');
   await open('Risk & controls');
