@@ -71,7 +71,9 @@ continuityRouter.post('/:planId/submit',requirePermission('continuity:write'),as
  if(!current)throw new AppError(404,'CONTINUITY_PLAN_NOT_FOUND','The continuity plan was not found.');
  if(current.status!=='DRAFT')throw new AppError(409,'CONTINUITY_INVALID_TRANSITION','Only draft plans can be submitted.');
  const updated=await prisma.$transaction(async tx=>{
-  const p=await tx.continuityPlan.update({where:{id},data:{status:'IN_REVIEW',submittedAt:new Date(),submittedBy:req.auth!.userId},include:planInclude});
+  const changed=await tx.continuityPlan.updateMany({where:{id,status:'DRAFT'},data:{status:'IN_REVIEW',submittedAt:new Date(),submittedBy:req.auth!.userId}});
+  if(changed.count!==1)throw new AppError(409,'CONTINUITY_CONCURRENT_UPDATE','The plan changed while this action was being processed. Refresh and try again.');
+  const p=await tx.continuityPlan.findFirstOrThrow({where:{id,organizationId},include:planInclude});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.plan_submitted',targetType:'continuity_plan',targetId:id}});
   return p;
  });
@@ -85,7 +87,9 @@ continuityRouter.post('/:planId/approve',requirePermission('continuity:write'),a
  if(current.status!=='IN_REVIEW')throw new AppError(409,'CONTINUITY_INVALID_TRANSITION','Only plans in review can be approved.');
  if(current.submittedBy===req.auth!.userId)throw new AppError(403,'CONTINUITY_MAKER_CHECKER_REQUIRED','The plan submitter cannot approve their own plan. A different authorized reviewer must approve it.');
  const updated=await prisma.$transaction(async tx=>{
-  const p=await tx.continuityPlan.update({where:{id},data:{status:'APPROVED',approvedAt:new Date(),approvedBy:req.auth!.userId},include:planInclude});
+  const changed=await tx.continuityPlan.updateMany({where:{id,status:'IN_REVIEW',submittedBy:{not:req.auth!.userId}},data:{status:'APPROVED',approvedAt:new Date(),approvedBy:req.auth!.userId}});
+  if(changed.count!==1)throw new AppError(409,'CONTINUITY_CONCURRENT_UPDATE','The plan changed while this action was being processed. Refresh and try again.');
+  const p=await tx.continuityPlan.findFirstOrThrow({where:{id,organizationId},include:planInclude});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.plan_approved',targetType:'continuity_plan',targetId:id}});
   return p;
  });
@@ -98,7 +102,9 @@ continuityRouter.post('/:planId/retire',requirePermission('continuity:write'),as
  if(!current)throw new AppError(404,'CONTINUITY_PLAN_NOT_FOUND','The continuity plan was not found.');
  if(current.status!=='APPROVED')throw new AppError(409,'CONTINUITY_INVALID_TRANSITION','Only approved plans can be retired.');
  const p=await prisma.$transaction(async tx=>{
-  const updated=await tx.continuityPlan.update({where:{id},data:{status:'RETIRED'},include:planInclude});
+  const changed=await tx.continuityPlan.updateMany({where:{id,status:'APPROVED'},data:{status:'RETIRED'}});
+  if(changed.count!==1)throw new AppError(409,'CONTINUITY_CONCURRENT_UPDATE','The plan changed while this action was being processed. Refresh and try again.');
+  const updated=await tx.continuityPlan.findFirstOrThrow({where:{id,organizationId},include:planInclude});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.plan_retired',targetType:'continuity_plan',targetId:id}});
   return updated;
  });
@@ -126,7 +132,9 @@ continuityRouter.patch('/exercises/:exerciseId/status',requirePermission('contin
  const allowed=current.status==='PLANNED'?['IN_PROGRESS','CANCELLED']:['COMPLETED','CANCELLED'];
  if(!allowed.some(status=>status===input.status))throw new AppError(409,'CONTINUITY_EXERCISE_INVALID_TRANSITION','Planned exercises must start or be cancelled; in-progress exercises must be completed or cancelled.');
  const updated=await prisma.$transaction(async tx=>{
-  const e=await tx.continuityExercise.update({where:{id},data:{status:input.status,...(input.result?{result:input.result}:{}),...(input.findings?{findings:input.findings}:{}),completedAt:input.status==='COMPLETED'?new Date():null}});
+  const changed=await tx.continuityExercise.updateMany({where:{id,status:current.status},data:{status:input.status,...(input.result?{result:input.result}:{}),...(input.findings?{findings:input.findings}:{}),completedAt:input.status==='COMPLETED'?new Date():null}});
+  if(changed.count!==1)throw new AppError(409,'CONTINUITY_CONCURRENT_UPDATE','The exercise changed while this action was being processed. Refresh and try again.');
+  const e=await tx.continuityExercise.findFirstOrThrow({where:{id}});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.exercise_status_changed',targetType:'continuity_exercise',targetId:id,metadata:{from:current.status,to:input.status,result:input.result??null}}});
   return e;
  });
@@ -150,7 +158,9 @@ continuityRouter.patch('/actions/:actionId',requirePermission('continuity:write'
  const current=await prisma.continuityAction.findFirst({where:{id,exercise:{plan:{organizationId}}},select:{id:true,status:true}});
  if(!current)throw new AppError(404,'CONTINUITY_ACTION_NOT_FOUND','The remediation action was not found.');
  const action=await prisma.$transaction(async tx=>{
-  const a=await tx.continuityAction.update({where:{id},data:{status:input.status,...(input.notes!==undefined?{notes:input.notes}:{}),completedAt:input.status==='COMPLETED'?new Date():null}});
+  const changed=await tx.continuityAction.updateMany({where:{id,status:current.status},data:{status:input.status,...(input.notes!==undefined?{notes:input.notes}:{}),completedAt:input.status==='COMPLETED'?new Date():null}});
+  if(changed.count!==1)throw new AppError(409,'CONTINUITY_CONCURRENT_UPDATE','The action changed while this update was being processed. Refresh and try again.');
+  const a=await tx.continuityAction.findFirstOrThrow({where:{id}});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.action_updated',targetType:'continuity_action',targetId:id,metadata:{from:current.status,to:input.status}}});
   return a;
  });
