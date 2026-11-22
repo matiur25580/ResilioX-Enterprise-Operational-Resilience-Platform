@@ -16,6 +16,7 @@ import { continuityRouter } from './routes/continuity.routes.js';
 import { incidentRouter } from './routes/incident.routes.js';
 import { supplierRouter } from './routes/supplier.routes.js';
 import { scenarioRouter } from './routes/scenario.routes.js';
+import { governanceRouter } from './routes/governance.routes.js';
 
 export const app = express();
 
@@ -68,5 +69,6 @@ app.use(`${env.API_BASE_PATH}/continuity`, continuityRouter);
 app.use(`${env.API_BASE_PATH}/incidents`, incidentRouter);
 app.use(`${env.API_BASE_PATH}/suppliers`, supplierRouter);
 app.use(`${env.API_BASE_PATH}/scenarios`, scenarioRouter);
+app.use(`${env.API_BASE_PATH}/governance`, governanceRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
