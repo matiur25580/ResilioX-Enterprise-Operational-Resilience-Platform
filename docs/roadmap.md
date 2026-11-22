@@ -39,7 +39,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Cross-tenant reads and writes are denied and tested.
 - Privileged operations enforce server-side permissions.
 
-## 04 — Design system and command center — In progress
+## 04 — Design system and command center — Implemented (CI passed; PR open)
 **Deliverables**
 - Accessible application shell, navigation and responsive layouts.
 - Reusable data table, forms, dialogs, filters, charts and status patterns.
