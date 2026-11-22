@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
-import { canApproveRunbook, canStartRecoveryStep, hasDependencyCycle } from '../lib/recovery-orchestration.js';
+import { canApproveRunbook, canStartRecoveryStep, hasDependencyCycle, isSimulationReady } from '../lib/recovery-orchestration.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { AppError } from '../middleware/error-handler.js';
 
