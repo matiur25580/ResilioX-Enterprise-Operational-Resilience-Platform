@@ -87,8 +87,8 @@ This is the intended structure; directories will appear as their milestones are 
 
 | Milestone | Scope | Status |
 | --- | --- | --- |
-| 01 | Product definition, architecture, repository standards | In progress |
-| 02 | PostgreSQL schema, Prisma and API foundation | Planned |
+| 01 | Product definition, architecture, repository standards | Completed |
+| 02 | PostgreSQL schema, Prisma and API foundation | Completed (tooling advisory tracked) |
 | 03 | Authentication, sessions, tenancy and RBAC | Planned |
 | 04 | Design system, application shell and command center | Planned |
 | 05 | Business impact analysis | Planned |
