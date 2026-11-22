@@ -65,7 +65,7 @@
 .supplier-field-help{font-weight:400}
 @media(prefers-reduced-motion:reduce){.supplier-page *{scroll-behavior:auto!important;transition-duration:0.01ms!important;animation-duration:0.01ms!important;animation-iteration-count:1!important}}
 
-/* Supplier contrast and status readability adjustments (WCAG AA text target). */
+/* Supplier contrast and status readability adjustments. */
 .supplier-card .panel-heading p,.supplier-record span,.supplier-record small,.supplier-score-guide,.supplier-field-help{color:#46566b}
 .supplier-page .incident-state{color:#45566c}
 .supplier-page .success-notice{color:#24634f}
