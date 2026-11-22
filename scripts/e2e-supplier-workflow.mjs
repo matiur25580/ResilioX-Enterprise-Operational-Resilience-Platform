@@ -66,7 +66,6 @@ try {
   assert.match(nextFocusLabel ?? '', /Supplier name/, 'Keyboard focus should enter the expanded supplier form in DOM order.');
   const focusOutline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
   assert.equal(focusOutline, 'solid', 'Keyboard focus must have a visible outline.');
-  await addSupplier.click();
   assert.equal(await addSupplier.getAttribute('aria-expanded'), 'true');
   assert.equal(await page.locator('#supplier-register-form').count(), 1);
 
