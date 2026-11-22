@@ -40,7 +40,7 @@ describe('business impact assessment validation', () => {
     expect(assessmentSchema.safeParse({ ...base, rtoMinutes: 1441 }).success).toBe(false);
   });
   it('rejects duplicate or missing impact horizons', () => {
-    const impacts = [...base.impacts.slice(0, 4), { ...base.impacts[0], horizon: 'ONE_WEEK' as const }];
+    const impacts = [...base.impacts.slice(0, 4), { ...base.impacts[0], horizon: 'FOUR_HOURS' as const }];
     expect(assessmentSchema.safeParse({ ...base, impacts }).success).toBe(false);
   });
   it('rejects scores outside the 1–5 impact scale', () => {
