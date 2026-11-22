@@ -43,7 +43,6 @@ describe('supplier role authorization and tenant boundaries', () => {
     let foreignServiceId: string | undefined;
     let supplierId: string | undefined;
     let assessmentId: string | undefined;
-    const extraSupplierIds: string[] = [];
 
     try {
       const owner = await registerTenant('owner', suffix); tenants.push(owner);
@@ -110,7 +109,10 @@ describe('supplier role authorization and tenant boundaries', () => {
 
       const foreignSubmit = await request(app).post(`/api/v1/suppliers/assessments/${assessmentId}/submit`)
         .set('Authorization', `Bearer ${foreign.token}`).send({});
+      // Submission is implemented as a tenant-scoped conditional update; no matching
+      // row produces the same non-submittable response as an already-transitioned draft.
       expect(foreignSubmit.status).toBe(409);
+      expect(foreignSubmit.body.error.code).toBe('SUPPLIER_ASSESSMENT_NOT_SUBMITTABLE');
       const foreignApprove = await request(app).post(`/api/v1/suppliers/assessments/${assessmentId}/approve`)
         .set('Authorization', `Bearer ${foreign.token}`).send({ rationale: 'Foreign tenant attempt.' });
       expect(foreignApprove.status).toBe(404);
@@ -130,7 +132,6 @@ describe('supplier role authorization and tenant boundaries', () => {
           .set('Authorization', `Bearer ${token}`)
           .send({ name: `${role} Supplier ${suffix}` });
         expect(created.status).toBe(201);
-        extraSupplierIds.push(created.body.data.id);
       }
 
       for (const [role, token] of [['ANALYST', analystToken], ['VIEWER', viewerToken]] as const) {
