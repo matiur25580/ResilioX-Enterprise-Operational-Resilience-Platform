@@ -1,6 +1,8 @@
-# Dashboard screenshot capture
+# Optional application screenshot capture
 
-The README reserves a single-column gallery for twelve authentic application screenshots. The images must be captured from a running ContinuityGrid instance using fictional demo data. Do not substitute generated mockups or screenshots containing real customer data.
+The README gallery currently contains twelve **illustrative SVG UI concepts**, not browser screenshots. They are fictional visual examples and must not be described as deployed screens or live telemetry. The SVG gallery remains the source of truth for the README until authentic application captures are reviewed and intentionally published.
+
+This optional Playwright utility can capture the running local application as a separate set of PNG files. Captures are not automatically evidence of production readiness; review them for correct behavior, fictional data, privacy and visual quality before publishing. Do not overwrite the SVG concepts or represent an unverified screen as a shipped capability.
 
 ## Capture
 
@@ -16,21 +18,13 @@ export SHOWCASE_TENANT=continuitygrid-demo
 npm run capture:showcase
 ```
 
-The script creates:
+The script writes twelve PNG files to `docs/screenshots/`. Keep the SVG concept files unchanged. The capture is intentionally non-destructive: it navigates the application and opens forms but does not submit forms, approve plans or change exercise/action state.
 
-1. `01-command-center.png`
-2. `02-service-portfolio.png`
-3. `03-business-impact-analysis.png`
-4. `04-dependency-intelligence.png`
-5. `05-dependency-workflow.png`
-6. `06-risk-register.png`
-7. `07-risk-identification.png`
-8. `08-control-assurance.png`
-9. `09-continuity-workspace.png`
-10. `10-continuity-plan-builder.png`
-11. `11-exercise-management.png`
-12. `12-remediation-tracker.png`
+Before publishing PNGs:
+- use only a local fictional demo tenant and credentials;
+- verify each captured workflow actually exists and works;
+- review desktop and responsive layouts for clipping;
+- remove secrets, personal data and any real customer information;
+- update README labels and links only after the screenshots have been reviewed and verified.
 
-The capture is intentionally non-destructive: it navigates the application and opens forms but does not submit forms, approve plans or change exercise/action state. To show populated exercise and remediation states, prepare a fictional approved plan and completed exercise with actions before capture.
-
-Review the PNGs at desktop size, verify responsive content is not clipped, remove any sensitive values, then commit them to `docs/screenshots/`. The README image references resolve once those captures are committed.
+Never use production credentials or real customer data for portfolio screenshots.
