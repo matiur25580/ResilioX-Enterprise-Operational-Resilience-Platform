@@ -4,7 +4,7 @@
 
 **ContinuityGrid** is a portfolio-grade enterprise platform concept built with the PERN stack. It brings business continuity, operational risk, technology dependencies, third-party resilience, incident response, and disaster recovery into one traceable operating model.
 
-> **Project status:** Milestones 01–05 have implementation in review branches; milestone pull requests and CI verification are tracked individually. Future capabilities remain planned until implemented and tested. Future capabilities remain planned until implemented and tested. Integrations and scenario data are explicitly labelled as simulated unless connected to a verified external system.
+> **Project status:** Milestones 01–05 have implementation in review branches; milestone pull requests and CI verification are tracked individually. Future capabilities remain planned until implemented and tested. Integrations and scenario data are explicitly labelled as simulated unless connected to a verified external system.
 
 ## Why ContinuityGrid?
 
