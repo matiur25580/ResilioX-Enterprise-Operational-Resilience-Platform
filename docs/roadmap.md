@@ -69,7 +69,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Invalid relationships are rejected.
 - Traversal is deterministic and tenant-scoped.
 
-## 07 — Operational risk and controls — Implemented in branch (PR pending CI)
+## 07 — Operational risk and controls — Implemented (PR #5 open; CI passed)
 **Deliverables**
 - Risk register, likelihood/impact scales and inherent/residual scores.
 - Control library, control assessments and treatment plans.
@@ -79,7 +79,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Scoring model is documented and tested.
 - Changes are auditable.
 
-## 08 — Business continuity management
+## 08 — Business continuity management — Implemented in feature branch (CI verification pending)
 **Deliverables**
 - Continuity strategies and plans.
 - Plan ownership, versioning, review and approval.
