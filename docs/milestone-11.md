@@ -44,4 +44,4 @@ All routes are mounted under `/api/v1/suppliers`. Reads require an authenticated
 
 ## Verification and release gates
 
-CI must validate the Prisma schema and migration, generate Prisma Client, type-check API/web, run automated tests, audit dependencies and build both applications. Release acceptance still requires authenticated cross-tenant integration tests, browser-level workflow coverage, accessibility review and operational review of scoring definitions.
+CI validates the Prisma schema and migration, generates Prisma Client, type-checks API/web, runs automated tests, audits production dependencies and builds both applications. The suite now includes a two-tenant supplier isolation integration test and a Chromium workflow covering sign-in, supplier registration, contract creation, assessment drafting, evidence recording and review submission. Remaining release gates are broader multi-role and cross-tenant coverage, a dedicated accessibility audit and operational review of scoring definitions.
