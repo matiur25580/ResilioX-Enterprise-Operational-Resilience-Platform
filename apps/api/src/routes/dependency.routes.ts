@@ -142,7 +142,7 @@ dependencyRouter.patch('/:dependencyId/status', requirePermission('continuity:wr
   const result = await prisma.$transaction(async tx => {
     const update = await tx.dependency.updateMany({
       where: { id: dependencyId, organizationId, status: current.status },
-      data: { status: input.status, verifiedAt: input.status === 'VERIFIED' ? new Date() : null },
+      data: { status: input.status, verifiedAt: input.status === 'VERIFIED' ? new Date() : current.verifiedAt },
     });
     if (update.count !== 1) throw new AppError(409, 'DEPENDENCY_CONCURRENT_UPDATE', 'The dependency changed while this request was being processed. Refresh and retry.');
     const updated = await tx.dependency.findFirst({ where: { id: dependencyId, organizationId } });
