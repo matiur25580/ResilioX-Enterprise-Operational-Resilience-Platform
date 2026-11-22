@@ -398,7 +398,7 @@ recoveryRouter.post('/simulations/:simulationId/steps/:stepId/validations', requ
     evidenceReference: z.string().trim().max(500).optional(),
   }).parse(req.body);
   const current = await prisma.recoverySimulationStep.findFirst({
-    where: { id: stepId, simulationId, simulation: { organizationId: req.auth!.organizationId } },
+    where: { id: stepId, simulationId, simulation: { organizationId: req.auth!.organizationId, status: 'RUNNING' } },
     select: { id: true },
   });
   if (!current) throw new AppError(404, 'RECOVERY_SIMULATION_STEP_NOT_FOUND', 'The simulation step was not found.');
@@ -429,12 +429,12 @@ recoveryRouter.post('/simulations/:simulationId/complete', requirePermission('co
     dataLossAssumptionMinutes: z.number().int().min(0).max(525600),
   }).parse(req.body);
   const organizationId = req.auth!.organizationId;
-  const current = await prisma.recoverySimulation.findFirst({ where: { id: simulationId, organizationId }, include: { steps: { select: { status: true } } } });
+  const current = await prisma.recoverySimulation.findFirst({ where: { id: simulationId, organizationId }, include: { steps: { select: { status: true, validations: { select: { result: true } } } } } });
   if (!current) throw new AppError(404, 'RECOVERY_SIMULATION_NOT_FOUND', 'The simulation was not found.');
   if (current.status !== 'RUNNING' || current.steps.some(step => ['PENDING', 'READY', 'IN_PROGRESS'].includes(step.status))) {
     throw new AppError(409, 'RECOVERY_SIMULATION_INCOMPLETE', 'Every simulation step must have a recorded outcome before completion.');
   }
-  const hasBlockingOutcome = current.steps.some(step => ['FAILED', 'BLOCKED'].includes(step.status));
+  const hasBlockingOutcome = current.steps.some(step => ['FAILED', 'BLOCKED'].includes(step.status) || step.validations.some(validation => ['FAIL', 'INCONCLUSIVE'].includes(validation.result)));
   const terminalStatus = hasBlockingOutcome ? 'BLOCKED' : 'COMPLETED';
   const rtoAssessment = compareRecoveryTarget(current.targetRtoMinutes, input.simulatedElapsedMinutes);
   const rpoAssessment = compareRecoveryTarget(current.targetRpoMinutes, input.dataLossAssumptionMinutes);
@@ -444,7 +444,7 @@ recoveryRouter.post('/simulations/:simulationId/complete', requirePermission('co
       data: { status: terminalStatus, completedAt: new Date(), summary: input.summary, simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes },
     });
     if (changed.count !== 1) throw new AppError(409, 'RECOVERY_SIMULATION_CONCURRENT_UPDATE', 'The simulation changed while completing. Refresh and try again.');
-    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: hasBlockingOutcome ? 'SIMULATION_BLOCKED' : 'SIMULATION_COMPLETED', message: hasBlockingOutcome ? 'Simulation closed with failed or blocked steps. Results represent rehearsal observations only.' : 'Simulation completed. Results represent rehearsal observations, not proof of real recovery capability.', metadata: { simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes, targetRtoMinutes: current.targetRtoMinutes, targetRpoMinutes: current.targetRpoMinutes, rtoAssessment, rpoAssessment } } });
+    await tx.recoveryEvent.create({ data: { simulationId, actorUserId: req.auth!.userId, eventType: hasBlockingOutcome ? 'SIMULATION_BLOCKED' : 'SIMULATION_COMPLETED', message: hasBlockingOutcome ? 'Simulation closed with failed or blocked steps or validation checks. Results represent rehearsal observations only.' : 'Simulation completed. Results represent rehearsal observations, not proof of real recovery capability.', metadata: { simulatedElapsedMinutes: input.simulatedElapsedMinutes, dataLossAssumptionMinutes: input.dataLossAssumptionMinutes, targetRtoMinutes: current.targetRtoMinutes, targetRpoMinutes: current.targetRpoMinutes, rtoAssessment, rpoAssessment } } });
     await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: hasBlockingOutcome ? 'recovery.simulation_blocked' : 'recovery.simulation_completed', targetType: 'recovery_simulation', targetId: simulationId } });
     return tx.recoverySimulation.findFirstOrThrow({ where: { id: simulationId }, include: { steps: true, events: { orderBy: { createdAt: 'asc' } } } });
   });
