@@ -14,7 +14,7 @@ export function calculateScenarioImpact(input: {
     throw new Error('Scenario duration must be between 1 and 720 whole hours.');
   }
   const nodeKey = (node: GraphNode) => node.type + ':' + node.id;
-  const byKey = new Map(input.nodes.map(node => [nodeKey(node), node]));
+  const byKey = new Map(input.nodes.map(node => [nodeKey(node), node] as const));
   const adjacency = new Map<string, GraphEdge[]>();
   for (const edge of input.edges) {
     if (edge.status !== 'VERIFIED') continue;
