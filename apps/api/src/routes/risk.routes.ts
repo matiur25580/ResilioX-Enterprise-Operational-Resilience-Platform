@@ -108,7 +108,7 @@ riskRouter.patch('/controls/:controlId/status', requirePermission('continuity:wr
   const current = await prisma.control.findFirst({ where: { id: controlId, organizationId: req.auth!.organizationId } });
   if (!current) throw new AppError(404, 'CONTROL_NOT_FOUND', 'The control was not found.');
   const updated = await prisma.$transaction(async tx => {
-    const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status } });
+    const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status, ...(input.status === 'TESTED' ? { lastTestedAt: new Date(), testEvidence: input.testEvidence } : {}) } });
     await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'risk.control_status_changed', targetType: 'control', targetId: controlId, metadata: { from: current.status, to: input.status, testEvidence: input.testEvidence ?? null } } });
     return record;
   });
