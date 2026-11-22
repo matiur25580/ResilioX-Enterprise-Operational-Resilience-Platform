@@ -79,7 +79,7 @@ continuityRouter.post('/:planId/submit',requirePermission('continuity:write'),as
 });
 continuityRouter.post('/:planId/approve',requirePermission('continuity:write'),async(req,res)=>{
  const id=z.string().uuid().parse(req.params.planId), organizationId=req.auth!.organizationId;
- if(!approvers.includes(req.auth!.role))throw new AppError(403,'CONTINUITY_APPROVAL_FORBIDDEN','Only workspace owners, administrators and resilience managers can approve plans.');
+ if(!approvers.some(role=>role===req.auth!.role))throw new AppError(403,'CONTINUITY_APPROVAL_FORBIDDEN','Only workspace owners, administrators and resilience managers can approve plans.');
  const current=await prisma.continuityPlan.findFirst({where:{id,organizationId},select:{id:true,status:true}});
  if(!current)throw new AppError(404,'CONTINUITY_PLAN_NOT_FOUND','The continuity plan was not found.');
  if(current.status!=='IN_REVIEW')throw new AppError(409,'CONTINUITY_INVALID_TRANSITION','Only plans in review can be approved.');
@@ -122,6 +122,8 @@ continuityRouter.patch('/exercises/:exerciseId/status',requirePermission('contin
  const current=await prisma.continuityExercise.findFirst({where:{id,plan:{organizationId}},select:{id:true,status:true}});
  if(!current)throw new AppError(404,'CONTINUITY_EXERCISE_NOT_FOUND','The exercise was not found.');
  if(current.status==='COMPLETED'||current.status==='CANCELLED')throw new AppError(409,'CONTINUITY_EXERCISE_TERMINAL','Completed and cancelled exercises cannot be changed.');
+ const allowed=current.status==='PLANNED'?['IN_PROGRESS','CANCELLED']:['COMPLETED','CANCELLED'];
+ if(!allowed.some(status=>status===input.status))throw new AppError(409,'CONTINUITY_EXERCISE_INVALID_TRANSITION','Planned exercises must start or be cancelled; in-progress exercises must be completed or cancelled.');
  const updated=await prisma.$transaction(async tx=>{
   const e=await tx.continuityExercise.update({where:{id},data:{status:input.status,...(input.result?{result:input.result}:{}),...(input.findings?{findings:input.findings}:{}),completedAt:input.status==='COMPLETED'?new Date():null}});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.exercise_status_changed',targetType:'continuity_exercise',targetId:id,metadata:{from:current.status,to:input.status,result:input.result??null}}});
