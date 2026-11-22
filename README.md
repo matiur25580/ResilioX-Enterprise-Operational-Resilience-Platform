@@ -8,7 +8,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 08 PR #11 passed GitHub Actions CI. Milestone 09 incident command implementation is in PR #12 and is awaiting automated validation/review. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -18,6 +18,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 - [Why this project is different](#why-this-project-is-different)
 - [Capabilities](#capabilities)
 - [Dashboard showcase — 12 views](#dashboard-showcase--12-views)
+- [Enterprise relevance and framework alignment](#enterprise-relevance-and-framework-alignment)
 - [Architecture](#architecture)
 - [Technology stack](#technology-stack)
 - [Security and enterprise controls](#security-and-enterprise-controls)
@@ -67,7 +68,7 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 | Operational risk | Risk register, inherent/residual scoring, service/dependency links and treatment actions | Implemented |
 | Control assurance | Control library, evidence-backed test status and residual-risk recalculation | Implemented |
 | Business continuity | Service-linked versioned plans, activation criteria, recovery procedures, approval, exercises and remediation | Merged to `main` in PR #11; CI passed |
-| Incident & crisis management | Incident command, response team and decision timeline | Planned |
+| Incident & crisis management | Tenant-scoped incident register, SEV-1–SEV-4 classification, guarded lifecycle, commander ownership, timeline, response tasks and audit events | Implemented on PR #12; CI/review pending |
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
 | Scenario simulation | Reproducible disruption and recovery-priority modelling | Planned |
@@ -76,57 +77,43 @@ ContinuityGrid brings those records into a shared service-centric model. It emph
 
 ## Dashboard showcase — 12 views
 
-The gallery is designed as a **single-column, full-width sequence** so each screen has room for a descriptive caption. The PNGs are genuine captures of the running application—not generated mockups. Generate them after starting or deploying the application using the capture instructions below, then commit the resulting files under `docs/screenshots/`.
+The intended gallery is a **single-column, full-width sequence** with one genuine application capture per view and an editorial caption directly below it.
 
-1. **Executive command center** — portfolio KPIs, critical services, dependency coverage and recent activity.
+**Capture status:** the repository currently contains the Playwright capture script but does not contain the 12 PNG assets. The image references below are a capture manifest, not completed screenshots. Run the documented capture workflow against a live local or preview instance using a dedicated synthetic demo tenant, review the output, and commit the images before treating this gallery as complete.
 
-   ![01 — Executive command center](docs/screenshots/01-command-center.png)
+1. **Executive command center** — portfolio KPIs, critical services, dependency coverage and recent activity. `docs/screenshots/01-command-center.png`
+2. **Business service portfolio** — searchable service inventory and criticality context. `docs/screenshots/02-service-portfolio.png`
+3. **Business impact analysis** — impact horizons and recovery objective assessment workspace. `docs/screenshots/03-business-impact-analysis.png`
+4. **Dependency intelligence** — tenant-scoped relationship register and verification status. `docs/screenshots/04-dependency-intelligence.png`
+5. **Dependency workflow** — relationship capture and verification experience. `docs/screenshots/05-dependency-workflow.png`
+6. **Operational risk register** — inherent and residual exposure with accountable ownership. `docs/screenshots/06-risk-register.png`
+7. **Incident command & response** — severity-led incident declaration, lifecycle progression, accountable commander and auditable response timeline. `docs/screenshots/07-incident-response.png`
+8. **Control assurance** — control library, test evidence and effectiveness governance. `docs/screenshots/08-control-assurance.png`
+9. **Continuity workspace** — plan posture, exercise schedule and remediation overview. `docs/screenshots/09-continuity-workspace.png`
+10. **Continuity plan builder** — service scope, activation criteria, recovery strategy, procedures and communications. `docs/screenshots/10-continuity-plan-builder.png`
+11. **Exercise management** — approved-plan exercise scheduling, scenario and objectives. `docs/screenshots/11-exercise-management.png`
+12. **Remediation tracker** — post-exercise findings, owners, severity, due dates and action status. `docs/screenshots/12-remediation-tracker.png`
 
-2. **Business service portfolio** — searchable service inventory and criticality context.
+Do not replace missing captures with generated illustrations or empty placeholder images. See [Demo workspace and screenshot capture](#demo-workspace-and-screenshot-capture) for the exact command and required environment variables.
 
-   ![02 — Business service portfolio](docs/screenshots/02-service-portfolio.png)
+## Enterprise relevance and framework alignment
 
-3. **Business impact analysis** — impact horizons and recovery objective assessment workspace.
+ResilioX is designed around operational-resilience workflows that are increasingly important to regulated and digitally dependent organizations. The product direction is informed by:
 
-   ![03 — Business impact analysis](docs/screenshots/03-business-impact-analysis.png)
+| Reference | Relevant product workflows | Product boundary |
+| --- | --- | --- |
+| **DORA (EU) 2022/2554** | ICT risk context, critical-function dependencies, incident response, continuity/recovery plans and resilience testing evidence | Workflow support does not establish DORA compliance or replace regulatory reporting controls. |
+| **NIST CSF 2.0** | Govern/Identify/Protect/Detect/Respond/Recover mapping across risk, service inventory, incident and continuity workflows | Framework mapping is an aid to governance, not a certification or control attestation. |
+| **NIST SP 800-61 Rev. 3** | Incident response preparation, coordinated response, recovery and post-incident improvement | Incident handling integrations and live detection feeds are not currently claimed. |
+| **ISO 22301** | Business impact analysis, continuity planning, exercises, corrective actions and continual improvement | The product does not certify an organization or determine conformity. |
 
-4. **Dependency intelligence** — tenant-scoped relationship register and verification status.
+The next differentiating release is **Incident & Crisis Management**: a governed incident command timeline linked to affected services, accountable responders, decisions, actions and continuity plans. This connects operational risk and business continuity to a practical response workflow.
 
-   ![04 — Dependency intelligence](docs/screenshots/04-dependency-intelligence.png)
-
-5. **Dependency workflow** — relationship capture and verification experience.
-
-   ![05 — Dependency workflow](docs/screenshots/05-dependency-workflow.png)
-
-6. **Operational risk register** — inherent and residual exposure with accountable ownership.
-
-   ![06 — Risk register](docs/screenshots/06-risk-register.png)
-
-7. **Risk identification** — structured risk intake with service and dependency mapping.
-
-   ![07 — Risk identification](docs/screenshots/07-risk-identification.png)
-
-8. **Control assurance** — control library, test evidence and effectiveness governance.
-
-   ![08 — Control assurance](docs/screenshots/08-control-assurance.png)
-
-9. **Continuity workspace** — plan posture, exercise schedule and remediation overview.
-
-   ![09 — Continuity workspace](docs/screenshots/09-continuity-workspace.png)
-
-10. **Continuity plan builder** — service scope, activation criteria, recovery strategy, procedures and communications.
-
-    ![10 — Continuity plan builder](docs/screenshots/10-continuity-plan-builder.png)
-
-11. **Exercise management** — approved-plan exercise scheduling, scenario and objectives.
-
-    ![11 — Exercise management](docs/screenshots/11-exercise-management.png)
-
-12. **Remediation tracker** — post-exercise findings, owners, severity, due dates and action status.
-
-    ![12 — Remediation tracker](docs/screenshots/12-remediation-tracker.png)
-
-> **Screenshot integrity:** the capture script requires a real running app and an authenticated demo account. Screenshots are not committed as if they had been captured when the application was unavailable. Populate the gallery by following [Demo workspace and screenshot capture](#demo-workspace-and-screenshot-capture).
+Primary references:
+- [EU Digital Operational Resilience Act — Regulation (EU) 2022/2554](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554)
+- [NIST Cybersecurity Framework 2.0](https://www.nist.gov/cyberframework)
+- [NIST SP 800-61 Rev. 3 — Incident Response Recommendations](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+- [ISO 22301 — Business continuity management systems](https://www.iso.org/standard/75106.html)
 
 ## Architecture
 
@@ -244,6 +231,7 @@ All endpoints are under `/api/v1`. Protected endpoints require an authenticated 
 | Dependencies | `GET /dependencies/nodes`, `GET/POST /dependencies`, `PATCH /dependencies/:id/status`, `GET /dependencies/graph` |
 | Risk | `GET /risks`, `GET /risks/summary`, `POST /risks`, control and treatment lifecycle routes |
 | Continuity | `GET /continuity`, `GET /continuity/summary`, `GET /continuity/services`, `POST /continuity`, plan submit/approve/retire, exercise and action routes |
+| Incidents | `GET /incidents`, `GET /incidents/summary`, `POST /incidents`, lifecycle and severity PATCH routes, timeline event and response-task routes |
 
 For request schemas and error semantics, inspect the route modules and [API Guidelines](docs/api-guidelines.md). An interactive OpenAPI explorer is a future enhancement, not currently claimed as shipped.
 
@@ -376,7 +364,7 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 06 | Service and dependency intelligence | Merged to `main` (PR #9); CI passed |
 | 07 | Operational risk and controls | Merged to `main` (PR #10); CI passed |
 | 08 | Business continuity management | Merged to `main` (PR #11); CI passed |
-| 09 | Incident and crisis management | Planned |
+| 09 | Incident and crisis management | Implementation in PR #12; CI/review pending |
 | 10 | Disaster recovery orchestration | Planned |
 | 11 | Third-party resilience | Planned |
 | 12 | Scenario simulation | Planned |
@@ -387,12 +375,13 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 17 | Performance, reliability and production hardening | Planned |
 | 18 | Documentation, demo and release readiness | Planned |
 
-See [the detailed roadmap](docs/roadmap.md).
+See [the detailed roadmap](docs/roadmap.md) and the [Milestone 09 incident-management specification](docs/milestone-09.md).
 
 ## Known boundaries
 
 - The application is a resilience planning and coordination system, not a SIEM, NMS or real-time outage detector.
-- Supplier scoring, incident command, disaster recovery execution and scenario simulation remain future milestones.
+- The current incident module provides core declaration, severity, lifecycle, timeline and task coordination. Live paging integrations, responder-roster acknowledgements, automated service-impact correlation and crisis communications orchestration remain future enhancements.
+- Supplier scoring, disaster recovery execution and scenario simulation remain future milestones.
 - Control effectiveness is a human-assessed value supported by evidence, not proof of automated control operation.
 - Exercise records are entered by authorized users; no external exercise platform is connected.
 - No regulatory certification, independent penetration test or production SLA is claimed.

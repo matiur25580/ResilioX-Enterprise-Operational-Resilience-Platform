@@ -87,15 +87,34 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Approval transitions are permission-checked.
 - Plan versions and exercise evidence are traceable.
 
-## 09 — Incident and crisis management
+## 09 — Incident and crisis management — scoped for next delivery
+
+Detailed design: [Milestone 09 specification](milestone-09.md).
+
+**Product outcome:** give resilience, technology and business teams one governed command workflow from incident declaration through recovery and post-incident learning.
+
+**Current implementation:** tenant-scoped incident records, severity levels, guarded lifecycle transitions, commander ownership, response tasks, timeline events and audit events are implemented on PR #12. CI and review are pending; do not treat the milestone as merged until those gates pass.
+
 **Deliverables**
-- Incident lifecycle, severity, timeline, tasks and decisions.
-- Response team assignments and service impact links.
-- Realtime updates and notification hooks.
+- Incident register with unique reference, title, description, source, category, severity (SEV-1 to SEV-4), status, commander and timestamps.
+- Governed lifecycle: DETECTED → TRIAGED → ACTIVE → MITIGATING → RESOLVED → CLOSED, with explicit cancellation and reopen rules.
+- [ ] Impact mapping to tenant-owned business services and affected dependency paths (next increment).
+- [ ] Response team roster with role, assignment time and acknowledgement state (next increment).
+- Time-ordered event timeline for status changes, decisions, updates and evidence references.
+- Action/task tracking with owner, priority, due time, status and completion notes.
+- Major-incident declaration, decision log and post-incident review with corrective actions.
+- Executive incident metrics: open by severity, time to acknowledge, time to mitigate, recurrence and service impact.
+- [ ] Notification adapter boundary with retry/idempotency semantics; no live paging integration until a provider is configured.
 
 **Acceptance**
-- State transitions are validated.
-- Incident actions are auditable and idempotent where required.
+- Every query and mutation is scoped to the authenticated organization.
+- Only authorized roles can declare, assign, change severity or close an incident.
+- State transitions are validated server-side and recorded atomically with audit events.
+- Timeline ordering is deterministic and immutable to ordinary workspace users.
+- Task ownership, due dates and completion are auditable.
+- Duplicate webhook/event delivery is safe; external notifications never block the core incident transaction.
+- API and UI cover loading, empty, permission-denied and failure states.
+- Integration tests cover cross-tenant access, invalid transitions, maker-checker decisions where required and event history integrity.
 
 ## 10 — Disaster recovery orchestration
 **Deliverables**
