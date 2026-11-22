@@ -30,7 +30,7 @@ recoveryRouter.get('/runbooks', async (req, res) => {
       ...(query.status ? { status: query.status } : {}),
       ...(query.serviceId ? { serviceId: query.serviceId } : {}),
     },
-    include: runbookInclude,
+    include: { ...runbookInclude, service: { select: { id: true, name: true, criticality: true, ownerName: true } }, continuityPlan: { select: { id: true, title: true, version: true, status: true } } },
     orderBy: [{ updatedAt: 'desc' }],
     take: query.limit,
   });
