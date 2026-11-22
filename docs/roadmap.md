@@ -116,23 +116,26 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - API and UI cover loading, empty, permission-denied and failure states.
 - Integration tests cover cross-tenant access, invalid transitions, maker-checker decisions where required and event history integrity.
 
-## 10 — Disaster recovery orchestration — backend foundation in progress (draft PR)
+## 10 — Disaster recovery orchestration — implementation in draft PR; release acceptance pending
 **Delivered in this increment**
-- Tenant-scoped recovery runbook, ordered-step and prerequisite schema with migration.
-- Runbook submission and maker-checker approval API.
-- Simulation register/detail, start, step outcome, completion and cancellation API.
-- Dependency snapshot capture and explicit simulation-only safety boundary.
-- Pure lifecycle, prerequisite, dependency-cycle and RTO/RPO comparison policies.
+- Tenant-scoped runbook schema, ordered steps, dependency graph and PostgreSQL migration.
+- Runbook creation, register/detail, submission, maker-checker approval, retirement and immutable version cloning APIs.
+- Simulation creation, register/detail, prerequisite acknowledgement, guarded step outcomes, cancellation and completion APIs.
+- Point-in-time service-dependency and runbook-step snapshots.
+- Step validation records, evidence references and tenant-validated links to incident remediation tasks.
+- RTO/RPO comparisons that preserve unknown targets; failed or inconclusive validations produce a blocked rehearsal.
+- Responsive workspace UI for runbook authoring, approval, retirement, version cloning, simulations, validations and remediation links.
+- Unit policy tests and unauthenticated-route tests.
 
-**Remaining**
-- Recovery workspace UI, version-cloning/edit workflow, validation records and remediation linkage.
-- Full API integration coverage for tenant isolation, role enforcement, concurrency and audit atomicity.
-- Frontend loading, empty, error and mobile states; seed fixtures and executive reporting.
+**Release hardening still required**
+- CI and CodeQL must pass on the final PR head; reviewer approval and merge remain outstanding.
+- Add authenticated multi-tenant integration coverage for role matrix, maker-checker, tenant-bound service/plan/incident/task references, concurrency and audit atomicity.
+- Browser-level UI tests, accessibility review and production operational acceptance remain separate release gates.
 
-**Acceptance**
-- No infrastructure action is invoked; all current runs are rehearsals only.
-- Approved versions are not mutated by the delivered API.
-- Full milestone acceptance remains open until the remaining items and CI checks pass.
+**Acceptance boundary**
+- No infrastructure action is invoked; every run is a rehearsal only.
+- Approved versions are not edited in place; a new draft version is cloned.
+- Simulation evidence is operator-entered and does not prove live recovery capability.
 
 ## 11 — Third-party resilience
 **Deliverables**
