@@ -32,33 +32,33 @@ export function RiskPage({ token }: { token: string }) {
   const [testEvidence, setTestEvidence] = useState<Record<string, string>>({});
 
   async function refresh() {
-    const [r, c, s] = await Promise.all([api<Risk[]>('/risks', {}, token), api<Control[]>('/risks/controls', {}, token), api<Summary>('/risks/summary', {}, token)]);
-    setRisks(r); setControls(c); setSummary(s);
+    const [r, c, summaryData, nodes, edges] = await Promise.all([api<Risk[]>('/risks', {}, token), api<Control[]>('/risks/controls', {}, token), api<Summary>('/risks/summary', {}, token), api<Target[]>('/dependencies/nodes', {}, token), api<DependencyTarget[]>('/dependencies', {}, token)]);
+    setRisks(r); setControls(c); setSummary(summaryData); setTargets(nodes); setDependencyTargets(edges);
   }
   useEffect(() => {
     let active = true;
-    Promise.all([api<Risk[]>('/risks', {}, token), api<Control[]>('/risks/controls', {}, token), api<Summary>('/risks/summary', {}, token)])
-      .then(([r, c, s]) => { if (active) { setRisks(r); setControls(c); setSummary(s); } })
+    Promise.all([api<Risk[]>('/risks', {}, token), api<Control[]>('/risks/controls', {}, token), api<Summary>('/risks/summary', {}, token), api<Target[]>('/dependencies/nodes', {}, token), api<DependencyTarget[]>('/dependencies', {}, token)])
+      .then(([r, c, summaryData, nodes, edges]) => { if (active) { setRisks(r); setControls(c); setSummary(summaryData); setTargets(nodes); setDependencyTargets(edges); } })
       .catch(e => { if (active) setError(e instanceof Error ? e.message : 'Unable to load risk workspace.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [token]);
 
-  async function run(action: () => Promise<unknown>, message: string) {
+  async function run(action: () => Promise<unknown>, message: string): Promise<boolean> {
     setBusy(true); setError(''); setNotice('');
-    try { await action(); await refresh(); setNotice(message); }
-    catch (e) { setError(e instanceof Error ? e.message : 'The action could not be completed.'); }
+    try { await action(); await refresh(); setNotice(message); return true; }
+    catch (e) { setError(e instanceof Error ? e.message : 'The action could not be completed.'); return false; }
     finally { setBusy(false); }
   }
   async function createRisk(e: FormEvent) {
     e.preventDefault();
-    await run(() => api('/risks', { method: 'POST', body: JSON.stringify({ ...riskForm, likelihood: Number(riskForm.likelihood), impact: Number(riskForm.impact) }) }, token), 'Risk recorded and inherent score calculated.');
-    setShowRisk(false); setRiskForm({ title: '', description: '', category: 'Technology', ownerName: '', likelihood: '3', impact: '3' });
+    const saved = await run(() => api('/risks', { method: 'POST', body: JSON.stringify({ ...riskForm, targetType: riskForm.targetType || undefined, targetId: riskForm.targetId || undefined, likelihood: Number(riskForm.likelihood), impact: Number(riskForm.impact) }) }, token), 'Risk recorded and inherent score calculated.');
+    if (saved) { setShowRisk(false); setRiskForm({ title: '', description: '', category: 'Technology', ownerName: '', likelihood: '3', impact: '3', targetType: '', targetId: '' }); }
   }
   async function createControl(e: FormEvent) {
     e.preventDefault();
-    await run(() => api('/risks/controls', { method: 'POST', body: JSON.stringify(controlForm) }, token), 'Control added to the tenant control library.');
-    setShowControl(false); setControlForm({ name: '', description: '', controlType: 'Preventive', ownerName: '', frequency: 'Continuous' });
+    const saved = await run(() => api('/risks/controls', { method: 'POST', body: JSON.stringify(controlForm) }, token), 'Control added to the tenant control library.');
+    if (saved) { setShowControl(false); setControlForm({ name: '', description: '', controlType: 'Preventive', ownerName: '', frequency: 'Continuous' }); }
   }
   async function linkControl(e: FormEvent, risk: Risk) {
     e.preventDefault();
@@ -91,6 +91,8 @@ export function RiskPage({ token }: { token: string }) {
         <label>Risk owner<input required minLength={2} value={riskForm.ownerName} onChange={e => setRiskForm(v => ({ ...v, ownerName: e.target.value }))} placeholder="Accountable owner"/></label>
         <label>Likelihood (1–5)<select value={riskForm.likelihood} onChange={e => setRiskForm(v => ({ ...v, likelihood: e.target.value }))}>{[1,2,3,4,5].map(x => <option key={x}>{x}</option>)}</select></label>
         <label>Impact (1–5)<select value={riskForm.impact} onChange={e => setRiskForm(v => ({ ...v, impact: e.target.value }))}>{[1,2,3,4,5].map(x => <option key={x}>{x}</option>)}</select></label>
+        <label>Target type (optional)<select value={riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetType: e.target.value, targetId: '' }))}><option value="">No linked target</option>{['BUSINESS_SERVICE','BUSINESS_PROCESS','APPLICATION','TECHNOLOGY_ASSET','SUPPLIER','DEPENDENCY'].map(x => <option key={x} value={x}>{x.replaceAll('_',' ')}</option>)}</select></label>
+        <label>Linked service / asset / dependency<select value={riskForm.targetId} disabled={!riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetId: e.target.value }))}><option value="">Select target…</option>{(riskForm.targetType === 'DEPENDENCY' ? dependencyTargets.filter(d => d.status !== 'RETIRED').map(d => ({ id: d.id, name: d.sourceType.replaceAll('_',' ') + ' → ' + d.targetType.replaceAll('_',' ') + ' (' + d.status + ')' })) : targets.filter(t => t.type === riskForm.targetType)).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
         <label>Target type (optional)<select value={riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetType: e.target.value, targetId: '' }))}><option value="">No linked target</option>{['BUSINESS_SERVICE','BUSINESS_PROCESS','APPLICATION','TECHNOLOGY_ASSET','SUPPLIER','DEPENDENCY'].map(x => <option key={x} value={x}>{x.replaceAll('_',' ')}</option>)}</select></label>
         <label>Linked service / asset / dependency<select value={riskForm.targetId} disabled={!riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetId: e.target.value }))}><option value="">Select target…</option>{(riskForm.targetType === 'DEPENDENCY' ? dependencyTargets.filter(d => d.status !== 'RETIRED').map(d => ({ id: d.id, name: d.sourceType.replaceAll('_',' ') + ' → ' + d.targetType.replaceAll('_',' ') + ' (' + d.status + ')' })) : targets.filter(t => t.type === riskForm.targetType)).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
       </div>
