@@ -14,9 +14,19 @@ export const recoverySimulationTransitions = {
   CANCELLED: [],
 } as const;
 
+export const recoveryStepTransitions = {
+  PENDING: ['READY', 'IN_PROGRESS', 'BLOCKED', 'SKIPPED'],
+  READY: ['IN_PROGRESS', 'BLOCKED', 'SKIPPED'],
+  IN_PROGRESS: ['SUCCEEDED', 'FAILED', 'BLOCKED'],
+  SUCCEEDED: [],
+  FAILED: [],
+  BLOCKED: [],
+  SKIPPED: [],
+} as const;
+
 export type RecoveryRunbookStatus = keyof typeof recoveryRunbookTransitions;
 export type RecoverySimulationStatus = keyof typeof recoverySimulationTransitions;
-export type RecoveryStepState = 'PENDING' | 'READY' | 'IN_PROGRESS' | 'SUCCEEDED' | 'FAILED' | 'BLOCKED' | 'SKIPPED';
+export type RecoveryStepState = keyof typeof recoveryStepTransitions;
 
 export function canTransitionRunbook(from: string, to: string): boolean {
   return Object.prototype.hasOwnProperty.call(recoveryRunbookTransitions, from)
@@ -28,6 +38,11 @@ export function canTransitionSimulation(from: string, to: string): boolean {
     && (recoverySimulationTransitions[from as RecoverySimulationStatus] as readonly string[]).includes(to);
 }
 
+export function canTransitionRecoveryStep(from: string, to: string): boolean {
+  return Object.prototype.hasOwnProperty.call(recoveryStepTransitions, from)
+    && (recoveryStepTransitions[from as RecoveryStepState] as readonly string[]).includes(to);
+}
+
 export function canApproveRunbook(authorUserId: string, reviewerUserId: string): boolean {
   return Boolean(authorUserId && reviewerUserId && authorUserId !== reviewerUserId);
 }
@@ -37,7 +52,7 @@ export interface StepDependency {
   successorId: string;
 }
 
-/** Returns true when adding the supplied edges would introduce a cycle. */
+/** Returns true when the supplied edges contain a cycle or invalid step reference. */
 export function hasDependencyCycle(stepIds: string[], edges: StepDependency[]): boolean {
   const known = new Set(stepIds);
   const adjacency = new Map<string, string[]>();
