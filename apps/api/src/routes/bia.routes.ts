@@ -97,7 +97,6 @@ biaRouter.post('/:assessmentId/approve', requirePermission('continuity:write'), 
   const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   if (!['OWNER', 'ADMIN', 'RESILIENCE_MANAGER'].includes(req.auth!.role)) throw new AppError(403, 'BIA_APPROVAL_FORBIDDEN', 'Only workspace owners, administrators and resilience managers can approve assessments.');
   const organizationId = req.auth!.organizationId;
-  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   const current = await prisma.businessImpactAssessment.findFirst({ where: { id: assessmentId, organizationId }, select: { id: true, status: true } });
   if (!current) throw new AppError(404, 'BIA_ASSESSMENT_NOT_FOUND', 'The business impact assessment was not found.');
   if (current.status !== 'IN_REVIEW') throw new AppError(409, 'BIA_INVALID_TRANSITION', 'Only assessments in review can be approved.');
