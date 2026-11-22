@@ -11,6 +11,8 @@
 - Prisma Client lifecycle module.
 - Initial PostgreSQL models for organizations, users, memberships, services, processes, applications, technology assets, suppliers and typed dependency endpoints.
 - Docker Compose for PostgreSQL and Redis local services.
+- Committed baseline PostgreSQL migration and migration provider lock.
+- GitHub Actions CI workflow for Prisma generation, type checking, tests and build.
 - Environment example and local development instructions.
 - Vitest/Supertest API foundation tests.
 
