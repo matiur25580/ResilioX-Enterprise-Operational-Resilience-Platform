@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import {
   Activity, AlertCircle, ArrowDownRight, ArrowUpRight, Bell, Boxes, Building2,
-  CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, Command, FileCheck2,
+  CheckCircle2, ChevronDown, CircleHelp, ClipboardCheck, FileCheck2,
   GitBranch, LayoutDashboard, LockKeyhole, LogOut, Menu, Network, Search,
-  ShieldAlert, ShieldCheck, Sparkles, Users, X,
+  ShieldAlert, ShieldCheck, Sparkles, X,
 } from 'lucide-react';
 import {
-  Area, AreaChart, CartesianGrid, Pie, PieChart, ResponsiveContainer, Tooltip,
-  XAxis, YAxis,
+  Cell, Pie, PieChart, ResponsiveContainer, Tooltip,
 } from 'recharts';
-import { api, ApiError, restoreSession } from './api';
+import { api, restoreSession } from './api';
 import type { Overview, Tenant, User } from './types';
 
 type Session = { token: string; user: User; tenant: Tenant };
@@ -30,7 +29,7 @@ function Login({ onLogin }: { onLogin: (session: Session) => void }) {
   const [organizationSlug, setOrganizationSlug] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  async function submit(event: React.FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true); setError('');
     try {
@@ -138,7 +137,7 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
               {filteredServices.length ? <div className="table-wrap"><table><thead><tr><th>SERVICE</th><th>OWNER</th><th>CRITICALITY</th><th>STATUS</th></tr></thead><tbody>{filteredServices.map(service=><tr key={service.id}><td><div className="service-name"><span className="service-symbol"><Building2 size={15}/></span><strong>{service.name}</strong></div></td><td>{service.ownerName || 'Unassigned'}</td><td><span className={`tier tier-${service.criticality.toLowerCase()}`}>{service.criticality}</span></td><td><span className={`status status-${service.status.toLowerCase()}`}>{service.status.replace('_',' ')}</span></td></tr>)}</tbody></table></div> : <div className="empty-state"><div className="empty-icon"><Building2 size={22}/></div><strong>{query ? 'No matching services' : 'Your service portfolio starts here'}</strong><p>{query ? 'Try a different search term.' : 'Business services added to this workspace will appear here. This view reads directly from your tenant database.'}</p></div>}
             </section>
             <section className="panel criticality-panel"><div className="panel-heading"><div><h3>Service criticality</h3><p>Portfolio distribution</p></div><span className="mini-icon"><Sparkles size={16}/></span></div>
-              {chartData.length ? <><div className="donut-wrap"><ResponsiveContainer width="100%" height={180}><PieChart><Pie data={chartData} dataKey="value" nameKey="name" innerRadius={57} outerRadius={78} paddingAngle={3} stroke="none">{chartData.map(item=><cell key={item.name} fill={chartColors[item.name] || '#8795a8'}/>)}</Pie><Tooltip/></PieChart></ResponsiveContainer><div className="donut-center"><strong>{metrics.services}</strong><span>services</span></div></div><div className="legend">{['CRITICAL','HIGH','MEDIUM','LOW'].map(tier=><div key={tier}><span style={{background:chartColors[tier]}}/>{tier}<strong>{chartData.find(x=>x.name===tier)?.value ?? 0}</strong></div>)}</div></> : <div className="chart-empty"><Network size={24}/><strong>No criticality data yet</strong><span>Service records will populate this chart.</span></div>}
+              {chartData.length ? <><div className="donut-wrap"><ResponsiveContainer width="100%" height={180}><PieChart><Pie data={chartData} dataKey="value" nameKey="name" innerRadius={57} outerRadius={78} paddingAngle={3} stroke="none">{chartData.map(item=><Cell key={item.name} fill={chartColors[item.name] || '#8795a8'}/>)}</Pie><Tooltip/></PieChart></ResponsiveContainer><div className="donut-center"><strong>{metrics.services}</strong><span>services</span></div></div><div className="legend">{['CRITICAL','HIGH','MEDIUM','LOW'].map(tier=><div key={tier}><span style={{background:chartColors[tier]}}/>{tier}<strong>{chartData.find(x=>x.name===tier)?.value ?? 0}</strong></div>)}</div></> : <div className="chart-empty"><Network size={24}/><strong>No criticality data yet</strong><span>Service records will populate this chart.</span></div>}
             </section>
           </div>
           <div className="bottom-grid">
