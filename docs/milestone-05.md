@@ -29,4 +29,4 @@ This milestone does not yet include configurable impact scales/weights, editable
 
 ## Verification
 
-CI validates/generates Prisma, applies the migration, type-checks, runs tests and builds the workspaces. Do not mark the milestone CI-verified until the PR workflow succeeds.
+CI run [44997564444](https://github.com/matiur25580/ResilioX-Enterprise-Operational-Resilience-Platform/actions/runs/44997564444) passed: Prisma validation and generation, PostgreSQL migration deployment, API/web type checks, tests and builds. Dependency audit findings remain non-blocking and tracked separately; the Prisma 6 toolchain advisories are not remediated by this milestone.
