@@ -6,7 +6,7 @@ const envSchema = z.object({
   API_HOST: z.string().default('0.0.0.0'),
   API_PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   API_BASE_PATH: z.string().regex(/^\/[a-zA-Z0-9/_-]*$/).default('/api/v1'),
-  CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  CORS_ORIGIN: z.string().url().default('http://localhost:5173'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.string().url(),
   AUTH_TOKEN_SECRET: z.string().min(32),
@@ -14,6 +14,25 @@ const envSchema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().min(1).max(90).default(30),
   REFRESH_COOKIE_NAME: z.string().default('cg_refresh'),
   COOKIE_SECURE: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
+}).superRefine((value, context) => {
+  if (value.NODE_ENV === 'production' && !value.COOKIE_SECURE) {
+    context.addIssue({
+      code: 'custom',
+      path: ['COOKIE_SECURE'],
+      message: 'COOKIE_SECURE must be true in production so refresh tokens are never sent over insecure connections.',
+    });
+  }
+
+  if (value.NODE_ENV === 'production') {
+    const hostname = new URL(value.CORS_ORIGIN).hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      context.addIssue({
+        code: 'custom',
+        path: ['CORS_ORIGIN'],
+        message: 'CORS_ORIGIN must use a deployed HTTPS origin in production, not localhost.',
+      });
+    }
+  }
 });
 
 const parsed = envSchema.safeParse(process.env);
