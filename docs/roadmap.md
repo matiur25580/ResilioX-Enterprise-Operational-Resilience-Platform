@@ -27,7 +27,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - API starts with validated configuration.
 - Automated smoke tests pass.
 
-## 03 — Identity, sessions, tenancy and RBAC — Implemented (CI passed; PR pending merge)
+## 03 — Identity, sessions, tenancy and RBAC — Merged to main (PR #1)
 **Deliverables**
 - Registration/invitation strategy, login and logout.
 - Secure password hashing and rotating refresh sessions.
@@ -39,7 +39,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Cross-tenant reads and writes are denied and tested.
 - Privileged operations enforce server-side permissions.
 
-## 04 — Design system and command center — Implemented (CI passed; PR open)
+## 04 — Design system and command center — Merged to main (PR #7)
 **Deliverables**
 - Accessible application shell, navigation and responsive layouts.
 - Reusable data table, forms, dialogs, filters, charts and status patterns.
@@ -49,7 +49,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Loading, empty, error and permission states are implemented.
 - Core screens work on mobile and desktop.
 
-## 05 — Business impact analysis — Implemented (PR #3 open; latest CI revision pending)
+## 05 — Business impact analysis — Merged to main (PR #8)
 **Deliverables**
 - Assessment lifecycle, impact dimensions and time horizons.
 - MTPD, RTO and RPO fields with validation and rationale.
@@ -77,7 +77,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Scoring model is documented and tested.
 - Changes are auditable.
 
-## 08 — Business continuity management — Implemented in mainline PR (PR #11; CI pending)
+## 08 — Business continuity management — Merged to main (PR #11; CI passed)
 **Deliverables**
 - Continuity strategies and plans.
 - Plan ownership, versioning, review and approval.
