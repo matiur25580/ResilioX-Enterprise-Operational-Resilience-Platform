@@ -56,10 +56,21 @@ describe('governance evidence, policy and audit authorization', () => {
       expect((await request(app).post(`/api/v1/governance/policies/${policyId}/approve`).set('Authorization', `Bearer ${reviewerToken}`).send({ rationale: 'Independent policy review completed.' })).status).toBe(200);
       expect((await request(app).post(`/api/v1/governance/policies/${policyId}/evidence`).set('Authorization', `Bearer ${owner.token}`).send({ evidenceId })).status).toBe(201);
 
+      await prisma.auditEvent.create({ data: { organizationId: owner.organizationId, actorUserId: owner.userId, action: 'governance.redaction.probe', targetType: 'test', targetId: suffix, metadata: { apiToken: 'never-return-this', safeLabel: 'visible' } } });
       const audit = await request(app).get('/api/v1/governance/audit/events?limit=10').set('Authorization', `Bearer ${analystToken}`);
       expect(audit.status).toBe(200);
       expect(audit.body.data.some((event: { action: string }) => event.action === 'governance.evidence.reviewed')).toBe(true);
       expect(audit.body.data.some((event: { action: string }) => event.action === 'governance.policy.approved')).toBe(true);
+      const redactionProbe = audit.body.data.find((event: { action: string }) => event.action === 'governance.redaction.probe');
+      expect(redactionProbe.metadata.apiToken).toBeUndefined();
+      expect(redactionProbe.metadata.safeLabel).toBe('visible');
+      const firstPage = await request(app).get('/api/v1/governance/audit/events?limit=1').set('Authorization', `Bearer ${analystToken}`);
+      expect(firstPage.status).toBe(200);
+      expect(firstPage.body.pagination.hasMore).toBe(true);
+      const secondPage = await request(app).get('/api/v1/governance/audit/events?limit=1&cursor=' + firstPage.body.pagination.nextCursor).set('Authorization', `Bearer ${analystToken}`);
+      expect(secondPage.status).toBe(200);
+      expect(secondPage.body.data[0].id).not.toBe(firstPage.body.data[0].id);
+
       const reviewedEventId = audit.body.data.find((event: { action: string }) => event.action === 'governance.evidence.reviewed').id as string;
       await expect(prisma.auditEvent.update({ where: { id: reviewedEventId }, data: { action: 'tampered.audit.event' } })).rejects.toThrow(/append-only/);
       await expect(prisma.auditEvent.delete({ where: { id: reviewedEventId } })).rejects.toThrow(/append-only/);
