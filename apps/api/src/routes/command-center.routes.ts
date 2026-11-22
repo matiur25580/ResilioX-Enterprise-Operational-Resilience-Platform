@@ -61,6 +61,7 @@ commandCenterRouter.get('/overview', requireAuth, async (req, res) => {
       capabilities: {
         businessImpactAnalysis: 'available',
         dependencyIntelligence: 'available',
+        riskAndControls: 'available',
         continuityPlans: 'planned',
         incidentManagement: 'planned',
         disasterRecovery: 'planned',
