@@ -107,7 +107,7 @@ ResilioX is designed around operational-resilience workflows that are increasing
 | **NIST SP 800-61 Rev. 3** | Incident response preparation, coordinated response, recovery and post-incident improvement | Incident handling integrations and live detection feeds are not currently claimed. |
 | **ISO 22301** | Business impact analysis, continuity planning, exercises, corrective actions and continual improvement | The product does not certify an organization or determine conformity. |
 
-The next differentiating release is **Incident & Crisis Management**: a governed incident command timeline linked to affected services, accountable responders, decisions, actions and continuity plans. This connects operational risk and business continuity to a practical response workflow.
+With the incident command foundation now delivered, the next differentiating increments are crisis communications orchestration, responder acknowledgement and escalation, service-impact correlation, recovery-plan activation from an incident, and post-incident learning with tracked corrective actions. These should build on the existing tenant-scoped incident timeline and audit trail rather than bypass them.
 
 Primary references:
 - [EU Digital Operational Resilience Act — Regulation (EU) 2022/2554](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554)
