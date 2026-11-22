@@ -49,7 +49,7 @@ supplierRouter.post('/', requirePermission('continuity:write'), async (req, res)
   }).parse(req.body);
   try {
     const created = await prisma.$transaction(async tx => {
-      const supplier = await tx.supplier.create({ data: { ...input, organizationId: req.auth!.organizationId } });
+      const supplier = await tx.supplier.create({ data: { name: input.name, criticality: input.criticality, website: input.website ?? null, contactEmail: input.contactEmail ?? null, organizationId: req.auth!.organizationId } });
       await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'supplier.created', targetType: 'supplier', targetId: supplier.id } });
       return supplier;
     });
@@ -81,8 +81,8 @@ supplierRouter.post('/:supplierId/contracts', requirePermission('continuity:writ
     const created = await tx.supplierContract.create({ data: {
       organizationId, supplierId, contractReference: input.contractReference, ownerName: input.ownerName, status: input.status,
       effectiveAt: input.effectiveAt ? new Date(input.effectiveAt) : null, expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-      renewalNoticeDays: input.renewalNoticeDays, recoveryTimeHours: input.recoveryTimeHours, recoveryPointMinutes: input.recoveryPointMinutes,
-      serviceCreditTerms: input.serviceCreditTerms, exitAssistanceTerms: input.exitAssistanceTerms, dataReturnTerms: input.dataReturnTerms,
+      renewalNoticeDays: input.renewalNoticeDays ?? null, recoveryTimeHours: input.recoveryTimeHours ?? null, recoveryPointMinutes: input.recoveryPointMinutes ?? null,
+      serviceCreditTerms: input.serviceCreditTerms ?? null, exitAssistanceTerms: input.exitAssistanceTerms ?? null, dataReturnTerms: input.dataReturnTerms ?? null,
       services: { create: services.map(service => ({ organizationId, serviceId: service.id })) },
     }, include: { services: true } });
     await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'supplier.contract_created', targetType: 'supplier_contract', targetId: created.id, metadata: { serviceCount: services.length, status: created.status } } });
@@ -116,6 +116,7 @@ supplierRouter.post('/:supplierId/assessments', requirePermission('continuity:wr
 
 supplierRouter.post('/assessments/:assessmentId/submit', requirePermission('continuity:write'), async (req, res) => {
   const assessmentId = z.string().uuid().parse(req.params.assessmentId);
+  const organizationId = req.auth!.organizationId;
   const changed = await prisma.$transaction(async tx => {
     const result = await tx.supplierAssessment.updateMany({ where: { id: assessmentId, organizationId: req.auth!.organizationId, status: 'DRAFT' }, data: { status: 'IN_REVIEW' } });
     if (result.count !== 1) throw new AppError(409, 'SUPPLIER_ASSESSMENT_NOT_SUBMITTABLE', 'Only a draft assessment can be submitted.');
