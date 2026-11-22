@@ -49,7 +49,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Loading, empty, error and permission states are implemented.
 - Core screens work on mobile and desktop.
 
-## 05 — Business impact analysis — Implemented (PR open; CI pending)
+## 05 — Business impact analysis — Implemented (CI passed; PR open)
 **Deliverables**
 - Assessment lifecycle, impact dimensions and time horizons.
 - MTPD, RTO and RPO fields with validation and rationale.
