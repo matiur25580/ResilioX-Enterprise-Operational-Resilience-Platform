@@ -230,6 +230,7 @@ model User {
   sessions     RefreshSession[]
   auditEvents  AuditEvent[]
   recoveryApprovals RecoveryRunbook[] @relation("RecoveryRunbookApprover")
+  recoveryRunbooksAuthored RecoveryRunbook[] @relation("RecoveryRunbookAuthor")
 
   @@index([displayName])
   @@map("users")
@@ -664,12 +665,14 @@ model RecoveryRunbook {
   reviewDueAt DateTime? @map("review_due_at")
   submittedAt DateTime? @map("submitted_at")
   approvedAt DateTime? @map("approved_at")
+  createdByUserId String @map("created_by_user_id") @db.Uuid
   approvedByUserId String? @map("approved_by_user_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   service BusinessService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   continuityPlan ContinuityPlan? @relation(fields: [continuityPlanId], references: [id], onDelete: Restrict)
+  createdBy User @relation("RecoveryRunbookAuthor", fields: [createdByUserId], references: [id], onDelete: Restrict)
   approvedBy User? @relation("RecoveryRunbookApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
   steps RecoveryRunbookStep[]
   simulations RecoverySimulation[]
