@@ -68,7 +68,7 @@ describe('supplier tenant isolation integration', () => {
       for (const tenant of tenants) {
         await prisma.refreshSession.deleteMany({ where: { userId: tenant.userId } });
         await prisma.$transaction(async tx => {
-          await tx.$executeRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
+          await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
           await tx.auditEvent.deleteMany({ where: { organizationId: tenant.organizationId } });
         });
         await prisma.membership.deleteMany({ where: { organizationId: tenant.organizationId } });
