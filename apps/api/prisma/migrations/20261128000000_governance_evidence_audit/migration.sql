@@ -78,6 +78,15 @@ CREATE INDEX "policy_evidence_links_organization_id_evidence_id_idx" ON "policy_
 -- A separately controlled maintenance session may set app.audit_maintenance='on' for retention operations.
 CREATE OR REPLACE FUNCTION prevent_audit_event_mutation() RETURNS trigger AS $$
 BEGIN
+  -- Permit only FK-driven anonymization when a referenced organization/user is removed.
+  IF TG_OP = 'UPDATE' AND NEW.organization_id IS NULL AND OLD.organization_id IS NOT NULL
+     AND (to_jsonb(NEW) - 'organization_id') = (to_jsonb(OLD) - 'organization_id') THEN
+    RETURN NEW;
+  END IF;
+  IF TG_OP = 'UPDATE' AND NEW.actor_user_id IS NULL AND OLD.actor_user_id IS NOT NULL
+     AND (to_jsonb(NEW) - 'actor_user_id') = (to_jsonb(OLD) - 'actor_user_id') THEN
+    RETURN NEW;
+  END IF;
   IF current_setting('app.audit_maintenance', true) IS DISTINCT FROM 'on' THEN
     RAISE EXCEPTION 'audit_events is append-only' USING ERRCODE = '55000';
   END IF;
