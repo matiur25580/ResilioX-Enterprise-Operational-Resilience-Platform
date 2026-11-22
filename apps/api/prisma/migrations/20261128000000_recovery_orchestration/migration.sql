@@ -17,6 +17,7 @@ CREATE TABLE "recovery_runbooks" (
   "review_due_at" TIMESTAMP(3),
   "submitted_at" TIMESTAMP(3),
   "approved_at" TIMESTAMP(3),
+  "created_by_user_id" UUID NOT NULL,
   "approved_by_user_id" UUID,
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL,
@@ -103,6 +104,7 @@ CREATE INDEX "recovery_events_simulation_created_idx" ON "recovery_events"("simu
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "business_services"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_continuity_plan_id_fkey" FOREIGN KEY ("continuity_plan_id") REFERENCES "continuity_plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_created_by_user_id_fkey" FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_approved_by_user_id_fkey" FOREIGN KEY ("approved_by_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE "recovery_runbook_steps" ADD CONSTRAINT "recovery_runbook_steps_runbook_id_fkey" FOREIGN KEY ("runbook_id") REFERENCES "recovery_runbooks"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "recovery_step_dependencies" ADD CONSTRAINT "recovery_step_dependencies_predecessor_step_id_fkey" FOREIGN KEY ("predecessor_step_id") REFERENCES "recovery_runbook_steps"("id") ON DELETE CASCADE ON UPDATE CASCADE;
