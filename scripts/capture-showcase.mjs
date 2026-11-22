@@ -44,10 +44,9 @@ try {
   await shot('05-dependency-workflow.png', 'Relationship capture and verification workflow');
   await open('Risk & controls');
   await shot('06-risk-register.png', 'Inherent and residual operational risk posture');
-  await page.getByRole('button', { name: /new risk/i }).click();
-  await page.waitForTimeout(300);
-  await shot('07-risk-identification.png', 'Risk intake with service and dependency mapping');
-  await page.getByRole('button', { name: /close form/i }).first().click().catch(() => {});
+  await open('Incidents');
+  await shot('07-incident-response.png', 'Severity-led incident command, lifecycle and response timeline');
+  await open('Risk & controls');
   await page.getByRole('button', { name: /add control/i }).click();
   await page.waitForTimeout(300);
   await shot('08-control-assurance.png', 'Control library and evidence-backed testing');
