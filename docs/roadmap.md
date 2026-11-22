@@ -69,7 +69,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Invalid relationships are rejected.
 - Traversal is deterministic and tenant-scoped.
 
-## 07 — Operational risk and controls — Implemented in mainline PR (PR #10; CI pending)
+## 07 — Operational risk and controls — Merged to main (PR #10; CI passed)
 - Control library, control assessments and treatment plans.
 - Risk-to-service and risk-to-dependency mapping.
 
@@ -77,7 +77,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Scoring model is documented and tested.
 - Changes are auditable.
 
-## 08 — Business continuity management
+## 08 — Business continuity management — Implemented in mainline PR (PR #11; CI pending)
 **Deliverables**
 - Continuity strategies and plans.
 - Plan ownership, versioning, review and approval.

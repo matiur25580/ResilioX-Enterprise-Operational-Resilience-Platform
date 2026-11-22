@@ -34,11 +34,14 @@ The demo dataset is fictional and is not a real integration or operational feed.
 - `POST /api/v1/auth/login`, `POST /api/v1/auth/refresh`, `POST /api/v1/auth/logout`: session lifecycle.
 - `GET /api/v1/auth/me`: authenticated user and tenant context.
 - `GET /api/v1/command-center/overview`: tenant-scoped command center data.
+- `GET /api/v1/continuity`, `GET /api/v1/continuity/summary`, `POST /api/v1/continuity`: continuity plan workspace.
+- Continuity plan submit/approve/retire, exercise and remediation routes: see [Milestone 08](milestone-08.md).
 
 ## Quality commands
 - `npm run typecheck`
 - `npm test`
 - `npm run build`
+- `npm run capture:showcase` (requires Playwright Chromium and a local demo login; see [screenshot capture](screenshot-capture.md))
 
 ## Troubleshooting
 - If ports 5432, 6379, 4000 or 5173 are already in use, stop the conflicting service or change the local port configuration.

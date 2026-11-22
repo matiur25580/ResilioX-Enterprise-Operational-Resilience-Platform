@@ -104,6 +104,42 @@ enum RiskTargetType {
   DEPENDENCY
 }
 
+enum ContinuityPlanStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RETIRED
+}
+enum ContinuityExerciseType {
+  TABLETOP
+  WALKTHROUGH
+  SIMULATION
+  FULL_SCALE
+}
+enum ContinuityExerciseStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+enum ContinuityExerciseResult {
+  SUCCESS
+  PARTIAL_FAILURE
+  FAILURE
+}
+enum ContinuityActionStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+enum ContinuityActionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 enum ImpactHorizon {
   IMMEDIATE
   FOUR_HOURS
@@ -130,6 +166,7 @@ model Organization {
   biaAssessments BusinessImpactAssessment[]
   risks Risk[]
   controls Control[]
+  continuityPlans ContinuityPlan[]
 
   @@index([status])
   @@map("organizations")
@@ -180,6 +217,7 @@ model BusinessService {
   createdAt      DateTime             @default(now()) @map("created_at")
   updatedAt      DateTime             @updatedAt @map("updated_at")
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  continuityPlans ContinuityPlan[]
 
   @@unique([organizationId, name])
   @@index([organizationId, status, criticality])
@@ -430,4 +468,73 @@ model RiskTreatment {
   risk Risk @relation(fields: [riskId], references: [id], onDelete: Cascade)
   @@index([riskId, status, dueAt])
   @@map("risk_treatments")
+}
+
+model ContinuityPlan {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  serviceId String @map("service_id") @db.Uuid
+  version Int @default(1)
+  title String @db.VarChar(180)
+  ownerName String @map("owner_name") @db.VarChar(120)
+  scope String @db.Text
+  activationCriteria String @map("activation_criteria") @db.Text
+  recoveryStrategy String @map("recovery_strategy") @db.Text
+  recoveryProcedures String @map("recovery_procedures") @db.Text
+  communicationsPlan String @map("communications_plan") @db.Text
+  rtoMinutes Int @map("rto_minutes")
+  rpoMinutes Int @map("rpo_minutes")
+  status ContinuityPlanStatus @default(DRAFT)
+  reviewDueAt DateTime? @map("review_due_at")
+  submittedAt DateTime? @map("submitted_at")
+  submittedBy String? @map("submitted_by") @db.Uuid
+  approvedAt DateTime? @map("approved_at")
+  approvedBy String? @map("approved_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  service BusinessService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  exercises ContinuityExercise[]
+  @@unique([organizationId, serviceId, version])
+  @@index([organizationId, status, reviewDueAt])
+  @@index([serviceId, updatedAt])
+  @@map("continuity_plans")
+}
+
+model ContinuityExercise {
+  id String @id @default(uuid()) @db.Uuid
+  planId String @map("plan_id") @db.Uuid
+  exerciseType ContinuityExerciseType @map("exercise_type")
+  title String @db.VarChar(180)
+  scenario String @db.Text
+  objectives String @db.Text
+  scheduledAt DateTime @map("scheduled_at")
+  status ContinuityExerciseStatus @default(PLANNED)
+  result ContinuityExerciseResult?
+  findings String? @db.Text
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  plan ContinuityPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  actions ContinuityAction[]
+  @@index([planId, scheduledAt])
+  @@index([status, scheduledAt])
+  @@map("continuity_exercises")
+}
+
+model ContinuityAction {
+  id String @id @default(uuid()) @db.Uuid
+  exerciseId String @map("exercise_id") @db.Uuid
+  title String @db.VarChar(180)
+  ownerName String @map("owner_name") @db.VarChar(120)
+  severity ContinuityActionSeverity @default(MEDIUM)
+  dueAt DateTime @map("due_at")
+  status ContinuityActionStatus @default(OPEN)
+  notes String? @db.Text
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  exercise ContinuityExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  @@index([exerciseId, status, dueAt])
+  @@map("continuity_actions")
 }
