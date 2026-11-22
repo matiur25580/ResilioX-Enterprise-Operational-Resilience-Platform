@@ -48,8 +48,9 @@ biaRouter.get('/', async (req, res) => {
 });
 
 biaRouter.get('/:assessmentId', async (req, res) => {
+  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
   const assessment = await prisma.businessImpactAssessment.findFirst({
-    where: { id: req.params.assessmentId, organizationId: req.auth!.organizationId }, include: includeAssessment(),
+    where: { id: assessmentId, organizationId: req.auth!.organizationId }, include: includeAssessment(),
   });
   if (!assessment) throw new AppError(404, 'BIA_ASSESSMENT_NOT_FOUND', 'The business impact assessment was not found.');
   res.json({ data: assessment });
@@ -80,7 +81,8 @@ biaRouter.post('/', requirePermission('continuity:write'), async (req, res) => {
 
 biaRouter.post('/:assessmentId/submit', requirePermission('continuity:write'), async (req, res) => {
   const organizationId = req.auth!.organizationId;
-  const current = await prisma.businessImpactAssessment.findFirst({ where: { id: req.params.assessmentId, organizationId }, select: { id: true, status: true } });
+  const assessmentId = z.string().uuid().parse(req.params.assessmentId);
+  const current = await prisma.businessImpactAssessment.findFirst({ where: { id: assessmentId, organizationId }, select: { id: true, status: true } });
   if (!current) throw new AppError(404, 'BIA_ASSESSMENT_NOT_FOUND', 'The business impact assessment was not found.');
   if (current.status !== 'DRAFT') throw new AppError(409, 'BIA_INVALID_TRANSITION', 'Only draft assessments can be submitted for review.');
   const result = await prisma.$transaction(async tx => {
