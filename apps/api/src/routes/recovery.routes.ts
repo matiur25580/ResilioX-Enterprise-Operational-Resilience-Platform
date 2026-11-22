@@ -95,7 +95,7 @@ recoveryRouter.post('/runbooks', requirePermission('continuity:write'), async (r
       data: {
         organizationId,
         serviceId: input.serviceId,
-        continuityPlanId: plan?.id,
+        continuityPlanId: plan?.id ?? null,
         title: input.title,
         description: input.description,
         ownerName: input.ownerName,
@@ -219,7 +219,7 @@ recoveryRouter.post('/simulations', requirePermission('continuity:write'), async
       data: {
         organizationId,
         runbookId: runbook.id,
-        incidentId: input.incidentId,
+        incidentId: input.incidentId ?? null,
         runbookVersion: runbook.version,
         targetRtoMinutes: runbook.rtoMinutes,
         targetRpoMinutes: runbook.rpoMinutes,
@@ -286,7 +286,7 @@ recoveryRouter.patch('/simulations/:simulationId/steps/:stepId', requirePermissi
     }) : [];
     if (!canStartRecoveryStep(predecessorIds.map(id => {
       const found = predecessors.find(item => item.runbookStepId === id);
-      return { predecessorId: id, status: found?.status ?? 'PENDING', waiverRationale: found?.waiverRationale };
+      return { predecessorId: id, status: found?.status ?? 'PENDING', waiverRationale: found?.waiverRationale ?? null };
     }))) throw new AppError(409, 'RECOVERY_STEP_PREREQUISITES_INCOMPLETE', 'All prerequisite steps must succeed or have an explicitly justified waiver before this step starts.');
   }
   const now = new Date();
