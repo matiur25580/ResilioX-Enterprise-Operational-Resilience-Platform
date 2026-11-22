@@ -4,6 +4,8 @@ ALTER TABLE "memberships" ADD COLUMN "role" "TenantRole" NOT NULL DEFAULT 'VIEWE
 CREATE TABLE "refresh_sessions" (
   "id" UUID NOT NULL DEFAULT gen_random_uuid(),
   "user_id" UUID NOT NULL,
+  "membership_id" UUID NOT NULL,
+  "organization_id" UUID NOT NULL,
   "token_hash" VARCHAR(64) NOT NULL,
   "family_id" UUID NOT NULL,
   "expires_at" TIMESTAMP(3) NOT NULL,
