@@ -114,8 +114,6 @@ CREATE TABLE "dependencies" (
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "dependencies_pkey" PRIMARY KEY ("id"),
-  CONSTRAINT "dependencies_confidence_check" CHECK ("confidence" >= 0 AND "confidence" <= 100),
-  CONSTRAINT "dependencies_no_self_link_check" CHECK (NOT ("source_type" = "target_type" AND "source_id" = "target_id"))
 );
 
 CREATE UNIQUE INDEX "organizations_slug_key" ON "organizations"("slug");
