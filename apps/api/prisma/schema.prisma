@@ -203,6 +203,10 @@ model Organization {
   applications Application[]
   assets      TechnologyAsset[]
   suppliers   Supplier[]
+  supplierContracts SupplierContract[]
+  supplierContractServices SupplierContractService[]
+  supplierAssessments SupplierAssessment[]
+  supplierEvidence SupplierEvidence[]
   dependencies Dependency[]
   biaAssessments BusinessImpactAssessment[]
   risks Risk[]
@@ -225,6 +229,9 @@ model User {
   memberships  Membership[]
   sessions     RefreshSession[]
   auditEvents  AuditEvent[]
+  supplierAssessmentsCreated SupplierAssessment[] @relation("SupplierAssessmentCreator")
+  supplierAssessmentsApproved SupplierAssessment[] @relation("SupplierAssessmentApprover")
+  supplierEvidenceRecorded SupplierEvidence[] @relation("SupplierEvidenceRecorder")
 
   @@index([displayName])
   @@map("users")
@@ -260,6 +267,7 @@ model BusinessService {
   updatedAt      DateTime             @updatedAt @map("updated_at")
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   continuityPlans ContinuityPlan[]
+  supplierContractServices SupplierContractService[]
 
   @@unique([organizationId, name])
   @@index([organizationId, status, criticality])
@@ -347,6 +355,7 @@ model SupplierContract {
   ownerName                String                @map("owner_name") @db.VarChar(120)
   createdAt                DateTime              @default(now()) @map("created_at")
   updatedAt                DateTime              @updatedAt @map("updated_at")
+  organization             Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   supplier                 Supplier              @relation(fields: [supplierId], references: [id], onDelete: Restrict)
   services                 SupplierContractService[]
 
@@ -361,7 +370,9 @@ model SupplierContractService {
   organizationId String           @map("organization_id") @db.Uuid
   contractId     String           @map("contract_id") @db.Uuid
   serviceId      String           @map("service_id") @db.Uuid
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   contract       SupplierContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  service        BusinessService   @relation(fields: [serviceId], references: [id], onDelete: Restrict)
 
   @@unique([contractId, serviceId])
   @@index([organizationId, serviceId])
@@ -385,7 +396,10 @@ model SupplierAssessment {
   nextReviewAt   DateTime?               @map("next_review_at")
   createdAt      DateTime                @default(now()) @map("created_at")
   updatedAt      DateTime                @updatedAt @map("updated_at")
+  organization   Organization            @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   supplier       Supplier                @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  createdBy      User                    @relation("SupplierAssessmentCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  approvedBy     User?                   @relation("SupplierAssessmentApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
   evidence       SupplierEvidence[]
 
   @@unique([organizationId, supplierId, version])
@@ -404,7 +418,9 @@ model SupplierEvidence {
   expiresAt      DateTime?             @map("expires_at")
   recordedBy     String                @map("recorded_by") @db.Uuid
   createdAt      DateTime              @default(now()) @map("created_at")
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   assessment     SupplierAssessment    @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  recorder       User                  @relation("SupplierEvidenceRecorder", fields: [recordedBy], references: [id], onDelete: Restrict)
 
   @@index([organizationId, assessmentId, expiresAt])
   @@map("supplier_evidence")
