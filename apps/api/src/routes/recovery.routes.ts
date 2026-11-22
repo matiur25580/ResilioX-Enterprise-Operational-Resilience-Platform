@@ -229,7 +229,7 @@ recoveryRouter.get('/simulations/:simulationId', async (req, res) => {
   const simulationId = z.string().uuid().parse(req.params.simulationId);
   const data = await prisma.recoverySimulation.findFirst({
     where: { id: simulationId, organizationId: req.auth!.organizationId },
-    include: { runbook: { select: { id: true, title: true, version: true, serviceId: true, rtoMinutes: true, rpoMinutes: true } }, steps: { include: { runbookStep: { select: { sequence: true, title: true, description: true, validationCriteria: true } } }, orderBy: { createdAt: 'asc' } }, events: { orderBy: { createdAt: 'asc' }, take: 200 } },
+    include: { runbook: { select: { id: true, title: true, version: true, serviceId: true, rtoMinutes: true, rpoMinutes: true } }, steps: { include: { runbookStep: { select: { sequence: true, title: true, description: true, validationCriteria: true } }, validations: { orderBy: { createdAt: 'asc' } }, remediationTask: { select: { id: true, title: true, status: true, dueAt: true } } }, orderBy: { createdAt: 'asc' } }, events: { orderBy: { createdAt: 'asc' }, take: 200 } },
   });
   if (!data) throw new AppError(404, 'RECOVERY_SIMULATION_NOT_FOUND', 'The simulation was not found.');
   res.json({ data });
@@ -389,7 +389,7 @@ recoveryRouter.post('/simulations/:simulationId/steps/:stepId/validations', requ
       data: {
         simulationStepId: stepId, actorUserId: req.auth!.userId,
         validationType: input.validationType, result: input.result,
-        details: input.details, evidenceReference: input.evidenceReference,
+        details: input.details, evidenceReference: input.evidenceReference ?? null,
       },
     });
     await tx.recoveryEvent.create({
