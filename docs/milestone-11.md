@@ -14,7 +14,7 @@ Milestone 11 adds a tenant-scoped supplier register, contractual recovery commit
 - Maker-checker assessment lifecycle: draft → in review → approved; the creator cannot approve their own assessment. Approval requires at least one evidence reference and supersedes the prior approved version.
 - Audit events for supplier creation, contract creation, assessment creation/submission/approval and evidence recording.
 - Supplier exposure summary based only on verified dependency edges, with linked-service, dependency and active-contract counts.
-- Web workspace for supplier, contract and assessment management.
+- Web workspace for supplier, contract and assessment management, including live status/error announcements and improved keyboard/screen-reader semantics for expandable actions and form guidance.
 
 ## API
 
@@ -36,6 +36,9 @@ All routes are mounted under `/api/v1/suppliers`. Reads require an authenticated
 - All supplier reads and writes are scoped by the authenticated organization.
 - Contract service IDs are checked against the same organization before links are created.
 - Assessment scores are human-entered risk ratings, not automated security certification or a claim of supplier compliance.
+- Operational scoring rubric (all dimensions: 1–5, higher means greater risk): **1 Minimal** — current, independently reviewed evidence shows mature controls and no material gaps; **2 Low** — controls are established with minor, time-bound gaps; **3 Moderate** — partial controls or evidence gaps require tracked remediation; **4 High** — material control weaknesses, repeated findings or limited recovery assurance require a treatment plan and management visibility; **5 Critical** — severe or unmitigated weaknesses, failed recovery evidence or unacceptable concentration require escalation and explicit risk acceptance or dependency reduction.
+- **Resilience risk** considers tested recovery capability, continuity arrangements, incident history and recovery evidence. **Security risk** considers security governance, access/data protection, vulnerability management and independent assurance. **Concentration risk** considers substitutability, correlated exposure, geographic/technology concentration and dependency criticality.
+- Reviewers should record the rationale and evidence for each score, assign an owner and next-review date, and calibrate scores against organizational risk appetite. Missing evidence must not be treated as proof of effective controls; use a conservative score and document uncertainty. The rubric is guidance for consistent human assessment, not a validated quantitative model or automatic weighted score.
 - Evidence is stored as a reference and metadata; files are not uploaded or independently verified by this module.
 - Concentration exposure is calculated from verified dependency edges only; proposed, disputed or retired edges are excluded.
 - Contractual RTO/RPO values represent recorded contract terms, not tested supplier recovery performance.
@@ -44,4 +47,4 @@ All routes are mounted under `/api/v1/suppliers`. Reads require an authenticated
 
 ## Verification and release gates
 
-CI validates the Prisma schema and migration, generates Prisma Client, type-checks API/web, runs automated tests, audits production dependencies and builds both applications. The suite now includes a two-tenant supplier isolation integration test and a Chromium workflow covering sign-in, supplier registration, contract creation, assessment drafting, evidence recording and review submission. Remaining release gates are broader multi-role and cross-tenant coverage, a dedicated accessibility audit and operational review of scoring definitions.
+CI validates the Prisma schema and migration, generates Prisma Client, type-checks API/web, runs automated tests, audits production dependencies and builds both applications. The suite now includes a two-tenant supplier isolation integration test and a Chromium workflow covering sign-in, supplier registration, contract creation, assessment drafting, evidence recording and review submission. A focused accessibility pass adds alert/status announcements, expanded-state semantics, explicit multi-select guidance and clearer score-scale instructions. The score rubric is documented for consistent human review. Remaining release gates are a full assistive-technology/manual accessibility audit, broader multi-role and cross-tenant coverage, and formal approval of the rubric by the organization’s risk owner.
