@@ -56,9 +56,9 @@ export function BiaPage({ token }: { token: string }) {
     } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save assessment.'); }
     finally { setBusy(false); }
   }
-  async function transition(id: string, action: 'submit' | 'approve') {
+  async function transition(id: string, action: 'submit' | 'approve' | 'retire') {
     setBusy(true); setError(''); setNotice('');
-    try { await api<Assessment>('/bia/' + id + '/' + action, { method: 'POST' }, token); await refresh(); setNotice(action === 'submit' ? 'Assessment submitted for review.' : 'Assessment approved.'); }
+    try { await api<Assessment>('/bia/' + id + '/' + action, { method: 'POST' }, token); await refresh(); setNotice(action === 'submit' ? 'Assessment submitted for review.' : action === 'approve' ? 'Assessment approved.' : 'Assessment retired.'); }
     catch (e) { setError(e instanceof Error ? e.message : 'Unable to update assessment.'); }
     finally { setBusy(false); }
   }
@@ -89,7 +89,7 @@ export function BiaPage({ token }: { token: string }) {
     </form>}
     <div className="panel bia-list"><div className="panel-heading"><div><h3>Assessment register</h3><p>Tenant-scoped records and approval status</p></div><span className="panel-count">{assessments.length} records</span></div>
       {loading ? <div className="bia-empty">Loading assessments…</div> : !assessments.length ? <div className="bia-empty"><ClipboardList size={25}/><strong>No business impact assessments yet</strong><span>Create an assessment after adding business processes to your workspace.</span></div> : <div className="table-wrap"><table><thead><tr><th>BUSINESS PROCESS</th><th>VERSION</th><th>CRITICALITY</th><th>IMPACT SCORE</th><th>RTO / MTPD</th><th>STATUS</th><th>ACTION</th></tr></thead><tbody>
-        {assessments.map(a => <tr key={a.id}><td><strong>{a.process.name}</strong><small className="bia-owner">Owner: {a.ownerName}</small></td><td>v{a.version}</td><td><span className={'tier tier-' + a.criticality.toLowerCase()}>{a.criticality}</span></td><td>{a.impactScore}/20</td><td>{duration(a.rtoMinutes)} / {duration(a.mtpdMinutes)}</td><td><span className={'status status-' + a.status.toLowerCase()}>{a.status.replace('_', ' ')}</span></td><td>{a.status === 'DRAFT' ? <button className="bia-action" disabled={busy} onClick={() => transition(a.id, 'submit')}>Submit</button> : a.status === 'IN_REVIEW' ? <button className="bia-action" disabled={busy} onClick={() => transition(a.id, 'approve')}>Approve</button> : <span className="bia-muted">—</span>}</td></tr>)}
+        {assessments.map(a => <tr key={a.id}><td><strong>{a.process.name}</strong><small className="bia-owner">Owner: {a.ownerName}</small></td><td>v{a.version}</td><td><span className={'tier tier-' + a.criticality.toLowerCase()}>{a.criticality}</span></td><td>{a.impactScore}/20</td><td>{duration(a.rtoMinutes)} / {duration(a.mtpdMinutes)}</td><td><span className={'status status-' + a.status.toLowerCase()}>{a.status.replace('_', ' ')}</span></td><td>{a.status === 'DRAFT' ? <button className="bia-action" disabled={busy} onClick={() => transition(a.id, 'submit')}>Submit</button> : a.status === 'IN_REVIEW' ? <button className="bia-action" disabled={busy} onClick={() => transition(a.id, 'approve')}>Approve</button>  : a.status === 'APPROVED' ? <button className="bia-action" disabled={busy} onClick={() => transition(a.id, 'retire')}>Retire</button> : <span className="bia-muted">—</span>}</td></tr>)}
       </tbody></table></div>}
     </div>
     <div className="bia-method"><strong>Scoring methodology</strong><span>For each horizon, four dimensions are added (4–20). The highest horizon total determines criticality: 16–20 Critical, 12–15 High, 8–11 Medium, 4–7 Low. This is a fixed transparent baseline, not a configurable policy.</span></div>
