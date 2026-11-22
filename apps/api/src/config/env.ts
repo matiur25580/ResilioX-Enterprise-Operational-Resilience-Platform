@@ -8,7 +8,7 @@ const envSchema = z.object({
   API_BASE_PATH: z.string().regex(/^\/[a-zA-Z0-9/_-]*$/).default('/api/v1'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
-  DATABASE_URL: z.string().url().optional(),
+  DATABASE_URL: z.string().url(),
 });
 
 const parsed = envSchema.safeParse(process.env);
