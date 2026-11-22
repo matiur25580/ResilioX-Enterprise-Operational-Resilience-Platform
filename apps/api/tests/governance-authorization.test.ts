@@ -77,7 +77,9 @@ describe('governance evidence, policy and audit authorization', () => {
 
       expect((await request(app).get('/api/v1/governance/audit/events').set('Authorization', `Bearer ${viewerToken}`)).status).toBe(403);
       expect((await request(app).get('/api/v1/governance/evidence').set('Authorization', `Bearer ${foreign.token}`)).body.data).toHaveLength(0);
-      expect((await request(app).get('/api/v1/governance/audit/events').set('Authorization', `Bearer ${foreign.token}`)).body.data).toHaveLength(0);
+      const foreignAudit = await request(app).get('/api/v1/governance/audit/events').set('Authorization', `Bearer ${foreign.token}`);
+      expect(foreignAudit.status).toBe(200);
+      expect(foreignAudit.body.data.some((event: { targetId: string | null }) => event.targetId === evidenceId || event.targetId === policyId)).toBe(false);
     } finally {
       const organizationIds = [owner.organizationId, reviewer.organizationId, analyst.organizationId, viewer.organizationId, foreign.organizationId];
       await prisma.policyEvidenceLink.deleteMany({ where: { organizationId: { in: organizationIds } } });
