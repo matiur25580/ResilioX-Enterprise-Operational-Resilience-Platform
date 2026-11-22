@@ -191,7 +191,7 @@ enum ImpactHorizon {
 
 enum GovernanceEvidenceStatus { DRAFT SUBMITTED VERIFIED REJECTED EXPIRED }
 enum GovernanceEvidenceType { POLICY DOCUMENT AUDIT_REPORT CERTIFICATION TEST_RESULT EXERCISE_RESULT CONTRACT OTHER }
-enum GovernancePolicyStatus { DRAFT ACTIVE RETIRED }
+enum GovernancePolicyStatus { DRAFT IN_REVIEW ACTIVE RETIRED }
 
 model Organization {
   id          String             @id @default(uuid()) @db.Uuid
@@ -239,6 +239,8 @@ model User {
   governanceEvidenceCreated GovernanceEvidence[] @relation("GovernanceEvidenceCreator")
   governanceEvidenceReviewed GovernanceEvidence[] @relation("GovernanceEvidenceReviewer")
   governancePoliciesOwned GovernancePolicy[] @relation("GovernancePolicyOwner")
+  governancePoliciesSubmitted GovernancePolicy[] @relation("GovernancePolicySubmitter")
+  governancePoliciesApproved GovernancePolicy[] @relation("GovernancePolicyApprover")
   policyEvidenceLinksCreated PolicyEvidenceLink[]
 
   @@index([displayName])
@@ -516,12 +518,18 @@ model GovernancePolicy {
   controlReference String @map("control_reference") @db.VarChar(120)
   description String @db.Text
   ownerUserId String @map("owner_user_id") @db.Uuid
+  submittedByUserId String? @map("submitted_by_user_id") @db.Uuid
+  approvedByUserId String? @map("approved_by_user_id") @db.Uuid
+  submittedAt DateTime? @map("submitted_at")
+  approvedAt DateTime? @map("approved_at")
   status GovernancePolicyStatus @default(DRAFT)
   reviewDueAt DateTime? @map("review_due_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   owner User @relation("GovernancePolicyOwner", fields: [ownerUserId], references: [id], onDelete: Restrict)
+  submittedBy User? @relation("GovernancePolicySubmitter", fields: [submittedByUserId], references: [id], onDelete: Restrict)
+  approvedBy User? @relation("GovernancePolicyApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
   evidenceLinks PolicyEvidenceLink[]
   @@unique([organizationId, framework, controlReference])
   @@index([organizationId, status, reviewDueAt])
