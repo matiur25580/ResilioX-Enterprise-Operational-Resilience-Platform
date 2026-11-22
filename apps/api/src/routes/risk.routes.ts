@@ -23,6 +23,7 @@ async function targetExists(organizationId: string, type: RiskTargetType, id: st
     case 'SUPPLIER': return !!await prisma.supplier.findFirst({ where: { id, organizationId }, select: { id: true } });
     case 'DEPENDENCY': return !!await prisma.dependency.findFirst({ where: { id, organizationId }, select: { id: true } });
   }
+  return false;
 }
 
 function includeRisk() {
