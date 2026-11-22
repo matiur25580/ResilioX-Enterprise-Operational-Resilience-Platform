@@ -50,6 +50,8 @@ CREATE TABLE "supplier_assessments" (
   "version" INTEGER NOT NULL DEFAULT 1,
   "status" "SupplierAssessmentStatus" NOT NULL DEFAULT 'DRAFT',
   "owner_name" VARCHAR(120) NOT NULL,
+  "created_by_user_id" UUID NOT NULL,
+  "approved_by_user_id" UUID,
   "resilience_score" INTEGER NOT NULL,
   "security_score" INTEGER NOT NULL,
   "concentration_score" INTEGER NOT NULL,
@@ -61,6 +63,8 @@ CREATE TABLE "supplier_assessments" (
   CONSTRAINT "supplier_assessments_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "supplier_assessments_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT "supplier_assessments_supplier_id_fkey" FOREIGN KEY ("supplier_id") REFERENCES "suppliers"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "supplier_assessments_created_by_user_id_fkey" FOREIGN KEY ("created_by_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "supplier_assessments_approved_by_user_id_fkey" FOREIGN KEY ("approved_by_user_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT "supplier_assessments_score_check" CHECK ("resilience_score" BETWEEN 1 AND 5 AND "security_score" BETWEEN 1 AND 5 AND "concentration_score" BETWEEN 1 AND 5),
   CONSTRAINT "supplier_assessments_version_check" CHECK ("version" > 0)
 );
