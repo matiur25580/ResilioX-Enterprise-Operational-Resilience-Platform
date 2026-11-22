@@ -138,7 +138,7 @@ continuityRouter.post('/exercises/:exerciseId/actions',requirePermission('contin
  const exercise=await prisma.continuityExercise.findFirst({where:{id:exerciseId,plan:{organizationId}},select:{id:true}});
  if(!exercise)throw new AppError(404,'CONTINUITY_EXERCISE_NOT_FOUND','The exercise was not found.');
  const action=await prisma.$transaction(async tx=>{
-  const a=await tx.continuityAction.create({data:{...input,exerciseId,dueAt:new Date(input.dueAt)}});
+  const a=await tx.continuityAction.create({data:{...input,notes:input.notes??null,exerciseId,dueAt:new Date(input.dueAt)}});
   await tx.auditEvent.create({data:{organizationId,actorUserId:req.auth!.userId,action:'continuity.action_created',targetType:'continuity_action',targetId:a.id}});
   return a;
  });
