@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth, requirePermission } from '../middleware/auth.js';
 import { AppError } from '../middleware/error-handler.js';
+import { canTransitionIncident } from '../lib/incident-lifecycle.js';
 
 export const incidentRouter = Router();
 incidentRouter.use(requireAuth);
@@ -87,16 +88,7 @@ incidentRouter.patch('/:incidentId/status', requirePermission('continuity:write'
   const organizationId = req.auth!.organizationId;
   const current = await prisma.incident.findFirst({ where: { id: incidentId, organizationId } });
   if (!current) throw new AppError(404, 'INCIDENT_NOT_FOUND', 'The incident was not found in this workspace.');
-  const transitions: Record<string, string[]> = {
-    DETECTED: ['TRIAGED', 'CANCELLED'],
-    TRIAGED: ['ACTIVE', 'CANCELLED'],
-    ACTIVE: ['MITIGATING', 'RESOLVED'],
-    MITIGATING: ['ACTIVE', 'RESOLVED'],
-    RESOLVED: ['ACTIVE', 'CLOSED'],
-    CLOSED: [],
-    CANCELLED: [],
-  };
-  if (!transitions[current.status].includes(input.status)) {
+  if (!canTransitionIncident(current.status, input.status)) {
     throw new AppError(409, 'INCIDENT_INVALID_TRANSITION', `Cannot move an incident from ${current.status} to ${input.status}.`);
   }
   const now = new Date();
