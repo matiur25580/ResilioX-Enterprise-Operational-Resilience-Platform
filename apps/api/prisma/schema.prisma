@@ -157,6 +157,32 @@ enum ContinuityActionSeverity {
   CRITICAL
 }
 
+enum RecoveryRunbookStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RETIRED
+}
+
+enum RecoverySimulationStatus {
+  PLANNED
+  READY
+  RUNNING
+  COMPLETED
+  BLOCKED
+  CANCELLED
+}
+
+enum RecoveryStepStatus {
+  PENDING
+  READY
+  IN_PROGRESS
+  SUCCEEDED
+  FAILED
+  BLOCKED
+  SKIPPED
+}
+
 enum ImpactHorizon {
   IMMEDIATE
   FOUR_HOURS
@@ -174,6 +200,7 @@ model Organization {
   updatedAt   DateTime           @updatedAt @map("updated_at")
   memberships Membership[]
   auditEvents AuditEvent[]
+  recoveryApprovals RecoveryRunbook[] @relation("RecoveryRunbookApprover")
   services    BusinessService[]
   processes   BusinessProcess[]
   applications Application[]
@@ -184,7 +211,10 @@ model Organization {
   risks Risk[]
   controls Control[]
   continuityPlans ContinuityPlan[]
+  recoveryRunbooks RecoveryRunbook[]
   incidents Incident[]
+  recoveryRunbooks RecoveryRunbook[]
+  recoverySimulations RecoverySimulation[]
 
   @@index([status])
   @@map("organizations")
@@ -513,6 +543,7 @@ model ContinuityPlan {
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   service BusinessService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
   exercises ContinuityExercise[]
+  recoveryRunbooks RecoveryRunbook[]
   @@unique([organizationId, serviceId, version])
   @@index([organizationId, status, reviewDueAt])
   @@index([serviceId, updatedAt])
@@ -578,6 +609,7 @@ model Incident {
   organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   events         IncidentEvent[]
   tasks          IncidentTask[]
+  recoverySimulations RecoverySimulation[]
 
   @@unique([organizationId, reference])
   @@index([organizationId, status, severity, detectedAt])
@@ -615,4 +647,126 @@ model IncidentTask {
 
   @@index([incidentId, status, dueAt])
   @@map("incident_tasks")
+}
+
+model RecoveryRunbook {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  serviceId String @map("service_id") @db.Uuid
+  continuityPlanId String? @map("continuity_plan_id") @db.Uuid
+  version Int @default(1)
+  status RecoveryRunbookStatus @default(DRAFT)
+  title String @db.VarChar(180)
+  description String @db.Text
+  ownerName String @map("owner_name") @db.VarChar(120)
+  rtoMinutes Int? @map("rto_minutes")
+  rpoMinutes Int? @map("rpo_minutes")
+  reviewDueAt DateTime? @map("review_due_at")
+  submittedAt DateTime? @map("submitted_at")
+  approvedAt DateTime? @map("approved_at")
+  approvedByUserId String? @map("approved_by_user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  service BusinessService @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  continuityPlan ContinuityPlan? @relation(fields: [continuityPlanId], references: [id], onDelete: Restrict)
+  approvedBy User? @relation("RecoveryRunbookApprover", fields: [approvedByUserId], references: [id], onDelete: SetNull)
+  steps RecoveryRunbookStep[]
+  simulations RecoverySimulation[]
+  @@unique([organizationId, serviceId, title, version])
+  @@index([organizationId, status, updatedAt])
+  @@index([serviceId, status])
+  @@map("recovery_runbooks")
+}
+
+model RecoveryRunbookStep {
+  id String @id @default(uuid()) @db.Uuid
+  runbookId String @map("runbook_id") @db.Uuid
+  sequence Int
+  title String @db.VarChar(180)
+  description String @db.Text
+  responsibleRole String @map("responsible_role") @db.VarChar(100)
+  estimatedMinutes Int @map("estimated_minutes")
+  validationCriteria String @map("validation_criteria") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  runbook RecoveryRunbook @relation(fields: [runbookId], references: [id], onDelete: Cascade)
+  predecessors RecoveryStepDependency[] @relation("RecoveryStepSuccessor")
+  successors RecoveryStepDependency[] @relation("RecoveryStepPredecessor")
+  simulationSteps RecoverySimulationStep[]
+  @@unique([runbookId, sequence])
+  @@index([runbookId])
+  @@map("recovery_runbook_steps")
+}
+
+model RecoveryStepDependency {
+  id String @id @default(uuid()) @db.Uuid
+  predecessorStepId String @map("predecessor_step_id") @db.Uuid
+  successorStepId String @map("successor_step_id") @db.Uuid
+  predecessor RecoveryRunbookStep @relation("RecoveryStepPredecessor", fields: [predecessorStepId], references: [id], onDelete: Cascade)
+  successor RecoveryRunbookStep @relation("RecoveryStepSuccessor", fields: [successorStepId], references: [id], onDelete: Cascade)
+  @@unique([predecessorStepId, successorStepId])
+  @@index([successorStepId])
+  @@map("recovery_step_dependencies")
+}
+
+model RecoverySimulation {
+  id String @id @default(uuid()) @db.Uuid
+  organizationId String @map("organization_id") @db.Uuid
+  runbookId String @map("runbook_id") @db.Uuid
+  incidentId String? @map("incident_id") @db.Uuid
+  runbookVersion Int @map("runbook_version")
+  status RecoverySimulationStatus @default(PLANNED)
+  targetRtoMinutes Int? @map("target_rto_minutes")
+  targetRpoMinutes Int? @map("target_rpo_minutes")
+  simulatedElapsedMinutes Int? @map("simulated_elapsed_minutes")
+  dataLossAssumptionMinutes Int? @map("data_loss_assumption_minutes")
+  dependencySnapshot Json? @map("dependency_snapshot")
+  summary String? @db.Text
+  startedAt DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  runbook RecoveryRunbook @relation(fields: [runbookId], references: [id], onDelete: Restrict)
+  incident Incident? @relation(fields: [incidentId], references: [id], onDelete: Restrict)
+  steps RecoverySimulationStep[]
+  events RecoveryEvent[]
+  @@index([organizationId, status, createdAt])
+  @@index([runbookId, createdAt])
+  @@index([incidentId])
+  @@map("recovery_simulations")
+}
+
+model RecoverySimulationStep {
+  id String @id @default(uuid()) @db.Uuid
+  simulationId String @map("simulation_id") @db.Uuid
+  runbookStepId String @map("runbook_step_id") @db.Uuid
+  status RecoveryStepStatus @default(PENDING)
+  operatorName String? @map("operator_name") @db.VarChar(120)
+  startedAt DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  outcome String? @db.Text
+  rationale String? @db.Text
+  evidenceReference String? @map("evidence_reference") @db.VarChar(500)
+  waiverRationale String? @map("waiver_rationale") @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  simulation RecoverySimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  runbookStep RecoveryRunbookStep @relation(fields: [runbookStepId], references: [id], onDelete: Restrict)
+  @@unique([simulationId, runbookStepId])
+  @@index([simulationId, status])
+  @@map("recovery_simulation_steps")
+}
+
+model RecoveryEvent {
+  id String @id @default(uuid()) @db.Uuid
+  simulationId String @map("simulation_id") @db.Uuid
+  actorUserId String? @map("actor_user_id") @db.Uuid
+  eventType String @map("event_type") @db.VarChar(80)
+  message String @db.Text
+  metadata Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  simulation RecoverySimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  @@index([simulationId, createdAt])
+  @@map("recovery_events")
 }
