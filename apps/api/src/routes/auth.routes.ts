@@ -71,7 +71,7 @@ authRouter.post('/login', limiter, async (req, res, next) => {
     const membership = await prisma.membership.findFirst({ where: { userId: user.id, status: 'ACTIVE', organization: { slug: input.organizationSlug, status: 'ACTIVE' } }, select: { id: true, organizationId: true, role: true } });
     if (!membership) throw new AppError(403, 'ORGANIZATION_ACCESS_DENIED', 'No active membership exists for this organization.');
     const tokens = await createSession(user.id, membership, req, res);
-    await prisma.auditEvent.create({ data: { organizationId: membership.organizationId, actorUserId: user.id, action: 'identity.login_succeeded', ipAddress: req.ip?.slice(0, 64) } });
+    await prisma.auditEvent.create({ data: { organizationId: membership.organizationId, actorUserId: user.id, action: 'identity.login_succeeded', ipAddress: req.ip?.slice(0, 64) ?? null } });
     res.json({ data: { user: { id: user.id, email: user.email, displayName: user.displayName }, ...tokens } });
   } catch (error) { next(error); }
 });
