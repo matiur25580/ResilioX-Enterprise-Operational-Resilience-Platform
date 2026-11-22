@@ -132,6 +132,8 @@ supplierRouter.post('/assessments/:assessmentId/approve', requirePermission('con
     const current = await tx.supplierAssessment.findFirst({ where: { id: assessmentId, organizationId: req.auth!.organizationId } });
     if (!current) throw new AppError(404, 'SUPPLIER_ASSESSMENT_NOT_FOUND', 'The supplier assessment was not found.');
     if (current.status !== 'IN_REVIEW' || current.createdByUserId === req.auth!.userId) throw new AppError(409, 'SUPPLIER_ASSESSMENT_MAKER_CHECKER', 'An assessment must be reviewed by a different user after submission.');
+    const evidenceCount = await tx.supplierEvidence.count({ where: { organizationId: req.auth!.organizationId, assessmentId } });
+    if (evidenceCount === 0) throw new AppError(409, 'SUPPLIER_ASSESSMENT_EVIDENCE_REQUIRED', 'At least one evidence reference is required before approval.');
     const result = await tx.supplierAssessment.updateMany({ where: { id: assessmentId, organizationId: req.auth!.organizationId, status: 'IN_REVIEW' }, data: { status: 'APPROVED', assessedAt: new Date(), approvedByUserId: req.auth!.userId } });
     if (result.count !== 1) throw new AppError(409, 'SUPPLIER_ASSESSMENT_CONFLICT', 'The assessment changed while approval was being recorded.');
     await tx.supplierAssessment.updateMany({ where: { organizationId: req.auth!.organizationId, supplierId: current.supplierId, id: { not: assessmentId }, status: 'APPROVED' }, data: { status: 'SUPERSEDED' } });
