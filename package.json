@@ -18,11 +18,13 @@
     "db:seed": "npm run db:seed --workspace @continuitygrid/api",
     "format:check": "prettier --check .",
     "dev:web": "npm run dev --workspace @continuitygrid/web",
-    "build:web": "npm run build --workspace @continuitygrid/web"
+    "build:web": "npm run build --workspace @continuitygrid/web",
+    "capture:showcase": "node scripts/capture-showcase.mjs"
   },
   "devDependencies": {
     "prettier": "^3.6.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "playwright": "^1.55.0"
   },
   "engines": {
     "node": ">=22.0.0",
