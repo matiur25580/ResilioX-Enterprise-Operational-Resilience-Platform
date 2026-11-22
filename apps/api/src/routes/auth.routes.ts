@@ -52,7 +52,7 @@ authRouter.post('/register', limiter, async (req, res, next) => {
       const user = await tx.user.create({ data: { email: input.email, displayName: input.displayName, passwordHash } });
       const organization = await tx.organization.create({ data: { name: input.organizationName, slug: input.organizationSlug } });
       const membership = await tx.membership.create({ data: { userId: user.id, organizationId: organization.id, status: 'ACTIVE', role: 'OWNER', joinedAt: new Date() } });
-      await tx.auditEvent.create({ data: { organizationId: organization.id, actorUserId: user.id, action: 'identity.organization_registered', targetType: 'organization', targetId: organization.id, ipAddress: req.ip?.slice(0, 64) } });
+      await tx.auditEvent.create({ data: { organizationId: organization.id, actorUserId: user.id, action: 'identity.organization_registered', targetType: 'organization', targetId: organization.id, ipAddress: req.ip?.slice(0, 64) ?? null } });
       return { user, membership, organization };
     });
     const tokens = await createSession(result.user.id, result.membership, req, res);
