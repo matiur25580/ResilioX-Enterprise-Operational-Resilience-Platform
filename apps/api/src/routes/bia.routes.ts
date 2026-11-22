@@ -34,6 +34,11 @@ function includeAssessment() {
   return { process: { select: { id: true, name: true, ownerName: true } }, impacts: { orderBy: { horizon: 'asc' as const } } };
 }
 
+biaRouter.get('/processes', async (req, res) => {
+  const processes = await prisma.businessProcess.findMany({ where: { organizationId: req.auth!.organizationId }, orderBy: { name: 'asc' }, select: { id: true, name: true, ownerName: true } });
+  res.json({ data: processes });
+});
+
 biaRouter.get('/', async (req, res) => {
   const assessments = await prisma.businessImpactAssessment.findMany({
     where: { organizationId: req.auth!.organizationId, status: { not: 'RETIRED' } },
