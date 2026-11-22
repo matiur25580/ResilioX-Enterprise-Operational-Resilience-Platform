@@ -142,7 +142,9 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 - Supplier relationships connect to business services.
 - Assessment history is preserved.
 
-## 12 — Scenario simulation
+## 12 — Scenario simulation — implementation started (draft PR)
+**Delivered in this increment:** deterministic scenario templates, tenant-scoped impact propagation over verified dependencies, explainable priority scoring, approved-plan RTO references, versioned point-in-time snapshots and run history. See [Milestone 12 specification](milestone-12.md).
+
 **Deliverables**
 - Scenario templates, assumptions and configurable disruptions.
 - Dependency-based impact propagation.
