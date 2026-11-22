@@ -1,6 +1,6 @@
 # Milestone 10 — Disaster Recovery Orchestration
 
-**Status:** design baseline prepared; implementation is the next delivery increment.
+**Status:** backend foundation in draft PR; schema, migration, domain policies and tenant-scoped API tranche implemented. Frontend workspace, automated API integration coverage, remediation-action linkage and full release acceptance remain outstanding.
 
 ## Product objective
 
@@ -75,14 +75,14 @@ All routes are under `/api/v1/recovery` and require authenticated tenant context
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| GET | `/runbooks` | Tenant-scoped runbook register with bounded filters |
+| GET | `/runbooks` | Tenant-scoped runbook register with bounded filters |\n| GET | `/runbooks/:id` | Read runbook, service/plan context and simulation history |
 | POST | `/runbooks` | Create a draft runbook and ordered steps |
 | GET | `/runbooks/:id` | Read runbook and version history |
 | PATCH | `/runbooks/:id` | Edit a draft; approved versions remain immutable |
 | POST | `/runbooks/:id/submit` | Submit a draft for review |
 | POST | `/runbooks/:id/approve` | Approve a submitted version using maker-checker |
 | POST | `/runbooks/:id/retire` | Retire a runbook version |
-| GET | `/simulations` | List simulations and outcomes |
+| GET | `/simulations` | List simulations and outcomes |\n| GET | `/simulations/:id` | Read simulation steps, dependency snapshot and timeline |
 | POST | `/simulations` | Create a simulation from an approved runbook version |
 | GET | `/simulations/:id` | Read simulation, steps, evidence and timeline |
 | POST | `/simulations/:id/start` | Start after readiness checks |
@@ -138,3 +138,10 @@ All tenant-owned relations must be validated against the active organization. Us
 ## Industry context
 
 The workflow is informed by DORA ICT business continuity and recovery expectations, NIST CSF 2.0 Recover outcomes and ISO 22301 continuity planning practices. These references inform product design only; the platform does not certify regulatory compliance or guarantee recovery objectives.
+
+
+## Current implementation boundary
+
+The first backend increment exposes runbook creation, register/detail reads, submission and maker-checker approval; simulation creation, register/detail reads, start, step outcome recording, completion and cancellation. It snapshots tenant-scoped service dependency edges and runbook step prerequisites when a simulation is created.
+
+All simulation routes are rehearsal-only. They persist operator-entered outcomes and never invoke infrastructure, cloud, database, identity, DNS, network or paging control planes. The implementation is not a production disaster-recovery execution engine. The UI and end-to-end/API integration coverage are not yet delivered.
