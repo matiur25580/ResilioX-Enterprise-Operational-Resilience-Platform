@@ -214,6 +214,24 @@ recoveryRouter.post('/runbooks/:runbookId/approve', requirePermission('continuit
   res.json({ data: updated });
 });
 
+recoveryRouter.post('/runbooks/:runbookId/retire', requirePermission('continuity:write'), async (req, res) => {
+  const runbookId = z.string().uuid().parse(req.params.runbookId);
+  const input = z.object({ rationale: z.string().trim().min(5).max(2000) }).parse(req.body);
+  const organizationId = req.auth!.organizationId;
+  const changed = await prisma.$transaction(async tx => {
+    const result = await tx.recoveryRunbook.updateMany({
+      where: { id: runbookId, organizationId, status: 'APPROVED' },
+      data: { status: 'RETIRED' },
+    });
+    if (result.count !== 1) throw new AppError(409, 'RECOVERY_RUNBOOK_NOT_RETIRABLE', 'Only an approved runbook version can be retired.');
+    await tx.auditEvent.create({
+      data: { organizationId, actorUserId: req.auth!.userId, action: 'recovery.runbook_retired', targetType: 'recovery_runbook', targetId: runbookId, metadata: { rationale: input.rationale } },
+    });
+    return tx.recoveryRunbook.findFirstOrThrow({ where: { id: runbookId }, include: runbookInclude });
+  });
+  res.json({ data: changed });
+});
+
 recoveryRouter.get('/simulations', async (req, res) => {
   const limit = z.coerce.number().int().min(1).max(100).default(50).parse(req.query.limit);
   const data = await prisma.recoverySimulation.findMany({
