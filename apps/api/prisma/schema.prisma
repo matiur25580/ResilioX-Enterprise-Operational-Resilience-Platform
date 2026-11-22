@@ -104,12 +104,41 @@ enum RiskTargetType {
   DEPENDENCY
 }
 
-enum ContinuityPlanStatus { DRAFT IN_REVIEW APPROVED RETIRED }
-enum ContinuityExerciseType { TABLETOP WALKTHROUGH SIMULATION FULL_SCALE }
-enum ContinuityExerciseStatus { PLANNED IN_PROGRESS COMPLETED CANCELLED }
-enum ContinuityExerciseResult { SUCCESS PARTIAL_FAILURE FAILURE }
-enum ContinuityActionStatus { OPEN IN_PROGRESS BLOCKED COMPLETED }
-enum ContinuityActionSeverity { LOW MEDIUM HIGH CRITICAL }
+enum ContinuityPlanStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RETIRED
+}
+enum ContinuityExerciseType {
+  TABLETOP
+  WALKTHROUGH
+  SIMULATION
+  FULL_SCALE
+}
+enum ContinuityExerciseStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+enum ContinuityExerciseResult {
+  SUCCESS
+  PARTIAL_FAILURE
+  FAILURE
+}
+enum ContinuityActionStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+enum ContinuityActionSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
 
 enum ImpactHorizon {
   IMMEDIATE
