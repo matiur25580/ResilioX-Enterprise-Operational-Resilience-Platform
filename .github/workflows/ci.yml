@@ -16,6 +16,20 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://continuitygrid:continuitygrid_dev@localhost:5432/continuitygrid?schema=public
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: continuitygrid
+          POSTGRES_PASSWORD: continuitygrid_dev
+          POSTGRES_DB: continuitygrid
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U continuitygrid -d continuitygrid"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,8 +39,14 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Check production dependency advisories
+        run: npm audit --omit=dev --audit-level=high
+      - name: Validate Prisma schema
+        run: npx prisma validate --schema apps/api/prisma/schema.prisma
       - name: Generate Prisma Client
         run: npm run db:generate
+      - name: Apply database migrations
+        run: npm run db:deploy
       - name: Type check
         run: npm run typecheck
       - name: Run tests
