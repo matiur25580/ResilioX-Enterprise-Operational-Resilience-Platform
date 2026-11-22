@@ -98,9 +98,9 @@ async function main() {
   }
 
   const links = [
-    { sourceId: serviceRows[0].id, targetId: appRows[0].id, type: 'DEPENDS_ON' as const },
-    { sourceId: serviceRows[1].id, targetId: appRows[1].id, type: 'DEPENDS_ON' as const },
-    { sourceId: serviceRows[2].id, targetId: appRows[2].id, type: 'DEPENDS_ON' as const },
+    { sourceId: serviceRows[0]!.id, targetId: appRows[0]!.id, type: 'DEPENDS_ON' as const },
+    { sourceId: serviceRows[1]!.id, targetId: appRows[1]!.id, type: 'DEPENDS_ON' as const },
+    { sourceId: serviceRows[2]!.id, targetId: appRows[2]!.id, type: 'DEPENDS_ON' as const },
   ];
   for (const link of links) {
     const exists = await prisma.dependency.findFirst({
