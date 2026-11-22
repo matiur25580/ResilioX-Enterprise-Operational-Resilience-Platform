@@ -73,7 +73,7 @@ describe('governance evidence, policy and audit authorization', () => {
       await prisma.governancePolicy.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.governanceEvidence.deleteMany({ where: { organizationId: { in: organizationIds } } });
       await prisma.$transaction(async tx => {
-        await tx.$executeRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
+        await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
         await tx.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
       });
       const userIds = [owner.userId, reviewer.userId, analyst.userId, viewer.userId, foreign.userId];
