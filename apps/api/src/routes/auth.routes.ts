@@ -35,7 +35,7 @@ function clearRefreshCookie(res: Response) {
 async function createSession(userId: string, membership: { id: string; organizationId: string; role: string }, req: Request, res: Response, familyId = randomUUID()) {
   const refreshToken = createRefreshToken();
   const session = await prisma.refreshSession.create({ data: {
-    userId, tokenHash: hashRefreshToken(refreshToken), familyId,
+    userId, membershipId: membership.id, organizationId: membership.organizationId, tokenHash: hashRefreshToken(refreshToken), familyId,
     expiresAt: new Date(Date.now() + env.REFRESH_TOKEN_TTL_DAYS * 86400_000),
     userAgent: String(req.get('user-agent') ?? '').slice(0, 512) || null,
     ipAddress: req.ip?.slice(0, 64) ?? null,
@@ -88,14 +88,14 @@ authRouter.post('/refresh', limiter, async (req, res, next) => {
       clearRefreshCookie(res);
       throw new AppError(401, 'REFRESH_TOKEN_REUSE', 'The refresh session is no longer valid. Please sign in again.');
     }
-    const membership = await prisma.membership.findFirst({ where: { userId: current.userId, status: 'ACTIVE', organization: { status: 'ACTIVE' } }, orderBy: { joinedAt: 'asc' }, select: { id: true, organizationId: true, role: true } });
+    const membership = await prisma.membership.findFirst({ where: { id: current.membershipId, userId: current.userId, organizationId: current.organizationId, status: 'ACTIVE', organization: { status: 'ACTIVE' } }, select: { id: true, organizationId: true, role: true } });
     if (!membership) throw new AppError(403, 'ORGANIZATION_ACCESS_DENIED', 'No active organization membership exists.');
     const nextToken = createRefreshToken();
     const nextId = randomUUID();
     await prisma.$transaction(async tx => {
       const changed = await tx.refreshSession.updateMany({ where: { id: current.id, revokedAt: null }, data: { revokedAt: new Date(), replacedBy: nextId } });
       if (changed.count !== 1) throw new AppError(401, 'REFRESH_TOKEN_REUSE', 'The refresh session was already rotated.');
-      await tx.refreshSession.create({ data: { id: nextId, userId: current.userId, tokenHash: hashRefreshToken(nextToken), familyId: current.familyId, expiresAt: new Date(Date.now() + env.REFRESH_TOKEN_TTL_DAYS * 86400_000), userAgent: String(req.get('user-agent') ?? '').slice(0, 512) || null, ipAddress: req.ip?.slice(0, 64) ?? null } });
+      await tx.refreshSession.create({ data: { id: nextId, userId: current.userId, membershipId: membership.id, organizationId: membership.organizationId, tokenHash: hashRefreshToken(nextToken), familyId: current.familyId, expiresAt: new Date(Date.now() + env.REFRESH_TOKEN_TTL_DAYS * 86400_000), userAgent: String(req.get('user-agent') ?? '').slice(0, 512) || null, ipAddress: req.ip?.slice(0, 64) ?? null } });
     });
     setRefreshCookie(res, nextToken);
     res.json({ data: { accessToken: issueAccessToken({ sub: current.userId, sid: nextId, mid: membership.id, org: membership.organizationId, role: membership.role }), expiresIn: env.ACCESS_TOKEN_TTL_SECONDS } });
