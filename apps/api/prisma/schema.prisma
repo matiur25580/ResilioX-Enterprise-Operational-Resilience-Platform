@@ -375,6 +375,8 @@ model SupplierAssessment {
   version        Int                     @default(1)
   status         SupplierAssessmentStatus @default(DRAFT)
   ownerName      String                  @map("owner_name") @db.VarChar(120)
+  createdByUserId String                 @map("created_by_user_id") @db.Uuid
+  approvedByUserId String?               @map("approved_by_user_id") @db.Uuid
   resilienceScore Int                    @map("resilience_score")
   securityScore   Int                     @map("security_score")
   concentrationScore Int                 @map("concentration_score")
