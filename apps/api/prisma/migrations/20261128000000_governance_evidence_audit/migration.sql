@@ -1,7 +1,7 @@
 -- Milestone 13: governance evidence, policy mapping and audit immutability.
 CREATE TYPE "GovernanceEvidenceStatus" AS ENUM ('DRAFT', 'SUBMITTED', 'VERIFIED', 'REJECTED', 'EXPIRED');
 CREATE TYPE "GovernanceEvidenceType" AS ENUM ('POLICY', 'DOCUMENT', 'AUDIT_REPORT', 'CERTIFICATION', 'TEST_RESULT', 'EXERCISE_RESULT', 'CONTRACT', 'OTHER');
-CREATE TYPE "GovernancePolicyStatus" AS ENUM ('DRAFT', 'ACTIVE', 'RETIRED');
+CREATE TYPE "GovernancePolicyStatus" AS ENUM ('DRAFT', 'IN_REVIEW', 'ACTIVE', 'RETIRED');
 
 CREATE TABLE "governance_evidence" (
   "id" UUID NOT NULL,
@@ -40,13 +40,19 @@ CREATE TABLE "governance_policies" (
   "control_reference" VARCHAR(120) NOT NULL,
   "description" TEXT NOT NULL,
   "owner_user_id" UUID NOT NULL,
+  "submitted_by_user_id" UUID,
+  "approved_by_user_id" UUID,
+  "submitted_at" TIMESTAMP(3),
+  "approved_at" TIMESTAMP(3),
   "status" "GovernancePolicyStatus" NOT NULL DEFAULT 'DRAFT',
   "review_due_at" TIMESTAMP(3),
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" TIMESTAMP(3) NOT NULL,
   CONSTRAINT "governance_policies_pkey" PRIMARY KEY ("id"),
   CONSTRAINT "governance_policies_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT "governance_policies_owner_user_id_fkey" FOREIGN KEY ("owner_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE
+  CONSTRAINT "governance_policies_owner_user_id_fkey" FOREIGN KEY ("owner_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "governance_policies_submitted_by_user_id_fkey" FOREIGN KEY ("submitted_by_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT "governance_policies_approved_by_user_id_fkey" FOREIGN KEY ("approved_by_user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX "governance_policies_organization_id_framework_control_reference_key" ON "governance_policies"("organization_id", "framework", "control_reference");
 CREATE INDEX "governance_policies_organization_id_status_review_due_at_idx" ON "governance_policies"("organization_id", "status", "review_due_at");
