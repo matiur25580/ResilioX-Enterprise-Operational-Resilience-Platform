@@ -133,6 +133,23 @@ enum ContinuityActionStatus {
   BLOCKED
   COMPLETED
 }
+enum IncidentSeverity {
+  SEV1
+  SEV2
+  SEV3
+  SEV4
+}
+
+enum IncidentStatus {
+  DETECTED
+  TRIAGED
+  ACTIVE
+  MITIGATING
+  RESOLVED
+  CLOSED
+  CANCELLED
+}
+
 enum ContinuityActionSeverity {
   LOW
   MEDIUM
@@ -167,6 +184,7 @@ model Organization {
   risks Risk[]
   controls Control[]
   continuityPlans ContinuityPlan[]
+  incidents Incident[]
 
   @@index([status])
   @@map("organizations")
@@ -537,4 +555,64 @@ model ContinuityAction {
   exercise ContinuityExercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
   @@index([exerciseId, status, dueAt])
   @@map("continuity_actions")
+}
+
+
+model Incident {
+  id             String           @id @default(uuid()) @db.Uuid
+  organizationId String           @map("organization_id") @db.Uuid
+  reference      String           @db.VarChar(24)
+  title          String           @db.VarChar(180)
+  description    String           @db.Text
+  category       String           @db.VarChar(80)
+  source         String           @db.VarChar(80)
+  severity       IncidentSeverity @default(SEV3)
+  status         IncidentStatus   @default(DETECTED)
+  commanderName  String           @map("commander_name") @db.VarChar(120)
+  detectedAt     DateTime         @default(now()) @map("detected_at")
+  acknowledgedAt DateTime?        @map("acknowledged_at")
+  resolvedAt     DateTime?        @map("resolved_at")
+  closedAt       DateTime?        @map("closed_at")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  events         IncidentEvent[]
+  tasks          IncidentTask[]
+
+  @@unique([organizationId, reference])
+  @@index([organizationId, status, severity, detectedAt])
+  @@index([organizationId, updatedAt])
+  @@map("incidents")
+}
+
+model IncidentEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  incidentId  String   @map("incident_id") @db.Uuid
+  actorUserId String?  @map("actor_user_id") @db.Uuid
+  eventType   String   @map("event_type") @db.VarChar(80)
+  message     String   @db.Text
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  incident    Incident @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, createdAt])
+  @@map("incident_events")
+}
+
+model IncidentTask {
+  id          String                @id @default(uuid()) @db.Uuid
+  incidentId  String                @map("incident_id") @db.Uuid
+  title       String                @db.VarChar(180)
+  ownerName   String                @map("owner_name") @db.VarChar(120)
+  priority    IncidentSeverity      @default(SEV3)
+  status      ContinuityActionStatus @default(OPEN)
+  dueAt       DateTime              @map("due_at")
+  completedAt DateTime?             @map("completed_at")
+  notes       String?               @db.Text
+  createdAt   DateTime              @default(now()) @map("created_at")
+  updatedAt   DateTime              @updatedAt @map("updated_at")
+  incident    Incident              @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+
+  @@index([incidentId, status, dueAt])
+  @@map("incident_tasks")
 }
