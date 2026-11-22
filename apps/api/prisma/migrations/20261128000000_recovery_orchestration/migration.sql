@@ -115,3 +115,35 @@ ALTER TABLE "recovery_simulations" ADD CONSTRAINT "recovery_simulations_incident
 ALTER TABLE "recovery_simulation_steps" ADD CONSTRAINT "recovery_simulation_steps_simulation_id_fkey" FOREIGN KEY ("simulation_id") REFERENCES "recovery_simulations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "recovery_simulation_steps" ADD CONSTRAINT "recovery_simulation_steps_runbook_step_id_fkey" FOREIGN KEY ("runbook_step_id") REFERENCES "recovery_runbook_steps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "recovery_events" ADD CONSTRAINT "recovery_events_simulation_id_fkey" FOREIGN KEY ("simulation_id") REFERENCES "recovery_simulations"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+ALTER TABLE "recovery_simulation_steps"
+  ADD COLUMN "remediation_task_id" UUID;
+
+CREATE INDEX "recovery_simulation_steps_remediation_task_id_idx"
+  ON "recovery_simulation_steps"("remediation_task_id");
+
+ALTER TABLE "recovery_simulation_steps"
+  ADD CONSTRAINT "recovery_simulation_steps_remediation_task_id_fkey"
+  FOREIGN KEY ("remediation_task_id") REFERENCES "incident_tasks"("id")
+  ON DELETE SET NULL ON UPDATE CASCADE;
+
+CREATE TABLE "recovery_step_validations" (
+  "id" UUID NOT NULL,
+  "simulation_step_id" UUID NOT NULL,
+  "actor_user_id" UUID,
+  "validation_type" VARCHAR(80) NOT NULL,
+  "result" VARCHAR(40) NOT NULL,
+  "details" TEXT NOT NULL,
+  "evidence_reference" VARCHAR(500),
+  "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "recovery_step_validations_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX "recovery_step_validations_simulation_step_id_created_at_idx"
+  ON "recovery_step_validations"("simulation_step_id", "created_at");
+
+ALTER TABLE "recovery_step_validations"
+  ADD CONSTRAINT "recovery_step_validations_simulation_step_id_fkey"
+  FOREIGN KEY ("simulation_step_id") REFERENCES "recovery_simulation_steps"("id")
+  ON DELETE CASCADE ON UPDATE CASCADE;
