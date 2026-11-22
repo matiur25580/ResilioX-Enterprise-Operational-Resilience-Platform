@@ -87,7 +87,7 @@ BEGIN
      AND (to_jsonb(NEW) - 'actor_user_id') = (to_jsonb(OLD) - 'actor_user_id') THEN
     RETURN NEW;
   END IF;
-  IF current_setting('app.audit_maintenance', true) IS DISTINCT FROM 'on' THEN
+  IF current_user <> 'continuitygrid_audit_maintenance' THEN
     RAISE EXCEPTION 'audit_events is append-only' USING ERRCODE = '55000';
   END IF;
   IF TG_OP = 'DELETE' THEN RETURN OLD; END IF;
