@@ -58,4 +58,6 @@ The migration adds enum types, tenant-scoped plan indexes and foreign-key relati
 
 ## Verification
 
+The mainline replacement is based on the current `main` branch and preserves the previously merged risk and dependency milestones.
+
 CI is the source of truth for Prisma validation, migration deployment, API/web type checks, tests and builds. The milestone is not considered CI-verified until the GitHub Actions run for its pull request completes successfully.
