@@ -87,7 +87,7 @@ try {
   await page.getByRole('button', { name: 'Save supplier' }).click();
   await page.getByRole('heading', { name: supplierName }).waitFor();
 
-  const contractToggle = page.getByRole('button', { name: 'Contract' });
+  const contractToggle = page.getByRole('button', { name: 'Contract', exact: true });
   await contractToggle.click();
   assert.equal(await contractToggle.getAttribute('aria-expanded'), 'true');
   assert.ok(await page.locator('#' + await contractToggle.getAttribute('aria-controls')).count());
@@ -99,7 +99,7 @@ try {
   await page.getByRole('button', { name: 'Save contract' }).click();
   await page.getByText(contractReference).waitFor();
 
-  const assessmentToggle = page.getByRole('button', { name: 'Assess' });
+  const assessmentToggle = page.getByRole('button', { name: 'Assess', exact: true });
   await assessmentToggle.click();
   assert.equal(await assessmentToggle.getAttribute('aria-expanded'), 'true');
   assert.ok(await page.locator('#' + await assessmentToggle.getAttribute('aria-controls')).count());
@@ -109,7 +109,7 @@ try {
   await page.getByRole('button', { name: 'Save assessment draft' }).click();
   await page.getByText(assessmentRationale).waitFor();
 
-  const evidenceToggle = page.getByRole('button', { name: 'Evidence' });
+  const evidenceToggle = page.getByRole('button', { name: 'Evidence', exact: true });
   await evidenceToggle.click();
   assert.equal(await evidenceToggle.getAttribute('aria-expanded'), 'true');
   assert.ok(await page.locator('#' + await evidenceToggle.getAttribute('aria-controls')).count());
