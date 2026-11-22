@@ -27,7 +27,15 @@ enum BusinessServiceStatus {
   RETIRED
 }
 
-enum DependencyNodeType {\n  BUSINESS_SERVICE\n  BUSINESS_PROCESS\n  APPLICATION\n  TECHNOLOGY_ASSET\n  SUPPLIER\n}\n\nenum DependencyType {
+enum DependencyNodeType {
+  BUSINESS_SERVICE
+  BUSINESS_PROCESS
+  APPLICATION
+  TECHNOLOGY_ASSET
+  SUPPLIER
+}
+
+enum DependencyType {
   SUPPORTS
   HOSTED_ON
   DEPENDS_ON
@@ -128,8 +136,6 @@ model BusinessProcess {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  dependenciesFrom Dependency[] @relation("DependencySource")
-  dependenciesTo   Dependency[] @relation("DependencyTarget")
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -145,8 +151,6 @@ model Application {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  dependenciesFrom Dependency[] @relation("DependencySource")
-  dependenciesTo   Dependency[] @relation("DependencyTarget")
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -162,8 +166,6 @@ model TechnologyAsset {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  dependenciesFrom Dependency[] @relation("DependencySource")
-  dependenciesTo   Dependency[] @relation("DependencyTarget")
 
   @@unique([organizationId, name])
   @@index([organizationId, assetType])
@@ -180,8 +182,6 @@ model Supplier {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  dependenciesFrom Dependency[] @relation("DependencySource")
-  dependenciesTo   Dependency[] @relation("DependencyTarget")
 
   @@unique([organizationId, name])
   @@index([organizationId, criticality])
@@ -203,8 +203,6 @@ model Dependency {
   createdAt      DateTime         @default(now()) @map("created_at")
   updatedAt      DateTime         @updatedAt @map("updated_at")
   organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Restrict)
-  sourceService  BusinessService? @relation("DependencySource", fields: [sourceId], references: [id], onDelete: Restrict)
-  targetService  BusinessService? @relation("DependencyTarget", fields: [targetId], references: [id], onDelete: Restrict)
 
   @@index([organizationId, sourceType, sourceId])
   @@index([organizationId, targetType, targetId])
