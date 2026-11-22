@@ -416,13 +416,13 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 17 | Performance, reliability and production hardening | Planned |
 | 18 | Documentation, demo and release readiness | Planned |
 
-See [the detailed roadmap](docs/roadmap.md) and the [Milestone 09 incident-management specification](docs/milestone-09.md).
+See [the detailed roadmap](docs/roadmap.md), the [Milestone 09 incident-management specification](docs/milestone-09.md) and the [Milestone 11 third-party resilience specification](docs/milestone-11.md).
 
 ## Known boundaries
 
 - The application is a resilience planning and coordination system, not a SIEM, NMS or real-time outage detector.
 - The current incident module provides core declaration, severity, lifecycle, timeline and task coordination. Live paging integrations, responder-roster acknowledgements, automated service-impact correlation and crisis communications orchestration remain future enhancements.
-- Supplier scoring, disaster recovery execution and scenario simulation remain future milestones.
+- Supplier register, contract recovery commitments and evidence-backed supplier assessment are implemented in the Milestone 11 branch; disaster recovery execution and scenario simulation remain separate milestones.
 - Control effectiveness is a human-assessed value supported by evidence, not proof of automated control operation.
 - Exercise records are entered by authorized users; no external exercise platform is connected.
 - No regulatory certification, independent penetration test or production SLA is claimed.
