@@ -107,3 +107,18 @@ biaRouter.post('/:assessmentId/approve', requirePermission('continuity:write'), 
   });
   res.json({ data: result });
 });
+
+
+biaRouter.post('/:assessmentId/retire', requirePermission('continuity:write'), async (req, res) => {
+  if (!['OWNER', 'ADMIN', 'RESILIENCE_MANAGER'].includes(req.auth!.role)) throw new AppError(403, 'BIA_RETIRE_FORBIDDEN', 'Only workspace owners, administrators and resilience managers can retire assessments.');
+  const organizationId = req.auth!.organizationId;
+  const current = await prisma.businessImpactAssessment.findFirst({ where: { id: req.params.assessmentId, organizationId }, select: { id: true, status: true } });
+  if (!current) throw new AppError(404, 'BIA_ASSESSMENT_NOT_FOUND', 'The business impact assessment was not found.');
+  if (current.status !== 'APPROVED') throw new AppError(409, 'BIA_INVALID_TRANSITION', 'Only approved assessments can be retired.');
+  const result = await prisma.$transaction(async tx => {
+    const updated = await tx.businessImpactAssessment.update({ where: { id: current.id }, data: { status: 'RETIRED' }, include: includeAssessment() });
+    await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'bia.assessment_retired', targetType: 'business_impact_assessment', targetId: current.id } });
+    return updated;
+  });
+  res.json({ data: result });
+});
