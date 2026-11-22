@@ -406,7 +406,7 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 07 | Operational risk and controls | Merged to `main` (PR #10); CI passed |
 | 08 | Business continuity management | Merged to `main` (PR #11); CI passed |
 | 09 | Incident and crisis management | Merged to `main` (PR #12); API quality gates passed |
-| 10 | Disaster recovery orchestration | Planned |
+| 10 | Disaster recovery orchestration | Backend foundation in draft PR; UI and full acceptance pending |
 | 11 | Third-party resilience | Planned |
 | 12 | Scenario simulation | Planned |
 | 13 | Governance, evidence and audit | Planned |
@@ -416,13 +416,13 @@ A feature is not complete solely because it compiles. Acceptance includes:
 | 17 | Performance, reliability and production hardening | Planned |
 | 18 | Documentation, demo and release readiness | Planned |
 
-See [the detailed roadmap](docs/roadmap.md) and the [Milestone 09 incident-management specification](docs/milestone-09.md).
+See [the detailed roadmap](docs/roadmap.md), the [Milestone 09 incident-management specification](docs/milestone-09.md) and the [Milestone 10 disaster-recovery specification](docs/milestone-10.md).
 
 ## Known boundaries
 
 - The application is a resilience planning and coordination system, not a SIEM, NMS or real-time outage detector.
 - The current incident module provides core declaration, severity, lifecycle, timeline and task coordination. Live paging integrations, responder-roster acknowledgements, automated service-impact correlation and crisis communications orchestration remain future enhancements.
-- Supplier scoring, disaster recovery execution and scenario simulation remain future milestones.
+- Supplier scoring and scenario simulation remain future milestones. Disaster recovery runbooks and rehearsal-only simulation APIs are under implementation; no infrastructure execution or automated failover is available.
 - Control effectiveness is a human-assessed value supported by evidence, not proof of automated control operation.
 - Exercise records are entered by authorized users; no external exercise platform is connected.
 - No regulatory certification, independent penetration test or production SLA is claimed.
