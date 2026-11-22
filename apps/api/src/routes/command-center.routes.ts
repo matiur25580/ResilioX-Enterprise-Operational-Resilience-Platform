@@ -59,7 +59,7 @@ commandCenterRouter.get('/overview', requireAuth, async (req, res) => {
         occurredAt: item.createdAt,
       })),
       capabilities: {
-        businessImpactAnalysis: 'planned',
+        businessImpactAnalysis: 'available',
         continuityPlans: 'planned',
         incidentManagement: 'planned',
         disasterRecovery: 'planned',
