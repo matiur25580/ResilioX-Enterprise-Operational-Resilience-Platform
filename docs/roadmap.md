@@ -27,7 +27,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - API starts with validated configuration.
 - Automated smoke tests pass.
 
-## 03 — Identity, sessions, tenancy and RBAC
+## 03 — Identity, sessions, tenancy and RBAC — Implemented (CI passed; PR pending merge)
 **Deliverables**
 - Registration/invitation strategy, login and logout.
 - Secure password hashing and rotating refresh sessions.
@@ -39,7 +39,7 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Cross-tenant reads and writes are denied and tested.
 - Privileged operations enforce server-side permissions.
 
-## 04 — Design system and command center
+## 04 — Design system and command center — In progress
 **Deliverables**
 - Accessible application shell, navigation and responsive layouts.
 - Reusable data table, forms, dialogs, filters, charts and status patterns.
