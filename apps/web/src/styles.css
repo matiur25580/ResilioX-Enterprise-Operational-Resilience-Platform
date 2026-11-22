@@ -65,3 +65,5 @@
 .recovery-validation strong{color:#34795e}.recovery-validation small{color:#8793a3}
 .recovery-page .text-btn{border:0;background:transparent;color:#b45a5a;font-size:10px;padding:7px 0}
 @media(max-width:760px){.recovery-runbook-row{grid-template-columns:1fr}.recovery-runbook-controls{justify-content:flex-start}.recovery-complete-form{grid-template-columns:1fr}.recovery-complete-form h4{grid-column:auto}.recovery-actions{width:100%}.recovery-actions button{flex:1}}
+
+.recovery-readiness-warning{margin-top:8px;padding:7px 9px;border-radius:6px;background:#fff8e9;color:#9b6b22;font-size:10px;line-height:1.4}
