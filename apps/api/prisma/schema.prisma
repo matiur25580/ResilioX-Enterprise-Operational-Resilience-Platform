@@ -200,7 +200,6 @@ model Organization {
   updatedAt   DateTime           @updatedAt @map("updated_at")
   memberships Membership[]
   auditEvents AuditEvent[]
-  recoveryApprovals RecoveryRunbook[] @relation("RecoveryRunbookApprover")
   services    BusinessService[]
   processes   BusinessProcess[]
   applications Application[]
@@ -211,7 +210,6 @@ model Organization {
   risks Risk[]
   controls Control[]
   continuityPlans ContinuityPlan[]
-  recoveryRunbooks RecoveryRunbook[]
   incidents Incident[]
   recoveryRunbooks RecoveryRunbook[]
   recoverySimulations RecoverySimulation[]
@@ -231,6 +229,7 @@ model User {
   memberships  Membership[]
   sessions     RefreshSession[]
   auditEvents  AuditEvent[]
+  recoveryApprovals RecoveryRunbook[] @relation("RecoveryRunbookApprover")
 
   @@index([displayName])
   @@map("users")
@@ -266,6 +265,7 @@ model BusinessService {
   updatedAt      DateTime             @updatedAt @map("updated_at")
   organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Restrict)
   continuityPlans ContinuityPlan[]
+  recoveryRunbooks RecoveryRunbook[]
 
   @@unique([organizationId, name])
   @@index([organizationId, status, criticality])
