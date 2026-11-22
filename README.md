@@ -8,7 +8,7 @@ ResilioX is a multi-tenant resilience workspace that connects business services,
 3. **How will we respond?** Maintain approved recovery strategies, procedures and communications.
 4. **Can we prove readiness?** Schedule exercises, record outcomes and close accountable remediation actions.
 
-> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 09 incident command and response workflows are merged to `main` in PR #12. Milestone 10 (PR #22), Milestone 11 (PR #23) and Milestone 12 (PR #24) are tracked on feature branches and remain unmerged. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
+> **Project status (22 November 2026):** Milestones 01–08 are merged to `main`; Milestone 09 incident command and response workflows are merged to `main` in PR #12. Milestones 10–13 (PRs #22–#25) are tracked on feature branches and remain unmerged. No production deployment is claimed. Capabilities described as planned are not yet implemented. Seeded records are fictional demo data, not live telemetry.
 
 ---
 
@@ -72,7 +72,7 @@ ResilioX brings those records into a shared service-centric model. It emphasizes
 | Disaster recovery | Orchestrated runbooks and gated execution | Planned |
 | Third-party resilience | Supplier assessments and concentration analytics | Planned |
 | Scenario simulation | Tenant-scoped deterministic impact propagation, service prioritization, assumptions and point-in-time run history | Implemented on feature branch; draft PR #24 |
-| Governance & reporting | Evidence register, policy mapping and exportable executive reports | Planned |
+| Governance & audit | Tenant-scoped evidence register, independent review, policy/control mapping and append-only audit history | Implemented on feature branch; draft PR #25 |
 | Notifications & collaboration | Delivery preferences and real-time collaboration | Planned |
 
 ## Dashboard showcase — 12 views
