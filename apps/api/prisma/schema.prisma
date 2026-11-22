@@ -73,7 +73,38 @@ enum BiaStatus {
   RETIRED
 }
 
-enum RiskStatus {\n  IDENTIFIED\n  ASSESSED\n  TREATING\n  ACCEPTED\n  CLOSED\n}\n\nenum ControlStatus {\n  DESIGN\n  IMPLEMENTED\n  TESTED\n  NEEDS_REMEDIATION\n}\n\nenum RiskTreatmentStatus {\n  OPEN\n  IN_PROGRESS\n  BLOCKED\n  COMPLETED\n}\n\nenum RiskTargetType {\n  BUSINESS_SERVICE\n  BUSINESS_PROCESS\n  APPLICATION\n  TECHNOLOGY_ASSET\n  SUPPLIER\n  DEPENDENCY\n}\n\nenum ImpactHorizon {
+enum RiskStatus {
+  IDENTIFIED
+  ASSESSED
+  TREATING
+  ACCEPTED
+  CLOSED
+}
+
+enum ControlStatus {
+  DESIGN
+  IMPLEMENTED
+  TESTED
+  NEEDS_REMEDIATION
+}
+
+enum RiskTreatmentStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  COMPLETED
+}
+
+enum RiskTargetType {
+  BUSINESS_SERVICE
+  BUSINESS_PROCESS
+  APPLICATION
+  TECHNOLOGY_ASSET
+  SUPPLIER
+  DEPENDENCY
+}
+
+enum ImpactHorizon {
   IMMEDIATE
   FOUR_HOURS
   TWENTY_FOUR_HOURS
