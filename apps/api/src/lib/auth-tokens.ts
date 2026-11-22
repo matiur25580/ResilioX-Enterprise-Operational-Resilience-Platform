@@ -25,11 +25,13 @@ export function issueAccessToken(claims: Omit<AccessClaims, 'iat' | 'exp'>): str
 export function verifyAccessToken(token: string): AccessClaims {
   const parts = token.split('.');
   if (parts.length !== 3) throw new Error('Invalid token');
-  const input = parts[0] + '.' + parts[1];
+  const [header, payload, providedSignature] = parts;
+  if (!header || !payload || !providedSignature) throw new Error('Invalid token');
+  const input = header + '.' + payload;
   const expected = Buffer.from(signature(input));
-  const actual = Buffer.from(parts[2]);
+  const actual = Buffer.from(providedSignature);
   if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) throw new Error('Invalid signature');
-  const claims = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')) as AccessClaims;
+  const claims = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as AccessClaims;
   if (!claims.sub || !claims.sid || !claims.mid || !claims.org || !claims.exp || claims.exp <= Math.floor(Date.now() / 1000)) {
     throw new Error('Expired or incomplete token');
   }
