@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, milestone-03-identity, milestone-04-command-center]
+    branches: [main, milestone-03-identity, milestone-04-command-center, milestone-05-business-impact-analysis]
 
 permissions:
   contents: read
