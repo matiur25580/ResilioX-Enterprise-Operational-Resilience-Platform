@@ -4,7 +4,7 @@ import { api } from './api';
 
 type Process = { id: string; name: string; ownerName: string | null };
 type Horizon = 'IMMEDIATE' | 'FOUR_HOURS' | 'TWENTY_FOUR_HOURS' | 'SEVENTY_TWO_HOURS' | 'ONE_WEEK';
-type Scores = { horizon: Horizon; financial: number; operational: number; regulatory: number; reputational: number };
+type Scores = { horizon: Horizon; financial: number | ''; operational: number | ''; regulatory: number | ''; reputational: number | '' };
 type Assessment = { id: string; version: number; status: string; ownerName: string; mtpdMinutes: number; rtoMinutes: number; impactScore: number; criticality: string; process: { name: string } };
 const horizons: { value: Horizon; label: string }[] = [
   { value: 'IMMEDIATE', label: 'Immediate' }, { value: 'FOUR_HOURS', label: '4 hours' },
@@ -12,7 +12,7 @@ const horizons: { value: Horizon; label: string }[] = [
 ];
 const dimensions = ['financial', 'operational', 'regulatory', 'reputational'] as const;
 const dimensionLabels: Record<string, string> = { financial: 'Financial', operational: 'Operational', regulatory: 'Regulatory', reputational: 'Reputational' };
-const emptyScores = (): Scores[] => horizons.map(h => ({ horizon: h.value, financial: 1, operational: 1, regulatory: 1, reputational: 1 }));
+const emptyScores = (): Scores[] => horizons.map(h => ({ horizon: h.value, financial: '', operational: '', regulatory: '', reputational: '' }));
 const duration = (n: number) => n < 60 ? n + ' min' : n % 60 === 0 ? n / 60 + ' hr' : Math.floor(n / 60) + ' hr ' + n % 60 + ' min';
 
 export function BiaPage({ token }: { token: string }) {
@@ -20,9 +20,9 @@ export function BiaPage({ token }: { token: string }) {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [processId, setProcessId] = useState('');
   const [ownerName, setOwnerName] = useState('');
-  const [mtpdMinutes, setMtpdMinutes] = useState('1440');
-  const [rtoMinutes, setRtoMinutes] = useState('240');
-  const [rpoMinutes, setRpoMinutes] = useState('60');
+  const [mtpdMinutes, setMtpdMinutes] = useState('');
+  const [rtoMinutes, setRtoMinutes] = useState('');
+  const [rpoMinutes, setRpoMinutes] = useState('');
   const [rationale, setRationale] = useState('');
   const [scores, setScores] = useState<Scores[]>(emptyScores);
   const [showForm, setShowForm] = useState(false);
@@ -50,7 +50,7 @@ export function BiaPage({ token }: { token: string }) {
     try {
       await api<Assessment>('/bia', { method: 'POST', body: JSON.stringify({
         processId, ownerName, mtpdMinutes: Number(mtpdMinutes), rtoMinutes: Number(rtoMinutes),
-        rpoMinutes: Number(rpoMinutes), rationale, impacts: scores,
+        rpoMinutes: Number(rpoMinutes), rationale, impacts: scores.map(item => ({ ...item, financial: Number(item.financial), operational: Number(item.operational), regulatory: Number(item.regulatory), reputational: Number(item.reputational) })),
       }) }, token);
       await refresh(); setShowForm(false); setRationale(''); setNotice('Draft assessment saved.');
     } catch (e) { setError(e instanceof Error ? e.message : 'Unable to save assessment.'); }
@@ -62,7 +62,7 @@ export function BiaPage({ token }: { token: string }) {
     catch (e) { setError(e instanceof Error ? e.message : 'Unable to update assessment.'); }
     finally { setBusy(false); }
   }
-  function updateScore(index: number, dimension: typeof dimensions[number], value: number) {
+  function updateScore(index: number, dimension: typeof dimensions[number], value: number | '') {
     setScores(current => current.map((item, i) => i === index ? { ...item, [dimension]: value } : item));
   }
 
@@ -82,7 +82,7 @@ export function BiaPage({ token }: { token: string }) {
       <div className="bia-rule">RTO must be less than or equal to MTPD. RPO is zero or a positive duration.</div>
       <div className="bia-impact-heading"><h4>Impact by time horizon</h4><span>Scale: 1–5 for each dimension</span></div>
       <div className="table-wrap"><table className="bia-score-table"><thead><tr><th>TIME HORIZON</th>{dimensions.map(d => <th key={d}>{dimensionLabels[d].toUpperCase()}</th>)}</tr></thead><tbody>
-        {scores.map((item, index) => <tr key={item.horizon}><td>{horizons[index].label}</td>{dimensions.map(d => <td key={d}><select aria-label={horizons[index].label + ' ' + dimensionLabels[d] + ' impact'} value={item[d]} onChange={e => updateScore(index, d, Number(e.target.value))}>{[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}</select></td>)}</tr>)}
+        {scores.map((item, index) => <tr key={item.horizon}><td>{horizons[index].label}</td>{dimensions.map(d => <td key={d}><select aria-label={horizons[index].label + ' ' + dimensionLabels[d] + ' impact'} value={item[d]} onChange={e => updateScore(index, d, e.target.value === '' ? 0 : Number(e.target.value))}><option value="" disabled>Select</option>{[1,2,3,4,5].map(n => <option key={n} value={n}>{n}</option>)}</select></td>)}</tr>)}
       </tbody></table></div>
       <label className="bia-rationale">Assessment rationale<textarea required minLength={10} maxLength={10000} value={rationale} onChange={e => setRationale(e.target.value)} placeholder="Explain assumptions, impact evidence and recovery objective rationale…"/></label>
       <div className="bia-form-actions"><span>Score and criticality are calculated by the API.</span><button className="primary-btn" disabled={busy || !processId}>{busy ? 'Saving…' : 'Save draft'}</button></div>
