@@ -157,7 +157,7 @@ incidentRouter.post('/:incidentId/tasks', requirePermission('continuity:write'),
   const incident = await prisma.incident.findFirst({ where: { id: incidentId, organizationId }, select: { id: true } });
   if (!incident) throw new AppError(404, 'INCIDENT_NOT_FOUND', 'The incident was not found in this workspace.');
   const task = await prisma.$transaction(async tx => {
-    const created = await tx.incidentTask.create({ data: { incidentId, ...input, dueAt: new Date(input.dueAt) } });
+    const created = await tx.incidentTask.create({ data: { incidentId, title: input.title, ownerName: input.ownerName, priority: input.priority, dueAt: new Date(input.dueAt), ...(input.notes !== undefined ? { notes: input.notes } : {}) } });
     await tx.incidentEvent.create({ data: { incidentId, actorUserId: req.auth!.userId, eventType: 'TASK_CREATED', message: `Response action assigned to ${input.ownerName}: ${input.title}`, metadata: { taskId: created.id } } });
     await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'incident.task_created', targetType: 'incident_task', targetId: created.id, metadata: { incidentId } } });
     return created;
