@@ -91,7 +91,7 @@ The web and API workspaces are now present. Shared contracts and configuration p
 | 02 | PostgreSQL schema, Prisma and API foundation | Completed (tooling advisory tracked) |
 | 03 | Authentication, sessions, tenancy and RBAC | Implemented; CI passed, PR open |
 | 04 | Design system, application shell and command center | Implemented; CI passed, PR open |
-| 05 | Business impact analysis | Implemented; CI pending |
+| 05 | Business impact analysis | Implemented; CI passed, PR open |
 | 06 | Service and dependency intelligence | Planned |
 | 07 | Operational risk and controls | Planned |
 | 08 | Business continuity planning | Planned |
