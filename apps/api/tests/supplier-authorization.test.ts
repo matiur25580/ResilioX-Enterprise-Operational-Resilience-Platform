@@ -154,7 +154,7 @@ describe('supplier role authorization and tenant boundaries', () => {
       await prisma.supplier.deleteMany({ where: { organizationId: { in: organizationIds } } });
       if (foreignServiceId) await prisma.businessService.deleteMany({ where: { id: foreignServiceId } });
       await prisma.$transaction(async tx => {
-          await tx.$executeRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
+          await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
           await tx.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
         });
       const userIds = tenants.map(tenant => tenant.userId);
