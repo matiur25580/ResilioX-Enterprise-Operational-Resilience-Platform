@@ -109,6 +109,15 @@ riskRouter.patch('/controls/:controlId/status', requirePermission('continuity:wr
   if (!current) throw new AppError(404, 'CONTROL_NOT_FOUND', 'The control was not found.');
   const updated = await prisma.$transaction(async tx => {
     const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status, ...(input.status === 'TESTED' ? { lastTestedAt: new Date(), testEvidence: input.testEvidence } : {}) } });
+    if (input.status !== 'TESTED' && current.status === 'TESTED') {
+      const affected = await tx.riskControl.findMany({ where: { controlId }, select: { riskId: true } });
+      await tx.riskControl.updateMany({ where: { controlId }, data: { effectiveness: 0 } });
+      for (const item of affected) {
+        const linked = await tx.riskControl.findMany({ where: { riskId: item.riskId }, select: { effectiveness: true } });
+        const risk = await tx.risk.findUnique({ where: { id: item.riskId }, select: { inherentScore: true } });
+        if (risk) await tx.risk.update({ where: { id: item.riskId }, data: { residualScore: calculateResidualRisk(risk.inherentScore, linked.map(value => value.effectiveness)) } });
+      }
+    }
     await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'risk.control_status_changed', targetType: 'control', targetId: controlId, metadata: { from: current.status, to: input.status, testEvidence: input.testEvidence ?? null } } });
     return record;
   });
