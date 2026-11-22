@@ -87,19 +87,19 @@ CREATE TABLE "recovery_events" (
   CONSTRAINT "recovery_events_pkey" PRIMARY KEY ("id")
 );
 
-CREATE UNIQUE INDEX "recovery_runbooks_org_service_title_version_key" ON "recovery_runbooks"("organization_id", "service_id", "title", "version");
-CREATE INDEX "recovery_runbooks_org_status_updated_idx" ON "recovery_runbooks"("organization_id", "status", "updated_at");
-CREATE INDEX "recovery_runbooks_service_status_idx" ON "recovery_runbooks"("service_id", "status");
-CREATE UNIQUE INDEX "recovery_runbook_steps_runbook_sequence_key" ON "recovery_runbook_steps"("runbook_id", "sequence");
-CREATE INDEX "recovery_runbook_steps_runbook_idx" ON "recovery_runbook_steps"("runbook_id");
-CREATE UNIQUE INDEX "recovery_step_dependencies_predecessor_successor_key" ON "recovery_step_dependencies"("predecessor_step_id", "successor_step_id");
-CREATE INDEX "recovery_step_dependencies_successor_idx" ON "recovery_step_dependencies"("successor_step_id");
-CREATE INDEX "recovery_simulations_org_status_created_idx" ON "recovery_simulations"("organization_id", "status", "created_at");
-CREATE INDEX "recovery_simulations_runbook_created_idx" ON "recovery_simulations"("runbook_id", "created_at");
-CREATE INDEX "recovery_simulations_incident_idx" ON "recovery_simulations"("incident_id");
-CREATE UNIQUE INDEX "recovery_simulation_steps_simulation_runbook_step_key" ON "recovery_simulation_steps"("simulation_id", "runbook_step_id");
-CREATE INDEX "recovery_simulation_steps_simulation_status_idx" ON "recovery_simulation_steps"("simulation_id", "status");
-CREATE INDEX "recovery_events_simulation_created_idx" ON "recovery_events"("simulation_id", "created_at");
+CREATE UNIQUE INDEX "recovery_runbooks_organization_id_service_id_title_version_key" ON "recovery_runbooks"("organization_id", "service_id", "title", "version");
+CREATE INDEX "recovery_runbooks_organization_id_status_updated_at_idx" ON "recovery_runbooks"("organization_id", "status", "updated_at");
+CREATE INDEX "recovery_runbooks_service_id_status_idx" ON "recovery_runbooks"("service_id", "status");
+CREATE UNIQUE INDEX "recovery_runbook_steps_runbook_id_sequence_key" ON "recovery_runbook_steps"("runbook_id", "sequence");
+CREATE INDEX "recovery_runbook_steps_runbook_id_idx" ON "recovery_runbook_steps"("runbook_id");
+CREATE UNIQUE INDEX "recovery_step_dependencies_predecessor_step_id_successor_step_id_key" ON "recovery_step_dependencies"("predecessor_step_id", "successor_step_id");
+CREATE INDEX "recovery_step_dependencies_successor_step_id_idx" ON "recovery_step_dependencies"("successor_step_id");
+CREATE INDEX "recovery_simulations_organization_id_status_created_at_idx" ON "recovery_simulations"("organization_id", "status", "created_at");
+CREATE INDEX "recovery_simulations_runbook_id_created_at_idx" ON "recovery_simulations"("runbook_id", "created_at");
+CREATE INDEX "recovery_simulations_incident_id_idx" ON "recovery_simulations"("incident_id");
+CREATE UNIQUE INDEX "recovery_simulation_steps_simulation_id_runbook_step_id_key" ON "recovery_simulation_steps"("simulation_id", "runbook_step_id");
+CREATE INDEX "recovery_simulation_steps_simulation_id_status_idx" ON "recovery_simulation_steps"("simulation_id", "status");
+CREATE INDEX "recovery_events_simulation_id_created_at_idx" ON "recovery_events"("simulation_id", "created_at");
 
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_organization_id_fkey" FOREIGN KEY ("organization_id") REFERENCES "organizations"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "recovery_runbooks" ADD CONSTRAINT "recovery_runbooks_service_id_fkey" FOREIGN KEY ("service_id") REFERENCES "business_services"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
