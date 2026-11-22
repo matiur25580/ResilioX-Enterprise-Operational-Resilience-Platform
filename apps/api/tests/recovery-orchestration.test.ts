@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   canApproveRunbook,
   canStartRecoveryStep,
+  canTransitionRecoveryStep,
   canTransitionRunbook,
   canTransitionSimulation,
   compareRecoveryTarget,
@@ -25,6 +26,13 @@ describe('recovery runbook lifecycle', () => {
 });
 
 describe('recovery simulation policies', () => {
+  it('guards simulation step state transitions', () => {
+    expect(canTransitionRecoveryStep('READY', 'IN_PROGRESS')).toBe(true);
+    expect(canTransitionRecoveryStep('IN_PROGRESS', 'SUCCEEDED')).toBe(true);
+    expect(canTransitionRecoveryStep('FAILED', 'IN_PROGRESS')).toBe(false);
+    expect(canTransitionRecoveryStep('SUCCEEDED', 'FAILED')).toBe(false);
+  });
+
   it('permits only valid simulation transitions', () => {
     expect(canTransitionSimulation('PLANNED', 'READY')).toBe(true);
     expect(canTransitionSimulation('READY', 'RUNNING')).toBe(true);
