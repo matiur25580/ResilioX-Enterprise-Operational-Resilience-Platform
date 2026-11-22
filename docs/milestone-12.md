@@ -22,7 +22,7 @@ All endpoints are under /api/v1/scenarios:
 Creation body: templateId, rootType, rootId, severity (DEGRADED or UNAVAILABLE), durationHours (integer 1–720), optional notes (max 2,000 chars). Organization is always derived from the authenticated membership, never from client input.
 
 ## Calculation model and limitations
-- The engine traverses directed VERIFIED dependency relationships. The source-to-target direction follows the dependency inventory; it does not infer reverse or undocumented relationships.
+- The engine respects dependency direction: business-service scenarios traverse source-to-target dependencies, while component, process, application, asset and supplier disruptions trace incoming dependents in reverse. Only VERIFIED relationships are traversed; undocumented relationships are not inferred.
 - Priority is a heuristic score, not probability, expected loss, a regulatory metric or a recovery-time prediction. The score is deterministic for a fixed graph, model version and input.
 - Only approved continuity-plan RTO values are surfaced. RTO is an objective recorded in a plan, not measured recovery performance.
 - Graph and output snapshots preserve the evidence basis at run time; later dependency changes do not rewrite old runs.
