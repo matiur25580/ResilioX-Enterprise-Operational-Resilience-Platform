@@ -19,6 +19,15 @@ describe('API foundation', () => {
     expect(response.headers['x-request-id']).toBeTruthy();
   });
 
+
+  it('reports readiness when PostgreSQL is reachable', async () => {
+    const response = await request(app).get('/api/v1/health/ready');
+
+    expect(response.status).toBe(200);
+    expect(response.body.data.status).toBe('ready');
+    expect(response.body.data.checks.database).toBe('ok');
+  });
+
   it('returns a consistent not-found response', async () => {
     const response = await request(app).get('/does-not-exist');
 
