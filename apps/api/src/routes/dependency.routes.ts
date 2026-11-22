@@ -66,7 +66,10 @@ dependencyRouter.get('/graph', async (req, res) => {
     orderBy: [{ sourceType: 'asc' }, { sourceId: 'asc' }, { targetType: 'asc' }, { targetId: 'asc' }],
   });
   const graph = traverseVerifiedGraph(records as GraphEdge[], { type: query.nodeType, id: query.nodeId }, 200);
-  res.json({ data: { ...graph, generatedAt: new Date().toISOString(), traversal: 'outgoing_verified_edges_only', maxNodes: 200 } });
+  const nodes = await loadTenantNodes(organizationId);
+  const names = new Map(nodes.map(node => [node.type + ':' + node.id, node.name]));
+  const edges = graph.edges.map(edge => ({ ...edge, sourceName: names.get(edge.sourceType + ':' + edge.sourceId) ?? 'Unknown node', targetName: names.get(edge.targetType + ':' + edge.targetId) ?? 'Unknown node' }));
+  res.json({ data: { ...graph, edges, generatedAt: new Date().toISOString(), traversal: 'outgoing_verified_edges_only', maxNodes: 200 } });
 });
 
 dependencyRouter.get('/', async (req, res) => {
