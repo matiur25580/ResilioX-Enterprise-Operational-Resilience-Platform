@@ -70,7 +70,7 @@ riskRouter.post('/', requirePermission('continuity:write'), async (req, res) => 
     const created = await tx.risk.create({ data: {
       organizationId, title: input.title, description: input.description, category: input.category, ownerName: input.ownerName,
       likelihood: input.likelihood, impact: input.impact, inherentScore, residualScore: inherentScore,
-      targetType: input.targetType, targetId: input.targetId, reviewDueAt: input.reviewDueAt ? new Date(input.reviewDueAt) : null,
+      ...(input.targetType && input.targetId ? { targetType: input.targetType, targetId: input.targetId } : {}), reviewDueAt: input.reviewDueAt ? new Date(input.reviewDueAt) : null,
     }, include: includeRisk() });
     await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'risk.created', targetType: 'risk', targetId: created.id, metadata: { inherentScore, targetType: input.targetType ?? null } } });
     return created;
@@ -109,7 +109,7 @@ riskRouter.patch('/controls/:controlId/status', requirePermission('continuity:wr
   const current = await prisma.control.findFirst({ where: { id: controlId, organizationId: req.auth!.organizationId } });
   if (!current) throw new AppError(404, 'CONTROL_NOT_FOUND', 'The control was not found.');
   const updated = await prisma.$transaction(async tx => {
-    const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status, ...(input.status === 'TESTED' ? { lastTestedAt: new Date(), testEvidence: input.testEvidence } : {}) } });
+    const record = await tx.control.update({ where: { id: controlId }, data: { status: input.status, ...(input.status === 'TESTED' ? { lastTestedAt: new Date(), testEvidence: input.testEvidence! } : {}) } });
     if (input.status !== 'TESTED' && current.status === 'TESTED') {
       const affected = await tx.riskControl.findMany({ where: { controlId }, select: { riskId: true } });
       await tx.riskControl.updateMany({ where: { controlId }, data: { effectiveness: 0 } });
@@ -136,7 +136,7 @@ riskRouter.post('/:riskId/controls', requirePermission('continuity:write'), asyn
   if (!risk || !control) throw new AppError(404, 'RISK_OR_CONTROL_NOT_FOUND', 'The risk and control must both belong to this workspace.');
   if (control.status !== 'TESTED' && input.effectiveness > 0) throw new AppError(409, 'CONTROL_NOT_TESTED', 'Only tested controls may reduce residual risk.');
   const link = await prisma.$transaction(async tx => {
-    const created = await tx.riskControl.create({ data: { riskId, controlId: input.controlId, effectiveness: input.effectiveness, lastTestedAt: control.status === 'TESTED' ? new Date() : null, notes: input.notes } });
+    const created = await tx.riskControl.create({ data: { riskId, controlId: input.controlId, effectiveness: input.effectiveness, lastTestedAt: control.status === 'TESTED' ? new Date() : null, ...(input.notes !== undefined ? { notes: input.notes } : {}) } });
     const all = await tx.riskControl.findMany({ where: { riskId }, select: { effectiveness: true } });
     const source = await tx.risk.findUniqueOrThrow({ where: { id: riskId }, select: { inherentScore: true } });
     const residualScore = calculateResidualRisk(source.inherentScore, all.map(item => item.effectiveness));
@@ -156,7 +156,7 @@ riskRouter.patch('/:riskId/controls/:linkId', requirePermission('continuity:writ
   if (!link) throw new AppError(404, 'RISK_CONTROL_NOT_FOUND', 'The risk-control association was not found.');
   if (link.control.status !== 'TESTED' && input.effectiveness > 0) throw new AppError(409, 'CONTROL_NOT_TESTED', 'Only tested controls may reduce residual risk.');
   await prisma.$transaction(async tx => {
-    await tx.riskControl.update({ where: { id: linkId }, data: { effectiveness: input.effectiveness, notes: input.notes, lastTestedAt: link.control.status === 'TESTED' ? new Date() : null } });
+    await tx.riskControl.update({ where: { id: linkId }, data: { effectiveness: input.effectiveness, ...(input.notes !== undefined ? { notes: input.notes } : {}), lastTestedAt: link.control.status === 'TESTED' ? new Date() : null } });
     const all = await tx.riskControl.findMany({ where: { riskId }, select: { effectiveness: true } });
     const source = await tx.risk.findUniqueOrThrow({ where: { id: riskId }, select: { inherentScore: true } });
     await tx.risk.update({ where: { id: riskId }, data: { residualScore: calculateResidualRisk(source.inherentScore, all.map(item => item.effectiveness)) } });
@@ -187,7 +187,7 @@ riskRouter.post('/:riskId/treatments', requirePermission('continuity:write'), as
   const risk = await prisma.risk.findFirst({ where: { id: riskId, organizationId: req.auth!.organizationId }, select: { id: true } });
   if (!risk) throw new AppError(404, 'RISK_NOT_FOUND', 'The risk was not found.');
   const treatment = await prisma.$transaction(async tx => {
-    const created = await tx.riskTreatment.create({ data: { ...input, riskId, dueAt: new Date(input.dueAt) } });
+    const created = await tx.riskTreatment.create({ data: { title: input.title, ownerName: input.ownerName, riskId, dueAt: new Date(input.dueAt), ...(input.notes !== undefined ? { notes: input.notes } : {}) } });
     await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'risk.treatment_created', targetType: 'risk_treatment', targetId: created.id } });
     return created;
   });
@@ -202,7 +202,7 @@ riskRouter.patch('/:riskId/treatments/:treatmentId', requirePermission('continui
   if (!current) throw new AppError(404, 'RISK_TREATMENT_NOT_FOUND', 'The treatment action was not found.');
   const completedAt = input.status === 'COMPLETED' ? new Date() : null;
   const updated = await prisma.$transaction(async tx => {
-    const record = await tx.riskTreatment.update({ where: { id: treatmentId }, data: { status: input.status, notes: input.notes, completedAt } });
+    const record = await tx.riskTreatment.update({ where: { id: treatmentId }, data: { status: input.status, ...(input.notes !== undefined ? { notes: input.notes } : {}), completedAt } });
     await tx.auditEvent.create({ data: { organizationId: req.auth!.organizationId, actorUserId: req.auth!.userId, action: 'risk.treatment_updated', targetType: 'risk_treatment', targetId: treatmentId, metadata: { status: input.status } } });
     return record;
   });
