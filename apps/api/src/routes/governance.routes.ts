@@ -68,7 +68,7 @@ governanceRouter.post('/evidence', requirePermission('continuity:write'), async 
     referenceUri: z.string().url().max(1000).refine(value => ['https:', 'http:'].includes(new URL(value).protocol), 'Evidence reference must use HTTP or HTTPS.'),
     description: z.string().trim().max(10000).optional(), targetType: z.string().trim().max(80).optional(), targetId: z.string().trim().max(120).optional(),
     issuedAt: z.string().datetime().optional(), expiresAt: z.string().datetime().optional(), checksumSha256: z.string().regex(/^[a-fA-F0-9]{64}$/).optional(),
-  }).refine(value => !value.expiresAt || !value.issuedAt || new Date(value.expiresAt) >= new Date(value.issuedAt), { message: 'Expiry must not precede issue date.', path: ['expiresAt'] }).parse(req.body);
+  }).refine(value => (!!value.targetType === !!value.targetId), { message: 'Target type and target ID must be supplied together.', path: ['targetId'] }).refine(value => !value.expiresAt || !value.issuedAt || new Date(value.expiresAt) >= new Date(value.issuedAt), { message: 'Expiry must not precede issue date.', path: ['expiresAt'] }).parse(req.body);
   const organizationId = req.auth!.organizationId;
   const created = await prisma.$transaction(async tx => {
     const record = await tx.governanceEvidence.create({ data: {
@@ -158,10 +158,10 @@ governanceRouter.post('/policies/:policyId/approve', requirePermission('continui
     if (!current) throw new AppError(404, 'GOVERNANCE_POLICY_NOT_FOUND', 'Policy was not found in this workspace.');
     if (current.status !== 'IN_REVIEW') throw new AppError(409, 'GOVERNANCE_POLICY_INVALID_TRANSITION', 'Only policies in review can be approved.');
     if (current.submittedByUserId === req.auth!.userId) throw new AppError(403, 'GOVERNANCE_MAKER_CHECKER_REQUIRED', 'The policy submitter cannot approve their own policy.');
-    const changed = await tx.governancePolicy.updateMany({ where: { id, organizationId, status: 'IN_REVIEW', submittedByUserId: { not: req.auth!.userId } }, data: { status: 'ACTIVE', approvedByUserId: req.auth!.userId, approvedAt: new Date() } });
+    const changed = await tx.governancePolicy.updateMany({ where: { id, organizationId, status: 'IN_REVIEW', submittedByUserId: { not: req.auth!.userId } }, data: { status: 'ACTIVE', approvedByUserId: req.auth!.userId, approvedAt: new Date(), approvalRationale: input.rationale } });
     if (!changed.count) throw new AppError(409, 'GOVERNANCE_CONCURRENT_UPDATE', 'Policy changed while being approved. Refresh and retry.');
     const policy = await tx.governancePolicy.findFirstOrThrow({ where: { id, organizationId }, include: policyInclude });
-    await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'governance.policy.approved', targetType: 'governance_policy', targetId: id, metadata: { rationale: input.rationale } } });
+    await tx.auditEvent.create({ data: { organizationId, actorUserId: req.auth!.userId, action: 'governance.policy.approved', targetType: 'governance_policy', targetId: id, metadata: { decision: 'ACTIVE' } } });
     return policy;
   });
   res.json({ data: updated });
