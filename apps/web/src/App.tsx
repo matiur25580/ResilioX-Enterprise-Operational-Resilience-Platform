@@ -10,13 +10,14 @@ import {
 } from 'recharts';
 import { api, restoreSession } from './api';
 import type { Overview, Tenant, User } from './types';
+import { BiaPage } from './BiaPage';
 
 type Session = { token: string; user: User; tenant: Tenant };
 const navItems = [
   { label: 'Command center', icon: LayoutDashboard, active: true },
-  { label: 'Business services', icon: Building2, planned: false },
+  { label: 'Business services', icon: Building2, planned: true },
   { label: 'Dependencies', icon: Network, planned: true },
-  { label: 'Impact analysis', icon: Activity, planned: true },
+  { label: 'Impact analysis', icon: Activity, planned: false },
   { label: 'Continuity plans', icon: ClipboardCheck, planned: true },
   { label: 'Incidents', icon: ShieldAlert, planned: true },
   { label: 'Suppliers', icon: Boxes, planned: true },
@@ -96,6 +97,7 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [mobileNav, setMobileNav] = useState(false);
+  const [activePage, setActivePage] = useState('Command center');
   useEffect(() => {
     let active = true;
     api<Overview>('/command-center/overview', {}, session.token)
@@ -116,13 +118,14 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
       <div className="sidebar-brand"><span className="brand-mark"><ShieldCheck size={19}/></span><span>continuity<span className="brand-light">grid</span></span><button className="icon-btn mobile-close" onClick={()=>setMobileNav(false)} aria-label="Close navigation"><X size={18}/></button></div>
       <div className="workspace-switch"><div className="workspace-avatar">{session.tenant.role.slice(0,1)}</div><div><strong>{session.user.displayName}</strong><span>{session.tenant.role.replace('_',' ')}</span></div><ChevronDown size={15}/></div>
       <div className="nav-caption">WORKSPACE</div>
-      <nav>{navItems.map(item => <button key={item.label} className={`nav-item ${item.active ? 'selected' : ''}`} disabled={item.planned} title={item.planned ? 'Planned for a future milestone' : item.label}><item.icon size={17}/><span>{item.label}</span>{item.planned && <span className="planned-dot"/>}</button>)}</nav>
+      <nav>{navItems.map(item => <button key={item.label} className={`nav-item ${activePage === item.label ? 'selected' : ''}`} disabled={item.planned} onClick={() => { setActivePage(item.label); setMobileNav(false); }} title={item.planned ? 'Planned for a future milestone' : item.label}><item.icon size={17}/><span>{item.label}</span>{item.planned && <span className="planned-dot"/>}</button>)}</nav>
       <div className="sidebar-bottom"><div className="help-card"><CircleHelp size={17}/><div><strong>Need a hand?</strong><span>Explore the platform guide</span></div></div><div className="profile-row"><div className="profile-avatar">{session.user.displayName.slice(0,1).toUpperCase()}</div><div className="profile-info"><strong>{session.user.displayName}</strong><span>{session.user.email}</span></div><button className="icon-btn" onClick={onLogout} title="Sign out" aria-label="Sign out"><LogOut size={17}/></button></div></div>
     </aside>
     {mobileNav && <button className="nav-scrim" onClick={()=>setMobileNav(false)} aria-label="Close menu"/>}
     <main className="main-area">
-      <header className="topbar"><div className="topbar-left"><button className="icon-btn mobile-menu" onClick={()=>setMobileNav(true)} aria-label="Open navigation"><Menu size={19}/></button><div className="breadcrumb">Workspace <span>/</span> <strong>Command center</strong></div></div><div className="topbar-actions"><div className="search-box"><Search size={16}/><input aria-label="Search services" placeholder="Search services…" value={query} onChange={e=>setQuery(e.target.value)}/><kbd>⌘ K</kbd></div><button className="icon-btn notification-btn" aria-label="Notifications"><Bell size={18}/><i/></button><div className="topbar-divider"/><div className="tenant-chip"><span className="tenant-dot"/>{session.tenant.role.replace('_',' ')}</div></div></header>
+      <header className="topbar"><div className="topbar-left"><button className="icon-btn mobile-menu" onClick={()=>setMobileNav(true)} aria-label="Open navigation"><Menu size={19}/></button><div className="breadcrumb">Workspace <span>/</span> <strong>{activePage}</strong></div></div><div className="topbar-actions"><div className="search-box"><Search size={16}/><input aria-label="Search services" placeholder="Search services…" value={query} onChange={e=>setQuery(e.target.value)}/><kbd>⌘ K</kbd></div><button className="icon-btn notification-btn" aria-label="Notifications"><Bell size={18}/><i/></button><div className="topbar-divider"/><div className="tenant-chip"><span className="tenant-dot"/>{session.tenant.role.replace('_',' ')}</div></div></header>
       <div className="page-content">
+        {activePage === 'Impact analysis' ? <><div className="page-heading"><div><div className="eyebrow muted">RESILIENCE FOUNDATION <span className="heading-dot"/> MILESTONE 05</div><h1>Business impact analysis</h1><p>Understand disruption impact and establish recovery priorities.</p></div></div><BiaPage token={session.token}/><footer className="page-footer"><span>© 2026 ContinuityGrid · Enterprise operational resilience</span><span>Tenant-scoped workspace <i/> Secure session</span></footer></> : <>
         <div className="page-heading"><div><div className="eyebrow muted">RESILIENCE OVERVIEW <span className="heading-dot"/> LIVE WORKSPACE DATA</div><h1>Good to see you, {session.user.displayName.split(' ')[0]}.</h1><p>Here's the current resilience picture across your organization.</p></div><div className="heading-actions"><span className="updated-label"><span className="live-dot"/> Live data</span><button className="secondary-btn" onClick={()=>window.location.reload()}>Refresh data</button></div></div>
         {error && <div className="notice error-notice"><AlertCircle size={17}/>{error}</div>}
         {loading ? <div className="loading-grid">{Array.from({length:4},(_,i)=><div className="skeleton" key={i}/>)}</div> : overview && metrics && <>
@@ -144,10 +147,11 @@ function Dashboard({ session, onLogout }: { session: Session; onLogout: () => vo
             <section className="panel footprint-panel"><div className="panel-heading"><div><h3>Resilience inventory</h3><p>Connected operational records</p></div><span className="mini-icon"><Boxes size={16}/></span></div><div className="inventory-grid"><div><span>Processes</span><strong>{metrics.processes}</strong></div><div><span>Applications</span><strong>{metrics.applications}</strong></div><div><span>Technology assets</span><strong>{metrics.technologyAssets}</strong></div><div><span>Suppliers</span><strong>{metrics.suppliers}</strong></div><div><span>Dependencies</span><strong>{metrics.dependencies}</strong></div><div><span>Needs review</span><strong className={metrics.dependenciesNeedingReview ? 'warning-value' : ''}>{metrics.dependenciesNeedingReview}</strong></div></div></section>
             <section className="panel activity-panel"><div className="panel-heading"><div><h3>Recent activity</h3><p>Security and workspace audit trail</p></div><Activity size={17} className="activity-heading-icon"/></div>{overview.recentActivity.length ? <div className="activity-list">{overview.recentActivity.map(item=><div className="activity-item" key={item.id}><span className="activity-icon"><CheckCircle2 size={15}/></span><div><strong>{item.action.replaceAll('.',' ')}</strong><span>{item.actorName} · {item.targetType || 'workspace'}</span></div><time>{timeAgo(item.occurredAt)}</time></div>)}</div> : <div className="activity-empty"><CheckCircle2 size={20}/><span>No activity recorded yet. Important workspace actions will appear here.</span></div>}</section>
           </div>
-          <div className="capability-note"><div><Sparkles size={17}/><span><strong>Platform capabilities are being rolled out progressively.</strong> Planned modules are clearly marked and will become available as their milestones ship.</span></div><span className="release-label">MILESTONE 04</span></div>
+          <div className="capability-note"><div><Sparkles size={17}/><span><strong>Platform capabilities are being rolled out progressively.</strong> Planned modules are clearly marked and will become available as their milestones ship.</span></div><span className="release-label">MILESTONE 05</span></div>
         </>}
         {!loading && !overview && !error && <div className="notice">No overview data is available yet.</div>}
         <footer className="page-footer"><span>© 2026 ContinuityGrid · Enterprise operational resilience</span><span>Tenant-scoped workspace <i/> Secure session</span></footer>
+        </>}
       </div>
     </main>
   </div>;

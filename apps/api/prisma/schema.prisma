@@ -66,6 +66,21 @@ enum CriticalityTier {
   LOW
 }
 
+enum BiaStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  RETIRED
+}
+
+enum ImpactHorizon {
+  IMMEDIATE
+  FOUR_HOURS
+  TWENTY_FOUR_HOURS
+  SEVENTY_TWO_HOURS
+  ONE_WEEK
+}
+
 model Organization {
   id          String             @id @default(uuid()) @db.Uuid
   name        String             @db.VarChar(160)
@@ -81,6 +96,7 @@ model Organization {
   assets      TechnologyAsset[]
   suppliers   Supplier[]
   dependencies Dependency[]
+  biaAssessments BusinessImpactAssessment[]
 
   @@index([status])
   @@map("organizations")
@@ -146,6 +162,7 @@ model BusinessProcess {
   createdAt      DateTime     @default(now()) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  biaAssessments BusinessImpactAssessment[]
 
   @@unique([organizationId, name])
   @@index([organizationId])
@@ -258,4 +275,49 @@ model AuditEvent {
   @@index([actorUserId, createdAt])
   @@index([action, createdAt])
   @@map("audit_events")
+}
+
+
+model BusinessImpactAssessment {
+  id               String       @id @default(uuid()) @db.Uuid
+  organizationId   String       @map("organization_id") @db.Uuid
+  processId        String       @map("process_id") @db.Uuid
+  version          Int          @default(1)
+  status           BiaStatus    @default(DRAFT)
+  ownerName        String       @map("owner_name") @db.VarChar(120)
+  mtpdMinutes      Int          @map("mtpd_minutes")
+  rtoMinutes       Int          @map("rto_minutes")
+  rpoMinutes       Int          @map("rpo_minutes")
+  rationale        String       @db.Text
+  criticality      CriticalityTier @default(MEDIUM)
+  impactScore      Int          @map("impact_score")
+  reviewDueAt      DateTime?    @map("review_due_at")
+  submittedAt      DateTime?    @map("submitted_at")
+  approvedAt       DateTime?    @map("approved_at")
+  approvedBy       String?      @map("approved_by") @db.VarChar(120)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  process          BusinessProcess @relation(fields: [processId], references: [id], onDelete: Restrict)
+  impacts          BiaImpactSnapshot[]
+
+  @@unique([organizationId, processId, version])
+  @@index([organizationId, status, updatedAt])
+  @@index([organizationId, criticality])
+  @@map("business_impact_assessments")
+}
+
+model BiaImpactSnapshot {
+  id              String        @id @default(uuid()) @db.Uuid
+  assessmentId    String        @map("assessment_id") @db.Uuid
+  horizon         ImpactHorizon
+  financial       Int
+  operational     Int
+  regulatory      Int
+  reputational    Int
+  createdAt       DateTime      @default(now()) @map("created_at")
+  assessment      BusinessImpactAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assessmentId, horizon])
+  @@map("bia_impact_snapshots")
 }
