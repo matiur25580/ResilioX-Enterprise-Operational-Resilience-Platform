@@ -44,6 +44,7 @@ CREATE TABLE "governance_policies" (
   "approved_by_user_id" UUID,
   "submitted_at" TIMESTAMP(3),
   "approved_at" TIMESTAMP(3),
+  "approval_rationale" TEXT,
   "status" "GovernancePolicyStatus" NOT NULL DEFAULT 'DRAFT',
   "review_due_at" TIMESTAMP(3),
   "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
