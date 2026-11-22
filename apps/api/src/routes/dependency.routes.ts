@@ -138,7 +138,7 @@ dependencyRouter.patch('/:dependencyId/status', requirePermission('continuity:wr
     DISPUTED: ['PROPOSED', 'VERIFIED', 'RETIRED'],
     RETIRED: [],
   };
-  if (!allowed[current.status].includes(input.status)) throw new AppError(409, 'DEPENDENCY_INVALID_TRANSITION', 'This dependency status transition is not permitted.');
+  if (!(allowed[current.status] ?? []).includes(input.status)) throw new AppError(409, 'DEPENDENCY_INVALID_TRANSITION', 'This dependency status transition is not permitted.');
   const result = await prisma.$transaction(async tx => {
     const update = await tx.dependency.updateMany({
       where: { id: dependencyId, organizationId, status: current.status },
