@@ -129,7 +129,9 @@ Detailed design: [Milestone 09 specification](milestone-09.md).
 ## 11 — Third-party resilience — implementation in progress ([specification](milestone-11.md))
 **Delivered in this branch:** tenant-scoped supplier register, contract recovery commitments and service links, versioned risk assessments, evidence references, independent approval and verified dependency exposure summary.
 
-**Remaining acceptance:** authenticated cross-tenant integration tests, browser workflow coverage, accessibility review and operational scoring review.
+**Additional verification delivered:** two-tenant supplier isolation integration test and Chromium end-to-end supplier workflow (sign-in, supplier, contract, assessment, evidence and review submission).
+
+**Remaining acceptance:** broader multi-role tenant coverage, dedicated accessibility review and operational scoring review.
 
 **Deliverables**
 - Supplier and service catalog, criticality and assessments.
