@@ -2,6 +2,10 @@
 
 The root README defines a **12-image, single-column gallery**. Each image should be a genuine capture from the running React application, with its editorial caption directly below it.
 
+## Run from GitHub Actions
+
+After deploying a synthetic demo workspace, add repository Actions secrets `DEMO_EMAIL` and `DEMO_PASSWORD`. Open **Actions → Capture dashboard showcase → Run workflow**, then provide the deployed base URL and workspace slug. The workflow installs dependencies with `npm install` (this repository does not commit a root package lock), installs Chromium, captures the twelve real screens, validates every expected PNG, and commits the images to `main`. Never use production credentials or customer data.
+
 ## Capture a local or preview workspace
 
 Use a synthetic demo tenant only. Do not use production credentials or real customer records.
