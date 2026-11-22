@@ -5,7 +5,7 @@ import { api } from './api';
 type Service={id:string;name:string;criticality:string;ownerName:string|null};
 type Action={id:string;title:string;ownerName:string;severity:string;dueAt:string;status:string};
 type Exercise={id:string;title:string;exerciseType:string;scenario:string;objectives:string;scheduledAt:string;status:string;result:string|null;findings:string|null;actions:Action[]};
-type Plan={id:string;title:string;version:number;ownerName:string;rtoMinutes:number;rpoMinutes:number;status:string;reviewDueAt:string|null;scope:string;recoveryStrategy:string;service:Service;exercises:Exercise[]};
+type Plan={id:string;title:string;version:number;ownerName:string;rtoMinutes:number;rpoMinutes:number;status:string;reviewDueAt:string|null;scope:string;activationCriteria:string;recoveryStrategy:string;recoveryProcedures:string;communicationsPlan:string;service:Service;exercises:Exercise[]};
 type Summary={totalPlans:number;approvedPlans:number;reviewOverdue:number;upcomingExercises:number;failedExercises:number;openActions:number;overdueActions:number};
 const dateValue=(days:number)=>new Date(Date.now()+days*86400000).toISOString().slice(0,16);
 const statusTone=(s:string)=>s.toLowerCase();
