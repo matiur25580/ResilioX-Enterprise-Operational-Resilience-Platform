@@ -16,10 +16,13 @@ export function calculateScenarioImpact(input: {
   const nodeKey = (node: GraphNode) => node.type + ':' + node.id;
   const byKey = new Map(input.nodes.map(node => [nodeKey(node), node] as const));
   const adjacency = new Map<string, GraphEdge[]>();
+  const reverseTraversal = input.root.type !== 'BUSINESS_SERVICE';
   for (const edge of input.edges) {
     if (edge.status !== 'VERIFIED') continue;
-    const key = nodeKey({ type: edge.sourceType, id: edge.sourceId });
-    adjacency.set(key, [...(adjacency.get(key) ?? []), edge]);
+    const from = reverseTraversal
+      ? nodeKey({ type: edge.targetType, id: edge.targetId })
+      : nodeKey({ type: edge.sourceType, id: edge.sourceId });
+    adjacency.set(from, [...(adjacency.get(from) ?? []), edge]);
   }
   const rootKey = nodeKey(input.root);
   const queue: Array<{ key: string; depth: number; path: string[] }> = [{ key: rootKey, depth: 0, path: [input.root.name] }];
@@ -30,7 +33,9 @@ export function calculateScenarioImpact(input: {
     const node = byKey.get(current.key);
     if (node) affected.push({ node, depth: current.depth, path: current.path });
     for (const edge of adjacency.get(current.key) ?? []) {
-      const nextKey = nodeKey({ type: edge.targetType, id: edge.targetId });
+      const nextKey = reverseTraversal
+        ? nodeKey({ type: edge.sourceType, id: edge.sourceId })
+        : nodeKey({ type: edge.targetType, id: edge.targetId });
       if (visited.has(nextKey)) continue;
       visited.add(nextKey);
       const next = byKey.get(nextKey);
@@ -49,7 +54,7 @@ export function calculateScenarioImpact(input: {
     input: { root: input.root, severity: input.severity, durationHours: input.durationHours },
     assumptions: [
       'Only VERIFIED dependency edges are traversed; proposed, disputed and retired relationships are excluded.',
-      'Impact propagates along the recorded source-to-target direction; the graph is not live infrastructure telemetry.',
+      'Business-service scenarios follow dependencies outward; component/supplier scenarios trace incoming dependents in reverse. The graph is not live infrastructure telemetry.',
       'Criticality and disruption duration are heuristic prioritization inputs, not probabilistic outage forecasts.',
       'RTO values are shown only from approved continuity plans and are not a prediction of actual recovery time.',
       'No infrastructure, failover, restore, paging or external control-plane action is executed.',
