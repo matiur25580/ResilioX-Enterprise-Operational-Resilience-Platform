@@ -18,6 +18,7 @@ ContinuityGrid is a multi-tenant resilience workspace that connects business ser
 - [Why this project is different](#why-this-project-is-different)
 - [Capabilities](#capabilities)
 - [Dashboard showcase — 12 views](#dashboard-showcase--12-views)
+- [Enterprise relevance and framework alignment](#enterprise-relevance-and-framework-alignment)
 - [Architecture](#architecture)
 - [Technology stack](#technology-stack)
 - [Security and enterprise controls](#security-and-enterprise-controls)
@@ -94,6 +95,25 @@ The intended gallery is a **single-column, full-width sequence** with one genuin
 12. **Remediation tracker** — post-exercise findings, owners, severity, due dates and action status. `docs/screenshots/12-remediation-tracker.png`
 
 Do not replace missing captures with generated illustrations or empty placeholder images. See [Demo workspace and screenshot capture](#demo-workspace-and-screenshot-capture) for the exact command and required environment variables.
+
+## Enterprise relevance and framework alignment
+
+ResilioX is designed around operational-resilience workflows that are increasingly important to regulated and digitally dependent organizations. The product direction is informed by:
+
+| Reference | Relevant product workflows | Product boundary |
+| --- | --- | --- |
+| **DORA (EU) 2022/2554** | ICT risk context, critical-function dependencies, incident response, continuity/recovery plans and resilience testing evidence | Workflow support does not establish DORA compliance or replace regulatory reporting controls. |
+| **NIST CSF 2.0** | Govern/Identify/Protect/Detect/Respond/Recover mapping across risk, service inventory, incident and continuity workflows | Framework mapping is an aid to governance, not a certification or control attestation. |
+| **NIST SP 800-61 Rev. 3** | Incident response preparation, coordinated response, recovery and post-incident improvement | Incident handling integrations and live detection feeds are not currently claimed. |
+| **ISO 22301** | Business impact analysis, continuity planning, exercises, corrective actions and continual improvement | The product does not certify an organization or determine conformity. |
+
+The next differentiating release is **Incident & Crisis Management**: a governed incident command timeline linked to affected services, accountable responders, decisions, actions and continuity plans. This connects operational risk and business continuity to a practical response workflow.
+
+Primary references:
+- [EU Digital Operational Resilience Act — Regulation (EU) 2022/2554](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R2554)
+- [NIST Cybersecurity Framework 2.0](https://www.nist.gov/cyberframework)
+- [NIST SP 800-61 Rev. 3 — Incident Response Recommendations](https://csrc.nist.gov/pubs/sp/800/61/r3/final)
+- [ISO 22301 — Business continuity management systems](https://www.iso.org/standard/75106.html)
 
 ## Architecture
 
