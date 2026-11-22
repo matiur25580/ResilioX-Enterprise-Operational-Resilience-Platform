@@ -645,6 +645,7 @@ model IncidentTask {
   createdAt   DateTime              @default(now()) @map("created_at")
   updatedAt   DateTime              @updatedAt @map("updated_at")
   incident    Incident              @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  recoverySteps RecoverySimulationStep[]
 
   @@index([incidentId, status, dueAt])
   @@map("incident_tasks")
@@ -752,11 +753,15 @@ model RecoverySimulationStep {
   rationale String? @db.Text
   evidenceReference String? @map("evidence_reference") @db.VarChar(500)
   waiverRationale String? @map("waiver_rationale") @db.Text
+  remediationTaskId String? @map("remediation_task_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
   simulation RecoverySimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
   runbookStep RecoveryRunbookStep @relation(fields: [runbookStepId], references: [id], onDelete: Restrict)
+  remediationTask IncidentTask? @relation(fields: [remediationTaskId], references: [id], onDelete: SetNull)
+  validations RecoveryStepValidation[]
   @@unique([simulationId, runbookStepId])
+  @@index([remediationTaskId])
   @@index([simulationId, status])
   @@map("recovery_simulation_steps")
 }
@@ -772,4 +777,20 @@ model RecoveryEvent {
   simulation RecoverySimulation @relation(fields: [simulationId], references: [id], onDelete: Cascade)
   @@index([simulationId, createdAt])
   @@map("recovery_events")
+}
+
+
+model RecoveryStepValidation {
+  id String @id @default(uuid()) @db.Uuid
+  simulationStepId String @map("simulation_step_id") @db.Uuid
+  actorUserId String? @map("actor_user_id") @db.Uuid
+  validationType String @map("validation_type") @db.VarChar(80)
+  result String @db.VarChar(40)
+  details String @db.Text
+  evidenceReference String? @map("evidence_reference") @db.VarChar(500)
+  createdAt DateTime @default(now()) @map("created_at")
+  simulationStep RecoverySimulationStep @relation(fields: [simulationStepId], references: [id], onDelete: Cascade)
+
+  @@index([simulationStepId, createdAt])
+  @@map("recovery_step_validations")
 }
