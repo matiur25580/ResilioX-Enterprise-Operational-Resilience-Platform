@@ -87,7 +87,9 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Approval transitions are permission-checked.
 - Plan versions and exercise evidence are traceable.
 
-## 09 — Incident and crisis management — next delivery
+## 09 — Incident and crisis management — scoped for next delivery
+
+Detailed design: [Milestone 09 specification](milestone-09.md).
 
 **Product outcome:** give resilience, technology and business teams one governed command workflow from incident declaration through recovery and post-incident learning.
 
