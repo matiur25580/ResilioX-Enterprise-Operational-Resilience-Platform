@@ -6,6 +6,8 @@ type Control = { id: string; name: string; description: string; controlType: str
 type Link = { id: string; effectiveness: number; notes: string | null; control: Control };
 type Treatment = { id: string; title: string; ownerName: string; dueAt: string; status: string };
 type Risk = { id: string; title: string; description: string; category: string; ownerName: string; likelihood: number; impact: number; inherentScore: number; residualScore: number; status: string; targetType: string | null; targetId: string | null; controls: Link[]; treatments: Treatment[] };
+type Target = { id: string; name: string; type: string };
+type DependencyTarget = { id: string; type: string; status: string; sourceType: string; targetType: string };
 type Summary = { totalRisks: number; criticalRisks: number; highRisks: number; averageResidualScore: number; controls: Record<string, number> };
 
 const band = (score: number) => score >= 17 ? 'critical' : score >= 10 ? 'high' : score >= 5 ? 'moderate' : 'low';
@@ -15,13 +17,15 @@ export function RiskPage({ token }: { token: string }) {
   const [risks, setRisks] = useState<Risk[]>([]);
   const [controls, setControls] = useState<Control[]>([]);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [targets, setTargets] = useState<Target[]>([]);
+  const [dependencyTargets, setDependencyTargets] = useState<DependencyTarget[]>([]);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [showRisk, setShowRisk] = useState(false);
   const [showControl, setShowControl] = useState(false);
-  const [riskForm, setRiskForm] = useState({ title: '', description: '', category: 'Technology', ownerName: '', likelihood: '3', impact: '3' });
+  const [riskForm, setRiskForm] = useState({ title: '', description: '', category: 'Technology', ownerName: '', likelihood: '3', impact: '3', targetType: '', targetId: '' });
   const [controlForm, setControlForm] = useState({ name: '', description: '', controlType: 'Preventive', ownerName: '', frequency: 'Continuous' });
   const [linkForms, setLinkForms] = useState<Record<string, { controlId: string; effectiveness: string }>>({});
   const [treatmentForms, setTreatmentForms] = useState<Record<string, { title: string; ownerName: string; dueAt: string }>>({});
@@ -87,6 +91,8 @@ export function RiskPage({ token }: { token: string }) {
         <label>Risk owner<input required minLength={2} value={riskForm.ownerName} onChange={e => setRiskForm(v => ({ ...v, ownerName: e.target.value }))} placeholder="Accountable owner"/></label>
         <label>Likelihood (1–5)<select value={riskForm.likelihood} onChange={e => setRiskForm(v => ({ ...v, likelihood: e.target.value }))}>{[1,2,3,4,5].map(x => <option key={x}>{x}</option>)}</select></label>
         <label>Impact (1–5)<select value={riskForm.impact} onChange={e => setRiskForm(v => ({ ...v, impact: e.target.value }))}>{[1,2,3,4,5].map(x => <option key={x}>{x}</option>)}</select></label>
+        <label>Target type (optional)<select value={riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetType: e.target.value, targetId: '' }))}><option value="">No linked target</option>{['BUSINESS_SERVICE','BUSINESS_PROCESS','APPLICATION','TECHNOLOGY_ASSET','SUPPLIER','DEPENDENCY'].map(x => <option key={x} value={x}>{x.replaceAll('_',' ')}</option>)}</select></label>
+        <label>Linked service / asset / dependency<select value={riskForm.targetId} disabled={!riskForm.targetType} onChange={e => setRiskForm(v => ({ ...v, targetId: e.target.value }))}><option value="">Select target…</option>{(riskForm.targetType === 'DEPENDENCY' ? dependencyTargets.filter(d => d.status !== 'RETIRED').map(d => ({ id: d.id, name: d.sourceType.replaceAll('_',' ') + ' → ' + d.targetType.replaceAll('_',' ') + ' (' + d.status + ')' })) : targets.filter(t => t.type === riskForm.targetType)).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>
       </div>
       <label className="risk-wide">Risk statement<textarea required minLength={10} maxLength={10000} value={riskForm.description} onChange={e => setRiskForm(v => ({ ...v, description: e.target.value }))} placeholder="Describe the cause, uncertain event and operational consequence…"/></label>
       <div className="risk-form-foot"><span>Scoring bands: 1–4 low · 5–9 moderate · 10–16 high · 17–25 critical</span><button className="primary-btn" disabled={busy}>Save risk</button></div>
