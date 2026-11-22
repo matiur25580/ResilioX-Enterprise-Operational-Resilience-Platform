@@ -50,7 +50,7 @@ describe('scenario simulation authorization and tenant boundaries', () => {
     } finally {
       const organizationIds = [owner.organizationId, foreign.organizationId, analyst.organizationId];
       await prisma.$transaction(async tx => {
-          await tx.$executeRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
+          await tx.$queryRawUnsafe("SELECT set_config('app.audit_maintenance', 'on', true)");
           await tx.auditEvent.deleteMany({ where: { organizationId: { in: organizationIds } } });
         });
       await prisma.businessService.deleteMany({ where: { organizationId: { in: organizationIds } } });
