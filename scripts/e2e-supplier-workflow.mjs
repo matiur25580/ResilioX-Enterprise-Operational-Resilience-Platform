@@ -60,14 +60,15 @@ try {
   assert.deepEqual(unnamedControls, [], 'Every supplier form control must have an accessible label.');
 
   const addSupplier = page.getByRole('button', { name: /Add supplier/ });
+  await addSupplier.click();
+  assert.equal(await addSupplier.getAttribute('aria-expanded'), 'true');
+  assert.equal(await page.locator('#supplier-register-form').count(), 1);
   await addSupplier.focus();
   await page.keyboard.press('Tab');
   const nextFocusLabel = await page.evaluate(() => document.activeElement?.closest('label')?.textContent?.trim());
   assert.match(nextFocusLabel ?? '', /Supplier name/, 'Keyboard focus should enter the expanded supplier form in DOM order.');
   const focusOutline = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
   assert.equal(focusOutline, 'solid', 'Keyboard focus must have a visible outline.');
-  assert.equal(await addSupplier.getAttribute('aria-expanded'), 'true');
-  assert.equal(await page.locator('#supplier-register-form').count(), 1);
 
   await page.getByLabel('Supplier name').fill(supplierName);
   await page.getByLabel('Website').fill('https://supplier.example.test');
