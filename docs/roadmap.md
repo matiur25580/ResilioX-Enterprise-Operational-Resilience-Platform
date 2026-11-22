@@ -59,9 +59,9 @@ Milestones are delivered sequentially. Each milestone must leave the repository 
 - Business rules and calculations have unit tests.
 - Objective values retain units and review provenance.
 
-## 06 — Service and dependency intelligence
+## 06 — Service and dependency intelligence — In progress (stacked PR pending CI)
 **Deliverables**
-- Business service/process/application/infrastructure/location catalog.
+- Tenant-scoped business service/process/application/technology asset/supplier catalog (location catalog remains future scope).
 - Typed dependency relationships and graph visualization.
 - Impact traversal with cycle detection and explainable paths.
 
