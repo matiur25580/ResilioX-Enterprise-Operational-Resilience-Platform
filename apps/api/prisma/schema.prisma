@@ -237,6 +237,9 @@ model Organization {
   controls Control[]
   continuityPlans ContinuityPlan[]
   incidents Incident[]
+  governanceEvidence GovernanceEvidence[]
+  governancePolicies GovernancePolicy[]
+  policyEvidenceLinks PolicyEvidenceLink[]
 
   @@index([status])
   @@map("organizations")
