@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, milestone-03-identity, milestone-04-command-center, milestone-05-business-impact-analysis, milestone-06-dependency-intelligence, feat/milestone-11-third-party-resilience]
+    branches: [main, milestone-03-identity, milestone-04-command-center, milestone-05-business-impact-analysis, milestone-06-dependency-intelligence, feat/milestone-11-third-party-resilience, feat/milestone-12-scenario-simulation]
 
 permissions:
   contents: read
