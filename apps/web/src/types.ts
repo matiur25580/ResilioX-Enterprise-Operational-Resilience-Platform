@@ -40,5 +40,5 @@ export interface Overview {
     actorName: string;
     occurredAt: string;
   }[];
-  capabilities: Record<string, 'planned'>;
+  capabilities: Record<string, 'planned' | 'available'>;
 }
