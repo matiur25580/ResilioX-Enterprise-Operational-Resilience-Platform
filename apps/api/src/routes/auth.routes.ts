@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import argon2 from 'argon2';
 import { z } from 'zod';
@@ -20,19 +20,19 @@ const registerSchema = z.object({
 });
 const loginSchema = z.object({ email: z.string().email().transform(v => v.trim().toLowerCase()), password: z.string().min(1).max(128), organizationSlug: z.string().trim().toLowerCase().min(2).max(80) });
 
-function cookieValue(req: Parameters<typeof authRouter.post>[1] extends never ? never : any): string | undefined {
+function cookieValue(req: Request): string | undefined {
   const raw = req.headers.cookie as string | undefined;
   const item = raw?.split(';').map(v => v.trim()).find(v => v.startsWith(env.REFRESH_COOKIE_NAME + '='));
   return item ? decodeURIComponent(item.slice(env.REFRESH_COOKIE_NAME.length + 1)) : undefined;
 }
-function setRefreshCookie(res: any, token: string) {
+function setRefreshCookie(res: Response, token: string) {
   const maxAge = env.REFRESH_TOKEN_TTL_DAYS * 86400;
   res.setHeader('Set-Cookie', `${env.REFRESH_COOKIE_NAME}=${encodeURIComponent(token)}; HttpOnly; Path=${env.API_BASE_PATH}/auth; SameSite=Strict; Max-Age=${maxAge}${env.COOKIE_SECURE ? '; Secure' : ''}`);
 }
-function clearRefreshCookie(res: any) {
+function clearRefreshCookie(res: Response) {
   res.setHeader('Set-Cookie', `${env.REFRESH_COOKIE_NAME}=; HttpOnly; Path=${env.API_BASE_PATH}/auth; SameSite=Strict; Max-Age=0${env.COOKIE_SECURE ? '; Secure' : ''}`);
 }
-async function createSession(userId: string, membership: { id: string; organizationId: string; role: string }, req: any, res: any, familyId = randomUUID()) {
+async function createSession(userId: string, membership: { id: string; organizationId: string; role: string }, req: Request, res: Response, familyId = randomUUID()) {
   const refreshToken = createRefreshToken();
   const session = await prisma.refreshSession.create({ data: {
     userId, tokenHash: hashRefreshToken(refreshToken), familyId,
