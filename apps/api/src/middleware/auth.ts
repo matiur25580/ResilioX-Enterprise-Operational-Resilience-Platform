@@ -11,6 +11,7 @@ declare global {
   }
 }
 
+// Verify the access token and re-check its session, membership, and organization against current database state.
 export async function requireAuth(req: Request, _res: Response, next: NextFunction) {
   try {
     const header = req.header('authorization');
