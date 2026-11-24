@@ -2,6 +2,7 @@ export type GraphEdge = { id: string; sourceType: string; sourceId: string; targ
 export type GraphNode = { type: string; id: string };
 const key = (type: string, id: string) => type + ':' + id;
 
+// Traverse active directed dependencies breadth-first to determine whether one resource can reach another.
 export function hasDirectedPath(edges: GraphEdge[], start: GraphNode, target: GraphNode): boolean {
   const adjacency = new Map<string, string[]>();
   for (const edge of edges) {
