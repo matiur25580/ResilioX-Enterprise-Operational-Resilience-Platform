@@ -22,6 +22,7 @@ export function issueAccessToken(claims: Omit<AccessClaims, 'iat' | 'exp'>): str
   return input + '.' + signature(input);
 }
 
+// Validate token structure, constant-time HMAC signature, required claims, and expiry before returning identity data.
 export function verifyAccessToken(token: string): AccessClaims {
   const parts = token.split('.');
   if (parts.length !== 3) throw new Error('Invalid token');
