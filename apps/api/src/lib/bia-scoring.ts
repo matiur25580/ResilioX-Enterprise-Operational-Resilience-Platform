@@ -2,6 +2,7 @@ export const impactHorizons = ['IMMEDIATE', 'FOUR_HOURS', 'TWENTY_FOUR_HOURS', '
 export type ImpactScores = { financial: number; operational: number; regulatory: number; reputational: number };
 
 /** Uses the highest combined four-dimension impact at any horizon (1–5 per dimension). */
+// Use the maximum combined impact across assessed time horizons as the business-impact score.
 export function calculateImpactScore(snapshots: ImpactScores[]): number {
   if (snapshots.length === 0) throw new Error('At least one impact horizon is required.');
   return Math.max(...snapshots.map(item => item.financial + item.operational + item.regulatory + item.reputational));
