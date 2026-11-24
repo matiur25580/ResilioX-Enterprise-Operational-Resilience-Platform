@@ -7,6 +7,7 @@ export function calculateInherentRisk(likelihood: number, impact: number): numbe
   return likelihood * impact;
 }
 
+// Reduce inherent risk using the average validated control-effectiveness percentage; no controls leave risk unchanged.
 export function calculateResidualRisk(inherentScore: number, effectiveness: number[]): number {
   if (!Number.isInteger(inherentScore) || inherentScore < 1 || inherentScore > 25) throw new Error('Inherent risk score must be from 1 to 25.');
   if (effectiveness.some(value => !Number.isInteger(value) || value < 0 || value > 100)) throw new Error('Control effectiveness must be from 0 to 100.');
