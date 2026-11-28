@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main, milestone-03-identity, milestone-04-command-center, milestone-05-business-impact-analysis, milestone-06-dependency-intelligence]
+    branches: [main, milestone-03-identity, milestone-04-command-center, milestone-05-business-impact-analysis, milestone-06-dependency-intelligence, feat/milestone-11-third-party-resilience]
 
 permissions:
   contents: read
@@ -61,3 +61,15 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
+      - name: Run authenticated supplier browser workflow
+        env:
+          NODE_ENV: test
+          AUTH_TOKEN_SECRET: ci-only-test-secret-do-not-use-in-production-32chars
+          DATABASE_URL: postgresql://continuitygrid:continuitygrid_dev@localhost:5432/continuitygrid?schema=public
+          CORS_ORIGIN: http://127.0.0.1:4173
+        run: |
+          nohup npm run dev:api > /tmp/resiliox-api.log 2>&1 &
+          nohup npm run preview --workspace @continuitygrid/web -- --host 127.0.0.1 > /tmp/resiliox-web.log 2>&1 &
+          node scripts/e2e-supplier-workflow.mjs
