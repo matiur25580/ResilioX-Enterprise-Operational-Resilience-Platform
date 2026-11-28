@@ -37,3 +37,33 @@
 
 .incident-card{border-left:3px solid #d7e2f2}.incident-meta{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}.incident-meta span{font-size:9px;color:#8391a2}.incident-status-stack{display:grid;justify-items:end;gap:7px;min-width:130px}.incident-severity,.incident-state{font-size:8px;font-weight:800;letter-spacing:.6px;border-radius:5px;padding:6px 8px;white-space:nowrap}.incident-severity.sev1{background:#fff0f0;color:#c34f54}.incident-severity.sev2{background:#fff5e8;color:#b77b30}.incident-severity.sev3{background:#edf3ff;color:#5276b4}.incident-severity.sev4{background:#edf7f2;color:#448c70}.incident-state{background:#eef2f7;color:#66778d}.incident-state.state-active,.incident-state.state-mitigating{background:#fff5e8;color:#ad7836}.incident-state.state-resolved,.incident-state.state-closed{background:#eaf7f1;color:#399a78}.incident-state.state-detected{background:#fff0f0;color:#bf555b}.incident-plan-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.incident-plan-actions .primary-btn{padding:0 12px;height:34px;font-size:10px}.incident-severity-select{display:flex;align-items:center;gap:7px;font-size:9px;color:#7c899a}.incident-severity-select select,.continuity-action-row select{border:1px solid #dfe6ee;border-radius:6px;background:#fbfcfe;padding:7px;color:#53647a;font:10px 'DM Sans',sans-serif}.incident-workspace{border-top:1px solid #edf0f4;margin-top:15px;padding-top:16px}.incident-columns{display:grid;grid-template-columns:1fr 1fr;gap:20px}.incident-columns h4{font:700 11px Manrope;color:#35475e;margin:0 0 10px}.incident-update-label{display:grid;gap:7px;font-size:10px;color:#53647a;font-weight:700}.incident-update-label textarea{width:100%;min-height:66px;resize:vertical;border:1px solid #dfe6ee;border-radius:7px;padding:9px;font:11px 'DM Sans',sans-serif}.incident-workspace .exercise-form>.primary-btn{padding:0 12px;height:34px;font-size:10px;margin-top:8px}.incident-timeline{margin-top:12px;display:grid;gap:0}.incident-event{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f2f5}.incident-event-dot{width:7px;height:7px;border-radius:50%;background:#6992d5;margin-top:4px;flex:none;box-shadow:0 0 0 4px #6992d51b}.incident-event strong{font-size:9px;color:#45566c}.incident-event p{font-size:10px;line-height:1.5;color:#6f7e90;margin:4px 0}.incident-event small{font-size:8px;color:#9aa5b2}
 @media(max-width:700px){.incident-columns{grid-template-columns:1fr}.incident-plan-head{flex-direction:column}.incident-status-stack{justify-items:start;display:flex;flex-wrap:wrap}.incident-meta{gap:8px;flex-direction:column}.incident-severity-select{width:100%;justify-content:space-between}.incident-severity-select select{flex:1}}
+
+
+/* Milestone 10 — disaster recovery workspace */
+.recovery-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.recovery-safety{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border:1px solid #cfe5dc;background:#f1faf6;border-radius:10px;color:#27775e;margin:16px 0}
+.recovery-safety div{display:grid;gap:3px}.recovery-safety strong{font-size:12px}.recovery-safety span{font-size:11px;color:#5b7e71;line-height:1.5}
+.recovery-register{margin-top:16px;padding:18px}
+.recovery-runbook-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:17px 0;border-top:1px solid var(--line)}
+.recovery-runbook-main{min-width:0}.recovery-runbook-main h3{font:700 15px Manrope,sans-serif;margin:5px 0;color:#25364b}.recovery-runbook-main p{font-size:11px;color:#718096;line-height:1.5;margin:0 0 8px}.recovery-runbook-main small,.recovery-step-line small{font-size:10px;color:#8793a3;line-height:1.5}
+.recovery-runbook-controls{display:flex;gap:7px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.recovery-step-builder{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
+.recovery-step-edit{padding:13px;margin-top:10px;border:1px solid #e6ebf1;border-radius:9px;background:#fafbfd}
+.recovery-step-edit>strong{font-size:10px;color:#4778d8;letter-spacing:.08em}
+.recovery-step-list{grid-column:1/-1;border-top:1px solid var(--line);padding-top:13px;display:grid;gap:12px}
+.recovery-step-line{padding:12px;border:1px solid #e8edf3;border-radius:8px;background:#fbfcfe}
+.recovery-step-line>strong,.recovery-step-title strong{font-size:12px;color:#33445a}
+.recovery-step-line p{font-size:11px;color:#68788c;line-height:1.5;margin:5px 0}
+.recovery-step-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.recovery-inline-form{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px dashed #e0e6ed}
+.recovery-inline-form label,.recovery-complete-form label{display:grid;gap:5px;flex:1;min-width:140px;font-size:10px;color:#617188}
+.recovery-inline-form input,.recovery-inline-form select,.recovery-complete-form input,.recovery-complete-form textarea{width:100%;min-height:34px;border:1px solid #dfe6ee;border-radius:7px;padding:7px 9px;background:#fff;font:11px 'DM Sans',sans-serif;color:#33445a}
+.recovery-complete-form{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;align-items:end;margin-top:14px;padding:13px;background:#f5f8fc;border-radius:8px}
+.recovery-complete-form h4{grid-column:1/-1;margin:0;font:700 12px Manrope,sans-serif;color:#33445a}
+.recovery-complete-form textarea{min-height:55px;resize:vertical}
+.recovery-validation{display:grid;gap:4px;margin:8px 0 0 12px;padding-left:10px;border-left:2px solid #74b89b;font-size:10px;color:#617188}
+.recovery-validation strong{color:#34795e}.recovery-validation small{color:#8793a3}
+.recovery-page .text-btn{border:0;background:transparent;color:#b45a5a;font-size:10px;padding:7px 0}
+@media(max-width:760px){.recovery-runbook-row{grid-template-columns:1fr}.recovery-runbook-controls{justify-content:flex-start}.recovery-complete-form{grid-template-columns:1fr}.recovery-complete-form h4{grid-column:auto}.recovery-actions{width:100%}.recovery-actions button{flex:1}}
+
+.recovery-readiness-warning{margin-top:8px;padding:7px 9px;border-radius:6px;background:#fff8e9;color:#9b6b22;font-size:10px;line-height:1.4}

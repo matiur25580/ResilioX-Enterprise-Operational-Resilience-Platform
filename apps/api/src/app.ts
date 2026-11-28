@@ -14,6 +14,7 @@ import { dependencyRouter } from './routes/dependency.routes.js';
 import { riskRouter } from './routes/risk.routes.js';
 import { continuityRouter } from './routes/continuity.routes.js';
 import { incidentRouter } from './routes/incident.routes.js';
+import { recoveryRouter } from './routes/recovery.routes.js';
 
 export const app = express();
 
@@ -64,5 +65,6 @@ app.use(`${env.API_BASE_PATH}/dependencies`, dependencyRouter);
 app.use(`${env.API_BASE_PATH}/risks`, riskRouter);
 app.use(`${env.API_BASE_PATH}/continuity`, continuityRouter);
 app.use(`${env.API_BASE_PATH}/incidents`, incidentRouter);
+app.use(`${env.API_BASE_PATH}/recovery`, recoveryRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

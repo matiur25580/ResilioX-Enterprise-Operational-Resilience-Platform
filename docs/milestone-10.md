@@ -1,140 +1,76 @@
 # Milestone 10 — Disaster Recovery Orchestration
 
-**Status:** design baseline prepared; implementation is the next delivery increment.
+**Status:** implementation delivered in draft PR; CI verification and review are pending. Deployment and production acceptance have not been performed.
 
-## Product objective
+## Scope and safety boundary
 
-Give resilience and technology teams a governed way to prepare, approve, simulate and review disaster-recovery runbooks for business services. The workflow connects approved continuity plans, service dependencies, recovery objectives and incident response without claiming to execute infrastructure changes.
+This milestone provides governed recovery runbooks and rehearsal-only simulations for tenant business services. It does not execute infrastructure recovery, automatic failover, data restoration, DNS/network changes, cloud provisioning or external paging. RTO/RPO assessments use operator-entered rehearsal values and are not proof of live recovery capability.
 
-## Product boundary
+## Delivered capabilities
 
-- The initial release is **simulation-only**. A runbook execution records operator decisions and simulated step outcomes; it does not call cloud, infrastructure, database, identity or network control planes.
-- No automatic failover, data restoration, DNS change, infrastructure provisioning or external paging is implied.
-- Real execution requires a separately reviewed adapter, explicit tenant configuration, least-privilege credentials, approval gates, idempotency, dry-run support and auditable rollback behavior.
-- RTO/RPO values are targets from approved continuity/BIA records, not guarantees that a simulation has met them.
+### Runbook governance
+- Tenant-scoped runbook register and detail reads.
+- Draft creation with ordered steps, role ownership, estimates, validation criteria and prerequisite edges.
+- Dependency-cycle and invalid-step-reference rejection.
+- Optional link to an approved continuity plan for the same service; linked RTO/RPO values are inherited.
+- Submit, independent maker-checker approval, retirement and new draft version cloning.
+- Approved versions are not edited in place; cloning preserves the source version and its step prerequisites.
+- Audit events are committed with lifecycle changes.
 
-## User outcomes
+### Rehearsal simulation
+- Create a simulation from an approved runbook version and optionally link an incident in the same tenant.
+- Capture a point-in-time snapshot of service dependency edges and runbook step prerequisites at simulation creation.
+- Explicit prerequisite acknowledgement before start.
+- Guarded step lifecycle, prerequisite enforcement and required rationale for failed, blocked or waived steps.
+- Operator-entered outcome, validation evidence and optional link to an incident remediation task.
+- Step validation records support PASS, FAIL and INCONCLUSIVE results; failed or inconclusive validations close the rehearsal as BLOCKED.
+- Completion records simulated elapsed time and assumed data loss, then compares both with known RTO/RPO targets. Missing targets remain UNKNOWN rather than being treated as zero.
+- Cancellation requires a rationale; all mutations create timeline and audit records transactionally.
 
-- Recovery owners can maintain versioned, service-linked recovery runbooks.
-- Reviewers can approve a specific immutable runbook version before it is used.
-- Incident commanders can launch a simulation from an incident or continuity plan and see prerequisites, step outcomes and elapsed time.
-- Operators can record evidence, blockers, decisions and recovery validation.
-- Executives can compare simulated recovery duration with approved RTO/RPO targets and see assumptions and gaps.
+### Workspace UI
+- Recovery navigation entry with responsive runbook register and editor.
+- Approved continuity-plan selector, review/approval/retirement and version-cloning actions.
+- Rehearsal creation, incident association, step progression, evidence capture, remediation linking and completion summary.
+- Readiness-gap notices for missing owners and recovery objectives.
+- Prominent simulation-only warning.
 
-## Functional scope
+## API surface
 
-### 1. Recovery runbooks
-
-A runbook belongs to one organization and one business service. It contains:
-- Name, purpose, scope, owner and review date.
-- Optional links to an approved continuity plan and its version.
-- Declared RTO/RPO targets with units and provenance.
-- Ordered recovery steps with title, description, responsible role, estimated duration, prerequisites and validation criteria.
-- Explicit dependencies between steps; cycles are rejected.
-- Version number and lifecycle: DRAFT → IN_REVIEW → APPROVED → RETIRED.
-
-Editing an approved runbook creates a new draft version; it must not mutate the approved version used by an existing simulation.
-
-### 2. Approval and governance
-
-- Only OWNER, ADMIN and RESILIENCE_MANAGER can submit, approve or retire runbooks.
-- The author cannot approve their own submission (maker-checker).
-- Approval records reviewer, timestamp, approved version and optional rationale.
-- Only an approved, non-retired version can start a simulation.
-- Every lifecycle transition is written to the audit log in the same transaction as the state change.
-
-### 3. Recovery simulation
-
-A simulation references an immutable runbook version and may optionally reference an incident.
-- States: PLANNED → READY → RUNNING → COMPLETED, with BLOCKED and CANCELLED terminal outcomes for that run.
-- Starting requires all mandatory prerequisites to be acknowledged and a valid approval.
-- Each step records PENDING, READY, IN_PROGRESS, SUCCEEDED, FAILED, BLOCKED or SKIPPED.
-- A step can start only after all prerequisite steps have succeeded or been explicitly waived with a rationale by an authorized operator.
-- Step completion requires an outcome summary; failed/blocked/waived steps require rationale.
-- Record started/completed timestamps, operator, duration, evidence reference and simulated outcome.
-- A simulation is a record of a tabletop or controlled rehearsal, not proof of real recovery capability.
-
-### 4. Service and dependency context
-
-- Validate that service, continuity plan and incident all belong to the authenticated organization.
-- Show verified dependency paths and identify upstream/downstream services relevant to the runbook.
-- Capture a point-in-time dependency snapshot at simulation start so later graph changes do not rewrite the historical exercise.
-- Flag missing owners, unverified dependencies and missing recovery objectives as readiness warnings; do not silently invent values.
-
-### 5. Recovery validation and reporting
-
-- Capture validation checks for service availability, data integrity, business-owner sign-off and communications readiness.
-- Record actual simulated elapsed time separately from target RTO.
-- Record data-loss assumptions and simulated recovery point separately from target RPO.
-- Produce a summary of successful, failed, blocked and waived steps, unresolved risks and corrective actions.
-- Allow a completed simulation to create owner-assigned remediation actions with severity and due date.
-
-## Proposed API surface
-
-All routes are under `/api/v1/recovery` and require authenticated tenant context.
+All routes are mounted under `/api/v1/recovery`. Reads require authentication and are tenant-scoped; writes additionally require `continuity:write`.
 
 | Method | Route | Purpose |
 | --- | --- | --- |
-| GET | `/runbooks` | Tenant-scoped runbook register with bounded filters |
-| POST | `/runbooks` | Create a draft runbook and ordered steps |
-| GET | `/runbooks/:id` | Read runbook and version history |
-| PATCH | `/runbooks/:id` | Edit a draft; approved versions remain immutable |
-| POST | `/runbooks/:id/submit` | Submit a draft for review |
-| POST | `/runbooks/:id/approve` | Approve a submitted version using maker-checker |
-| POST | `/runbooks/:id/retire` | Retire a runbook version |
-| GET | `/simulations` | List simulations and outcomes |
-| POST | `/simulations` | Create a simulation from an approved runbook version |
-| GET | `/simulations/:id` | Read simulation, steps, evidence and timeline |
-| POST | `/simulations/:id/start` | Start after readiness checks |
-| PATCH | `/simulations/:id/steps/:stepId` | Record simulated step progress/outcome |
-| POST | `/simulations/:id/complete` | Complete after required validation |
-| POST | `/simulations/:id/cancel` | Cancel with rationale |
-| POST | `/simulations/:id/actions` | Create remediation from a simulation finding |
+| GET | `/runbooks` | List runbooks with status/service filters and bounded limit |
+| GET | `/runbooks/:runbookId` | Read runbook, service/plan context and simulation history |
+| POST | `/runbooks` | Create a draft with ordered steps and dependencies |
+| POST | `/runbooks/:runbookId/submit` | Submit draft for review |
+| POST | `/runbooks/:runbookId/approve` | Approve with maker-checker protection |
+| POST | `/runbooks/:runbookId/retire` | Retire an approved version with rationale |
+| POST | `/runbooks/:runbookId/versions` | Clone approved/retired version into a new draft |
+| GET | `/simulations` | List tenant simulations |
+| GET | `/simulations/:simulationId` | Read simulation, steps, validations and event timeline |
+| POST | `/simulations` | Create rehearsal from an approved runbook |
+| POST | `/simulations/:simulationId/start` | Start after prerequisite acknowledgement |
+| PATCH | `/simulations/:simulationId/steps/:stepId` | Record step state, outcome and remediation link |
+| POST | `/simulations/:simulationId/steps/:stepId/validations` | Append validation evidence |
+| POST | `/simulations/:simulationId/complete` | Close rehearsal and assess RTO/RPO |
+| POST | `/simulations/:simulationId/cancel` | Cancel with rationale |
 
-## Data model proposal
+## Data model
 
-- `RecoveryRunbook`: organizationId, serviceId, title, description, ownerName, version, status, reviewDueAt, submittedAt, approvedAt, approvedBy, createdAt, updatedAt.
-- `RecoveryRunbookStep`: runbookId, sequence, title, description, responsibleRole, estimatedMinutes, validationCriteria, createdAt.
-- `RecoveryStepDependency`: predecessorStepId, successorStepId; enforce same-runbook ownership and acyclic ordering.
-- `RecoverySimulation`: organizationId, runbookId, runbookVersion, incidentId?, status, startedAt, completedAt, targetRtoMinutes, targetRpoMinutes, simulatedElapsedMinutes, dataLossAssumptionMinutes, dependencySnapshot JSON, summary.
-- `RecoverySimulationStep`: simulationId, runbookStepId, status, operatorName, startedAt, completedAt, outcome, rationale, evidenceReference.
-- `RecoveryValidation`: simulationId, validationType, status, checkedBy, checkedAt, notes.
-- `RecoveryEvent`: simulationId, actorUserId, eventType, message, metadata, createdAt.
+- `RecoveryRunbook`, `RecoveryRunbookStep`, `RecoveryStepDependency`
+- `RecoverySimulation`, `RecoverySimulationStep`, `RecoveryStepValidation`, `RecoveryEvent`
+- Simulation steps may link to an existing incident task as a remediation follow-up. The API validates the task belongs to the same tenant and, when an incident is attached, to that incident.
 
-All tenant-owned relations must be validated against the active organization. Use database constraints for uniqueness and foreign keys wherever possible; use application validation for polymorphic references and graph acyclicity.
+## Verification and remaining release gates
 
-## Security, consistency and resilience
+- Unit tests cover lifecycle policies, maker-checker, dependency cycles, prerequisites and RTO/RPO comparisons.
+- API tests cover unauthenticated access to all read/write route families.
+- CI applies the Prisma migration against PostgreSQL, generates Prisma Client, type-checks API and web workspaces, runs tests and builds the application.
+- CodeQL scans TypeScript.
+- Full authenticated multi-tenant integration tests, role matrix tests, browser-level frontend tests, accessibility review, seed fixtures and production operational acceptance remain additional release-hardening work.
+- Do not deploy until CI and CodeQL pass and the draft PR is reviewed and merged through the repository's normal process.
 
-- Never accept organizationId as authorization context from request data.
-- Apply RBAC on every write route; read access remains tenant-scoped.
-- Use maker-checker for runbook approval.
-- Use optimistic concurrency for concurrent runbook and simulation updates.
-- Write state changes, event timeline entries and audit events in a single database transaction.
-- Keep approved runbook versions and simulation history immutable; corrections are new events or new versions.
-- Bound runbook step counts, graph traversal depth, pagination and evidence-reference lengths.
-- Do not store secrets or raw credentials in runbooks, evidence references or logs.
-- Simulation actions must never call external infrastructure systems.
-- If a real adapter is introduced later, isolate it behind an explicit interface and require dry-run, idempotency, scoped credentials, approvals, timeouts, compensation strategy and operator-visible failure handling.
+## Operational note
 
-## Acceptance and verification
-
-- Unit tests cover lifecycle transition matrices, step prerequisites, dependency-cycle rejection and RTO/RPO comparison.
-- API tests cover authentication, role enforcement, maker-checker, tenant isolation for service/plan/incident references, and immutable approved versions.
-- Simulation tests cover blocked prerequisites, failed steps, explicit waivers, cancellation, duplicate submissions and concurrent updates.
-- Audit tests prove that every state mutation and event commit atomically.
-- Frontend tests cover loading, empty, error, permission-denied, readiness-warning and mobile states.
-- CI must generate Prisma, apply migrations against PostgreSQL, type-check, test and build both workspaces.
-- Documentation and UI must state prominently that the first release is simulation-only.
-
-## Delivery sequence
-
-1. Schema and migration for runbook versions, ordered steps, simulations, validations and events.
-2. Pure domain policies for lifecycle, maker-checker, step prerequisites and simulation readiness.
-3. Tenant-scoped API routes and integration tests.
-4. Recovery workspace UI: runbook register/editor, approval queue and simulation console.
-5. Executive comparison of simulated recovery against RTO/RPO, with assumptions and evidence.
-6. README, API documentation, seed fixtures and release notes.
-
-## Industry context
-
-The workflow is informed by DORA ICT business continuity and recovery expectations, NIST CSF 2.0 Recover outcomes and ISO 22301 continuity planning practices. These references inform product design only; the platform does not certify regulatory compliance or guarantee recovery objectives.
+A real recovery executor would require a separate security design: explicit adapter interfaces, tenant-scoped least-privilege credentials, dry-run, approvals, idempotency, timeouts, rollback/compensation and independent audit controls. None of those external execution capabilities are part of this milestone.
